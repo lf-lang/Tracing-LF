@@ -5,6 +5,9 @@ import matplotlib.pyplot as plt
 
 
 class graphing_lf:
+    """ Deprecated. \n
+        Can be used to parse dotfiles generated from LF programs (currently only in the C++ target) with the 'export-dependency-graph' option set to true. \n
+        Allows parsing of the dotfile, getting the level of each node and plotting the dependecy graph of the reactions"""
     
     def __init__(self, filename):
         self.filename = filename
