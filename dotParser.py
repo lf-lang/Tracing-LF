@@ -65,7 +65,8 @@ class graphing_lf:
                     f.write(line)
 
 
-reflex_game = graphing_lf("DotGraphs/FullyConnected_00_Broadcast.dot")
+# Example
+reflex_game = graphing_lf("DotGraphs/ReflexGameNoHiddenEdges.dot")
 graph = reflex_game.parse_graph_from_dot()
 print(reflex_game.levels())
 
