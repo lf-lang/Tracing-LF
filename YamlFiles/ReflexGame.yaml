@@ -1,0 +1,169 @@
+---
+top_level_instances:
+  - ReflexGame
+all_reactor_instances:
+  ReflexGame:
+    name: ReflexGame
+    container: null
+    reactor_instances:
+      - ReflexGame.p
+      - ReflexGame.g
+    inputs:
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+  ReflexGame.p:
+    name: p
+    container: ReflexGame
+    reactor_instances:
+    inputs:
+      another:
+        upstream_port: ReflexGame.g.another
+        downstream_ports: 
+        trigger_of: 
+          - ReflexGame.p.reaction_3
+        source_of: 
+        effect_of: 
+      out:
+        upstream_port: null
+        downstream_ports: 
+          - ReflexGame.g.prompt
+        trigger_of: 
+        source_of: 
+        effect_of: 
+          - ReflexGame.p.reaction_2
+    outputs:
+    triggers:
+      - name: prompt
+        type: logical action
+        trigger_of:
+          - ReflexGame.p.reaction_2
+        effect_of:
+          - ReflexGame.p.reaction_1
+          - ReflexGame.p.reaction_3
+      - name: startup
+        type: startup
+        trigger_of:
+          - ReflexGame.p.reaction_1
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 0
+        triggers:
+          - ReflexGame.p.startup
+        sources:
+        effects:
+          - ReflexGame.p.prompt
+      - name: reaction_2
+        priority: 2
+        level: 1
+        triggers:
+          - ReflexGame.p.prompt
+        sources:
+        effects:
+          - ReflexGame.p.out
+      - name: reaction_3
+        priority: 3
+        level: 4
+        triggers:
+          - ReflexGame.p.another
+        sources:
+        effects:
+          - ReflexGame.p.prompt
+  ReflexGame.g:
+    name: g
+    container: ReflexGame
+    reactor_instances:
+    inputs:
+      prompt:
+        upstream_port: ReflexGame.p.out
+        downstream_ports: 
+        trigger_of: 
+          - ReflexGame.g.reaction_2
+        source_of: 
+        effect_of: 
+      another:
+        upstream_port: null
+        downstream_ports: 
+          - ReflexGame.p.another
+        trigger_of: 
+        source_of: 
+        effect_of: 
+          - ReflexGame.g.reaction_3
+    outputs:
+    triggers:
+      - name: user_response
+        type: physical action
+        trigger_of:
+          - ReflexGame.g.reaction_3
+        effect_of:
+          - ReflexGame.g.reaction_1
+      - name: startup
+        type: startup
+        trigger_of:
+          - ReflexGame.g.reaction_1
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+          - ReflexGame.g.reaction_4
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 0
+        triggers:
+          - ReflexGame.g.startup
+        sources:
+        effects:
+          - ReflexGame.g.user_response
+      - name: reaction_2
+        priority: 2
+        level: 2
+        triggers:
+          - ReflexGame.g.prompt
+        sources:
+        effects:
+      - name: reaction_3
+        priority: 3
+        level: 3
+        triggers:
+          - ReflexGame.g.user_response
+        sources:
+        effects:
+          - ReflexGame.g.another
+      - name: reaction_4
+        priority: 4
+        level: 4
+        triggers:
+          - ReflexGame.g.shutdown
+        sources:
+        effects:
+reaction_dependencies:
+  - from: ReflexGame.p.reaction_3
+  - to: ReflexGame.g.reaction_3
+  - from: ReflexGame.p.reaction_2
+  - to: ReflexGame.p.reaction_1
+  - from: ReflexGame.p.reaction_3
+  - to: ReflexGame.p.reaction_2
+  - from: ReflexGame.g.reaction_2
+  - to: ReflexGame.p.reaction_2
+  - from: ReflexGame.g.reaction_2
+  - to: ReflexGame.g.reaction_1
+  - from: ReflexGame.g.reaction_3
+  - to: ReflexGame.g.reaction_2
+  - from: ReflexGame.g.reaction_4
+  - to: ReflexGame.g.reaction_3
