@@ -79,21 +79,4 @@ class parse_yaml:
             
     def get_dependency_iterator(self):
         return iter(self.data['reaction_dependencies'])
-    
-
-
-        
-
-            
-            
-            
-            
-    
-        
-        
-# test = parse_yaml("YamlFiles/ReflexGame.yaml")
-# # print(test.get_level("ReflexGame.p.reaction_2"))
-# # print(test.get_dependencies("ReflexGame.p.reaction_2"))
-
-
 
