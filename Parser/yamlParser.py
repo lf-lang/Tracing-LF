@@ -38,8 +38,8 @@ class parse_yaml:
         dependencies = self.data['reaction_dependencies']
         
         iterator = iter(dependencies)
-        for x in iterator:
-            from_node = x["from"]
+        for node in iterator:
+            from_node = node["from"]
             self.dependecy_dict[from_node].append(next(iterator)["to"])
             
             
@@ -87,4 +87,3 @@ print(test.get_dependencies("ReflexGame.p.reaction_2"))
         
 
 
-        
