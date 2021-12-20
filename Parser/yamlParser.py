@@ -3,7 +3,7 @@ from collections import defaultdict
 
 
 class analyse_lf:
-    """ Can be used to parse yaml files generated from LF programs (currently only in the C++ target) with the 'export-to-yaml' option set to true. \n
+    """ Parse yaml files generated from LF programs (currently only in the C++ target). Set 'export-to-yaml' option to true to generate the file. \n
         Allows parsing of the yaml file"""
         
     def __init__(self, filepath):
