@@ -73,10 +73,3 @@ class parse_dot:
                 if "[style=invis]" not in line:
                     f.write(line)
 
-
-# Example
-# reflex_game = parse_dot("DotFiles/ReflexGameNoHiddenEdges.dot")
-# graph = reflex_game.parse_graph_from_dot()
-# print(reflex_game.levels())
-
-# reflex_game.plot()

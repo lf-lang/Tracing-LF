@@ -48,6 +48,5 @@ class parse_json:
             
        
 
-# test = parse_json("traces/reflextrace_formatted.json")
-# print(test.get_reactions("ReflexGame.p", "reaction_2"))
+
 
