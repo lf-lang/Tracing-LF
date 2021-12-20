@@ -1,3 +1,5 @@
+#!/usr/bin/env python3
+
 import networkx as nx
 from networkx.algorithms.shortest_paths.generic import shortest_path
 import pydot 
@@ -69,7 +71,7 @@ class parse_dot:
 
 
 # Example
-reflex_game = parse_dot("DotGraphs/ReflexGameNoHiddenEdges.dot")
+reflex_game = parse_dot("DotFiles/ReflexGameNoHiddenEdges.dot")
 graph = reflex_game.parse_graph_from_dot()
 print(reflex_game.levels())
 
