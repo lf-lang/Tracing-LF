@@ -2,7 +2,7 @@ import yaml
 from collections import defaultdict
 
 
-class analyse_lf:
+class parse_yaml:
     """ Parse yaml files generated from LF programs (currently only in the C++ target). Set 'export-to-yaml' option to true to generate the file. \n
         Allows parsing of the yaml file"""
         
@@ -81,7 +81,7 @@ class analyse_lf:
     
         
         
-test = analyse_lf("YamlFiles/ReflexGame.yaml")
+test = parse_yaml("YamlFiles/ReflexGame.yaml")
 print(test.get_level("ReflexGame.p.reaction_2"))
 print(test.get_dependencies("ReflexGame.p.reaction_2"))
         

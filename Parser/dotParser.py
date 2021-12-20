@@ -4,7 +4,7 @@ import pydot
 import matplotlib.pyplot as plt
 
 
-class graphing_lf:
+class parse_dot:
     """ Deprecated. \n
         Can be used to parse dotfiles generated from LF programs (currently only in the C++ target) with the 'export-dependency-graph' option set to true. \n
         Allows parsing of the dotfile, getting the level of each node and plotting the dependecy graph of the reactions"""
@@ -69,7 +69,7 @@ class graphing_lf:
 
 
 # Example
-reflex_game = graphing_lf("DotGraphs/ReflexGameNoHiddenEdges.dot")
+reflex_game = parse_dot("DotGraphs/ReflexGameNoHiddenEdges.dot")
 graph = reflex_game.parse_graph_from_dot()
 print(reflex_game.levels())
 
