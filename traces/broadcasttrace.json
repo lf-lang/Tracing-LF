@@ -1,0 +1,1720 @@
+{
+  "traceEvents": [
+    {
+      "name": "schedule",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 1,
+      "tid": 0,
+      "s": "t",
+      "cname": "terrible",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "schedule",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 2,
+      "tid": 0,
+      "s": "t",
+      "cname": "terrible",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "schedule",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 3,
+      "tid": 0,
+      "s": "t",
+      "cname": "terrible",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "schedule",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 4,
+      "tid": 0,
+      "s": "t",
+      "cname": "terrible",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "schedule",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 5,
+      "tid": 0,
+      "s": "t",
+      "cname": "terrible",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "trigger",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 2,
+      "tid": 1,
+      "s": "t",
+      "cname": "light_memory_dump",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "trigger",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 3,
+      "tid": 1,
+      "s": "t",
+      "cname": "light_memory_dump",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "trigger",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 4,
+      "tid": 1,
+      "s": "t",
+      "cname": "light_memory_dump",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "trigger",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 5,
+      "tid": 1,
+      "s": "t",
+      "cname": "light_memory_dump",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_3.reaction_1",
+      "cat": "Execution",
+      "ph": "B",
+      "ts": 1639394920982672.2,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_3.reaction_1",
+      "cat": "Execution",
+      "ph": "E",
+      "ts": 1639394920982679.8,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_2.reaction_1",
+      "cat": "Execution",
+      "ph": "B",
+      "ts": 1639394920982680.0,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_2.reaction_1",
+      "cat": "Execution",
+      "ph": "E",
+      "ts": 1639394920982681.8,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_1.reaction_1",
+      "cat": "Execution",
+      "ph": "B",
+      "ts": 1639394920982682.0,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_1.reaction_1",
+      "cat": "Execution",
+      "ph": "E",
+      "ts": 1639394920982683.8,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_0.reaction_1",
+      "cat": "Execution",
+      "ph": "B",
+      "ts": 1639394920982684.0,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_0.reaction_1",
+      "cat": "Execution",
+      "ph": "E",
+      "ts": 1639394920982685.5,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "trigger",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 2,
+      "tid": 2,
+      "s": "t",
+      "cname": "light_memory_dump",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "trigger",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 3,
+      "tid": 2,
+      "s": "t",
+      "cname": "light_memory_dump",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "trigger",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 4,
+      "tid": 2,
+      "s": "t",
+      "cname": "light_memory_dump",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "trigger",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 5,
+      "tid": 2,
+      "s": "t",
+      "cname": "light_memory_dump",
+      "args": {
+        "microstep": 0
+      }
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_3.reaction_2",
+      "cat": "Execution",
+      "ph": "B",
+      "ts": 1639394920982686.8,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_3.reaction_2",
+      "cat": "Execution",
+      "ph": "E",
+      "ts": 1639394920982688.5,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_2.reaction_2",
+      "cat": "Execution",
+      "ph": "B",
+      "ts": 1639394920982688.8,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_2.reaction_2",
+      "cat": "Execution",
+      "ph": "E",
+      "ts": 1639394920982690.2,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_1.reaction_2",
+      "cat": "Execution",
+      "ph": "B",
+      "ts": 1639394920982690.5,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_1.reaction_2",
+      "cat": "Execution",
+      "ph": "E",
+      "ts": 1639394920982692.0,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_0.reaction_2",
+      "cat": "Execution",
+      "ph": "B",
+      "ts": 1639394920982692.0,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "FullyConnected_00_Broadcast.nodes_0.reaction_2",
+      "cat": "Execution",
+      "ph": "E",
+      "ts": 1639394920982694.0,
+      "pid": 0,
+      "tid": 0
+    },
+    {
+      "name": "schedule",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 1,
+      "tid": 1,
+      "s": "t",
+      "cname": "terrible",
+      "args": {
+        "microstep": 1
+      }
+    },
+    {
+      "name": "schedule",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 2,
+      "tid": 3,
+      "s": "t",
+      "cname": "terrible",
+      "args": {
+        "microstep": 1
+      }
+    },
+    {
+      "name": "schedule",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 3,
+      "tid": 3,
+      "s": "t",
+      "cname": "terrible",
+      "args": {
+        "microstep": 1
+      }
+    },
+    {
+      "name": "schedule",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 4,
+      "tid": 3,
+      "s": "t",
+      "cname": "terrible",
+      "args": {
+        "microstep": 1
+      }
+    },
+    {
+      "name": "schedule",
+      "cat": "Reactors",
+      "ph": "i",
+      "ts": 1639394920982506.5,
+      "pid": 5,
+      "tid": 3,
+      "s": "t",
+      "cname": "terrible",
+      "args": {
+        "microstep": 1
+      }
+    },
+    {
+      "name": "process_name",
+      "ph": "M",
+      "pid": 0,
+      "args": {
+        "name": "Execution"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 1,
+      "args": {
+        "name": "Worker 1"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 2,
+      "args": {
+        "name": "Worker 2"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 3,
+      "args": {
+        "name": "Worker 3"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 4,
+      "args": {
+        "name": "Worker 4"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 5,
+      "args": {
+        "name": "Worker 5"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 6,
+      "args": {
+        "name": "Worker 6"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 7,
+      "args": {
+        "name": "Worker 7"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 8,
+      "args": {
+        "name": "Worker 8"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 9,
+      "args": {
+        "name": "Worker 9"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 10,
+      "args": {
+        "name": "Worker 10"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 11,
+      "args": {
+        "name": "Worker 11"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 12,
+      "args": {
+        "name": "Worker 12"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 13,
+      "args": {
+        "name": "Worker 13"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 14,
+      "args": {
+        "name": "Worker 14"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 15,
+      "args": {
+        "name": "Worker 15"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 16,
+      "args": {
+        "name": "Worker 16"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 17,
+      "args": {
+        "name": "Worker 17"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 18,
+      "args": {
+        "name": "Worker 18"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 19,
+      "args": {
+        "name": "Worker 19"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 20,
+      "args": {
+        "name": "Worker 20"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 21,
+      "args": {
+        "name": "Worker 21"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 22,
+      "args": {
+        "name": "Worker 22"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 23,
+      "args": {
+        "name": "Worker 23"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 24,
+      "args": {
+        "name": "Worker 24"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 25,
+      "args": {
+        "name": "Worker 25"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 26,
+      "args": {
+        "name": "Worker 26"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 27,
+      "args": {
+        "name": "Worker 27"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 28,
+      "args": {
+        "name": "Worker 28"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 29,
+      "args": {
+        "name": "Worker 29"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 30,
+      "args": {
+        "name": "Worker 30"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 31,
+      "args": {
+        "name": "Worker 31"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 32,
+      "args": {
+        "name": "Worker 32"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 33,
+      "args": {
+        "name": "Worker 33"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 34,
+      "args": {
+        "name": "Worker 34"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 35,
+      "args": {
+        "name": "Worker 35"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 36,
+      "args": {
+        "name": "Worker 36"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 37,
+      "args": {
+        "name": "Worker 37"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 38,
+      "args": {
+        "name": "Worker 38"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 39,
+      "args": {
+        "name": "Worker 39"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 40,
+      "args": {
+        "name": "Worker 40"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 41,
+      "args": {
+        "name": "Worker 41"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 42,
+      "args": {
+        "name": "Worker 42"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 43,
+      "args": {
+        "name": "Worker 43"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 44,
+      "args": {
+        "name": "Worker 44"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 45,
+      "args": {
+        "name": "Worker 45"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 46,
+      "args": {
+        "name": "Worker 46"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 47,
+      "args": {
+        "name": "Worker 47"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 48,
+      "args": {
+        "name": "Worker 48"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 49,
+      "args": {
+        "name": "Worker 49"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 50,
+      "args": {
+        "name": "Worker 50"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 51,
+      "args": {
+        "name": "Worker 51"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 52,
+      "args": {
+        "name": "Worker 52"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 53,
+      "args": {
+        "name": "Worker 53"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 54,
+      "args": {
+        "name": "Worker 54"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 55,
+      "args": {
+        "name": "Worker 55"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 56,
+      "args": {
+        "name": "Worker 56"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 57,
+      "args": {
+        "name": "Worker 57"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 58,
+      "args": {
+        "name": "Worker 58"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 59,
+      "args": {
+        "name": "Worker 59"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 60,
+      "args": {
+        "name": "Worker 60"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 61,
+      "args": {
+        "name": "Worker 61"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 62,
+      "args": {
+        "name": "Worker 62"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 63,
+      "args": {
+        "name": "Worker 63"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 64,
+      "args": {
+        "name": "Worker 64"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 65,
+      "args": {
+        "name": "Worker 65"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 66,
+      "args": {
+        "name": "Worker 66"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 67,
+      "args": {
+        "name": "Worker 67"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 68,
+      "args": {
+        "name": "Worker 68"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 69,
+      "args": {
+        "name": "Worker 69"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 70,
+      "args": {
+        "name": "Worker 70"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 71,
+      "args": {
+        "name": "Worker 71"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 72,
+      "args": {
+        "name": "Worker 72"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 73,
+      "args": {
+        "name": "Worker 73"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 74,
+      "args": {
+        "name": "Worker 74"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 75,
+      "args": {
+        "name": "Worker 75"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 76,
+      "args": {
+        "name": "Worker 76"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 77,
+      "args": {
+        "name": "Worker 77"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 78,
+      "args": {
+        "name": "Worker 78"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 79,
+      "args": {
+        "name": "Worker 79"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 80,
+      "args": {
+        "name": "Worker 80"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 81,
+      "args": {
+        "name": "Worker 81"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 82,
+      "args": {
+        "name": "Worker 82"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 83,
+      "args": {
+        "name": "Worker 83"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 84,
+      "args": {
+        "name": "Worker 84"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 85,
+      "args": {
+        "name": "Worker 85"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 86,
+      "args": {
+        "name": "Worker 86"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 87,
+      "args": {
+        "name": "Worker 87"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 88,
+      "args": {
+        "name": "Worker 88"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 89,
+      "args": {
+        "name": "Worker 89"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 90,
+      "args": {
+        "name": "Worker 90"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 91,
+      "args": {
+        "name": "Worker 91"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 92,
+      "args": {
+        "name": "Worker 92"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 93,
+      "args": {
+        "name": "Worker 93"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 94,
+      "args": {
+        "name": "Worker 94"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 95,
+      "args": {
+        "name": "Worker 95"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 96,
+      "args": {
+        "name": "Worker 96"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 97,
+      "args": {
+        "name": "Worker 97"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 98,
+      "args": {
+        "name": "Worker 98"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 99,
+      "args": {
+        "name": "Worker 99"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 100,
+      "args": {
+        "name": "Worker 100"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 101,
+      "args": {
+        "name": "Worker 101"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 102,
+      "args": {
+        "name": "Worker 102"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 103,
+      "args": {
+        "name": "Worker 103"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 104,
+      "args": {
+        "name": "Worker 104"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 105,
+      "args": {
+        "name": "Worker 105"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 106,
+      "args": {
+        "name": "Worker 106"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 107,
+      "args": {
+        "name": "Worker 107"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 108,
+      "args": {
+        "name": "Worker 108"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 109,
+      "args": {
+        "name": "Worker 109"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 110,
+      "args": {
+        "name": "Worker 110"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 111,
+      "args": {
+        "name": "Worker 111"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 112,
+      "args": {
+        "name": "Worker 112"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 113,
+      "args": {
+        "name": "Worker 113"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 114,
+      "args": {
+        "name": "Worker 114"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 115,
+      "args": {
+        "name": "Worker 115"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 116,
+      "args": {
+        "name": "Worker 116"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 117,
+      "args": {
+        "name": "Worker 117"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 118,
+      "args": {
+        "name": "Worker 118"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 119,
+      "args": {
+        "name": "Worker 119"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 120,
+      "args": {
+        "name": "Worker 120"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 121,
+      "args": {
+        "name": "Worker 121"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 122,
+      "args": {
+        "name": "Worker 122"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 123,
+      "args": {
+        "name": "Worker 123"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 124,
+      "args": {
+        "name": "Worker 124"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 125,
+      "args": {
+        "name": "Worker 125"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 126,
+      "args": {
+        "name": "Worker 126"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 0,
+      "tid": 127,
+      "args": {
+        "name": "Worker 127"
+      }
+    },
+    {
+      "name": "process_name",
+      "ph": "M",
+      "pid": 1,
+      "args": {
+        "name": "FullyConnected_00_Broadcast"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 1,
+      "tid": 0,
+      "args": {
+        "name": "startup"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 1,
+      "tid": 1,
+      "args": {
+        "name": "shutdown"
+      }
+    },
+    {
+      "name": "process_name",
+      "ph": "M",
+      "pid": 2,
+      "args": {
+        "name": "FullyConnected_00_Broadcast.nodes_0"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 2,
+      "tid": 0,
+      "args": {
+        "name": "startup"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 2,
+      "tid": 1,
+      "args": {
+        "name": "reaction_1"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 2,
+      "tid": 2,
+      "args": {
+        "name": "reaction_2"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 2,
+      "tid": 3,
+      "args": {
+        "name": "shutdown"
+      }
+    },
+    {
+      "name": "process_name",
+      "ph": "M",
+      "pid": 3,
+      "args": {
+        "name": "FullyConnected_00_Broadcast.nodes_1"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 3,
+      "tid": 0,
+      "args": {
+        "name": "startup"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 3,
+      "tid": 1,
+      "args": {
+        "name": "reaction_1"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 3,
+      "tid": 2,
+      "args": {
+        "name": "reaction_2"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 3,
+      "tid": 3,
+      "args": {
+        "name": "shutdown"
+      }
+    },
+    {
+      "name": "process_name",
+      "ph": "M",
+      "pid": 4,
+      "args": {
+        "name": "FullyConnected_00_Broadcast.nodes_2"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 4,
+      "tid": 0,
+      "args": {
+        "name": "startup"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 4,
+      "tid": 1,
+      "args": {
+        "name": "reaction_1"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 4,
+      "tid": 2,
+      "args": {
+        "name": "reaction_2"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 4,
+      "tid": 3,
+      "args": {
+        "name": "shutdown"
+      }
+    },
+    {
+      "name": "process_name",
+      "ph": "M",
+      "pid": 5,
+      "args": {
+        "name": "FullyConnected_00_Broadcast.nodes_3"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 5,
+      "tid": 0,
+      "args": {
+        "name": "startup"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 5,
+      "tid": 1,
+      "args": {
+        "name": "reaction_1"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 5,
+      "tid": 2,
+      "args": {
+        "name": "reaction_2"
+      }
+    },
+    {
+      "name": "thread_name",
+      "ph": "M",
+      "pid": 5,
+      "tid": 3,
+      "args": {
+        "name": "shutdown"
+      }
+    }
+  ],
+  "displayTimeUnit": "ns"
+}
