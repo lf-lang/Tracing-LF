@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 from Parser.jsonParser import parse_json
 from Parser.yamlParser import parse_yaml
+
 import networkx as nx
 
 from bokeh.models import Circle, MultiLine
@@ -20,8 +21,11 @@ class visualiser:
     def build_graph(self):
         graph = nx.DiGraph
         
-        # Build digraph, with nodes being reaction executions
+        # Add info to edges:
+        # - trigger, triggered by, dependency?
         
+        # Add info to nodes (each node is an instance of a reaction, as recorded in the program trace):
+        # - Level, reactor
         
         
 
@@ -33,7 +37,7 @@ class visualiser:
         plot.grid.grid_line_color = None
 
         graph_renderer = from_networkx(
-            self.yaml_data.get_dependency_graph(), nx.spring_layout, scale=1, center=(0, 0))
+            self.yaml_data.get_dependency_graph(), nx.circular_layout, scale=1, center=(0, 0))
         graph_renderer.node_renderer.glyph = Circle(size=15, fill_color="lightblue")
         plot.renderers.append(graph_renderer)
 
@@ -48,3 +52,4 @@ vis = visualiser("YamlFiles/ReflexGame.yaml",
                  "traces/reflextrace_formatted.json")
 
 vis.build_graph()
+
