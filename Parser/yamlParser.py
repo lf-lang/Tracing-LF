@@ -53,6 +53,7 @@ class parse_yaml:
             self.graph.add_edge(from_node, to_node)
             
             
+            
         # find all nodes without dependecies and add these
         for reaction in self.reaction_list:
             reaction_name = reaction["name"]
@@ -83,9 +84,9 @@ class parse_yaml:
             raise ValueError(
                 "The given node does not exist. Possibly wrong name given")
             
-    def plot(self):
-        nx.draw_networkx(self.graph, arrows=True)
-        plt.show()
+    def get_dependency_graph(self):
+        return self.graph
+        
 
             
             
