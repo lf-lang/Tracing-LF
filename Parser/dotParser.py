@@ -58,6 +58,10 @@ class parse_dot:
     def plot(self):    
         nx.draw_networkx(self.graph, arrows=True)
         plt.show()
+        
+    # Getter for Graph
+    def get_graph(self):
+        return self.graph
 
 
     def remove_hidden_edges(self):
@@ -71,8 +75,8 @@ class parse_dot:
 
 
 # Example
-reflex_game = parse_dot("DotFiles/ReflexGameNoHiddenEdges.dot")
-graph = reflex_game.parse_graph_from_dot()
-print(reflex_game.levels())
+# reflex_game = parse_dot("DotFiles/ReflexGameNoHiddenEdges.dot")
+# graph = reflex_game.parse_graph_from_dot()
+# print(reflex_game.levels())
 
-reflex_game.plot()
+# reflex_game.plot()
