@@ -1,8 +1,6 @@
 #!/usr/bin/env python3
 import yaml
 from collections import defaultdict
-import networkx as nx
-import matplotlib.pyplot as plt
 
 
 class parse_yaml:
@@ -14,7 +12,6 @@ class parse_yaml:
         # Attributes
         self.reaction_list = list()
         self.dependecy_dict = defaultdict(list)
-        self.graph = nx.DiGraph()
        
         # Open yaml file and parse with pyyaml
         self.data = yaml.load(open(filepath), Loader=yaml.FullLoader)
@@ -38,7 +35,7 @@ class parse_yaml:
                 self.reaction_list.append(reaction)
               
                 
-        # Determine dependency list for each reaction and build a DiGraph
+        # Determine dependency list for each reaction
         dependencies = self.data['reaction_dependencies']
         
         iterator = iter(dependencies)
@@ -49,9 +46,6 @@ class parse_yaml:
             # Add to dependecy dict
             self.dependecy_dict[from_node].append(to_node)
             
-            # Add nodes and edge to digraph
-            self.graph.add_edge(from_node, to_node)
-            
             
             
         # find all nodes without dependecies and add these
@@ -59,7 +53,6 @@ class parse_yaml:
             reaction_name = reaction["name"]
             if reaction_name not in self.dependecy_dict:
                 self.dependecy_dict[reaction_name] = []
-        
         
         
 
@@ -84,8 +77,11 @@ class parse_yaml:
             raise ValueError(
                 "The given node does not exist. Possibly wrong name given")
             
-    def get_dependency_graph(self):
-        return self.graph
+    def get_dependency_iterator(self):
+        return iter(self.data['reaction_dependencies'])
+    
+
+
         
 
             
@@ -96,9 +92,8 @@ class parse_yaml:
         
         
 # test = parse_yaml("YamlFiles/ReflexGame.yaml")
-# print(test.get_level("ReflexGame.p.reaction_2"))
-# print(test.get_dependencies("ReflexGame.p.reaction_2"))
+# # print(test.get_level("ReflexGame.p.reaction_2"))
+# # print(test.get_dependencies("ReflexGame.p.reaction_2"))
 
-# test.plot()
 
 
