@@ -77,7 +77,10 @@ def main():
     }))
 
     # keep a dictionary of lists of events to dump later to JSON
-    trace_events = defaultdict(list)
+    trace_events = {}
+    
+    trace_events["0"] = defaultdict(list)
+
 
     # Iterate the trace messages.
     for msg in msg_it:
@@ -88,61 +91,72 @@ def main():
             
             # Add events to the trace_events dict, sorting by pid
             if (event.name == "reactor_cpp:reaction_execution_starts"):
-                trace_events["0"].append(reaction_execution_starts_to_dict(msg))
+                reaction_execution_starts_to_dict(trace_events, msg)
             
             elif (event.name == "reactor_cpp:reaction_execution_finishes"):
-                trace_events["0"].append(reaction_execution_finishes_to_dict(msg))
+                reaction_execution_finishes_to_dict(trace_events, msg)
             
             elif (event.name == "reactor_cpp:schedule_action"):
-            
+                # get pid, tid
                 pid, tid = get_ids(str(event["reactor_name"]), str(event["action_name"]))
-                trace_events[str(pid)].append(schedule_action_to_dict(msg))
+                
+                # if key not in trace events, create new default dict for key
+                if str(pid) not in trace_events:
+                    trace_events[str(pid)] = defaultdict(list)
+                
+                trace_events[str(pid)][str(tid)].append(
+                    schedule_action_to_dict(msg))
             
             elif (event.name == "reactor_cpp:trigger_reaction"):
+                # get pid, tid
                 pid, tid = get_ids(str(event["reactor_name"]), str(event["reaction_name"]))
-                trace_events[str(pid)].append(trigger_reaction_to_dict(msg))
+                
+                # if key not in trace events, create new default dict for key
+                if str(pid) not in trace_events:
+                    trace_events[str(pid)] = defaultdict(list)
+                    
+                trace_events[str(pid)][str(tid)].append(
+                    trigger_reaction_to_dict(msg))
+
 
     # add some metadata
-    """TODO: Do we need this?"""
-    # configure_process_name(trace_events, 0, "Execution")
+    configure_process_name(trace_events, 0, "Execution")
     
+    # TODO: Do we need this?
     # for i in range(1, 128):
     #     configure_thread_name(trace_events, 0, i, "Worker %d" % i)
     
+    
+    
+    # First replace all thread id's used as keys with their names (tid's used as second level dict keys)
     for process, pid in pid_registry.items():
-        configure_process_name(trace_events["processes"], pid, process)
         for thread, tid in tid_registry[process].items():
-            configure_thread_name(trace_events["threads"], pid, tid, thread)
+            configure_thread_name(trace_events, pid, tid, thread)
+    
+    # Then replace the process id's used as first level keys with their respective names
+    for process, pid in pid_registry.items():
+        configure_process_name(trace_events, pid, process)
 
-    
-    
-    
+    # 
+
     # Dump data to json file
     with open(args.output, 'w') as outfile:
         json.dump(trace_events, outfile, indent=2)
 
 
-def configure_process_name(events, pid, name):
-    events.append({
-        "name": "process_name",
-        "ph": "M",
-        "pid": pid,
-        "args": {
-            "name": name
-        }
-    })
 
 
-def configure_thread_name(events, pid, tid, name):
-    events.append({
-        "name": "thread_name",
-        "ph": "M",
-        "pid": pid,
-        "tid": tid,
-        "args": {
-            "name": name
-        }
-    })
+
+# Replaces trace_event keys (currently pid) to the respective reactor names
+def configure_process_name(trace_events, pid, name):
+    trace_events[name] = trace_events.pop(str(pid))
+
+# Replaces trace_event second level keys (currently tid) to the respective reaction names
+def configure_thread_name(trace_events, pid, tid, name):
+    # rename key
+    trace_events[str(pid)][name] = trace_events[str(pid)][str(tid)]
+    # remove old key 
+    del trace_events[str(pid)][str(tid)]
 
 
 def get_timestamp_us(msg):
@@ -150,28 +164,34 @@ def get_timestamp_us(msg):
     return timestamp_ns / 1000.0
 
 
-def reaction_execution_starts_to_dict(msg):
+def reaction_execution_starts_to_dict(trace_events, msg):
+    
     event = msg.event
-    return {
+    tid = int(event["worker_id"])
+    
+    trace_events["0"][str(tid)].append({
         "name": str(event["reaction_name"]),
         "cat": "Execution",
         "ph": "B",
         "ts": get_timestamp_us(msg),
         "pid": 0,
-        "tid": int(event["worker_id"]),
-    }
+        "tid": tid,
+    })
 
 
-def reaction_execution_finishes_to_dict(msg):
+def reaction_execution_finishes_to_dict(trace_events, msg):
+    
     event = msg.event
-    return {
+    tid = int(event["worker_id"])
+    
+    trace_events["0"][str(tid)].append({
         "name": str(event["reaction_name"]),
         "cat": "Execution",
         "ph": "E",
         "ts": get_timestamp_us(msg),
         "pid": 0,
         "tid": int(event["worker_id"]),
-    }
+    })
 
 
 def schedule_action_to_dict(msg):
