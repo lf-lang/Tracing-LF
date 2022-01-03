@@ -24,7 +24,6 @@ class parse_json:
         self.data["Exection"] = execution_dict
         
         
-        # Process the data
         
         # Determine start time, then remove this from all other timestamps
         start_time = 0
@@ -35,7 +34,7 @@ class parse_json:
                     start_time = self.data[reactor][reaction][0]["ts"]
                     break
         
-        
+        # Set new start time 
         for reactions in self.data.values():
             for reaction in reactions.values():
                 for reaction_execution in reaction:
@@ -54,6 +53,8 @@ class parse_json:
                         return reactions[reaction]
     
 
-
+    
+                
+    
 
 
