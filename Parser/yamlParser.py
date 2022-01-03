@@ -15,29 +15,26 @@ class parse_yaml:
        
         # Open yaml file and parse with pyyaml
         self.data = yaml.load(open(filepath), Loader=yaml.FullLoader)
-        
-    
-        # Iteration variable
-        reactor_instances = self.data['all_reactor_instances']
-    
-        # Delete the first item in the dict (this is the top level reactor)
-        del reactor_instances[next(iter(reactor_instances))]
                        
         # Iterate through reactors and get reactions 
-        for reactor, reactions in reactor_instances.items():
+        for reactor, items in self.data['all_reactor_instances'].items():
             
             if reactor not in self.reaction_dict:
                 self.reaction_dict[reactor] = {}
-            
+                
             # For each reaction, add it to the list of reactions
-            for reaction in reactions["reactions"]:
+            if items["reactions"] is not None:
+                for reaction in items["reactions"]:
+
+                    self.reaction_dict[reactor][reaction["name"]] = reaction
+                    
+            if items["triggers"] is not None:
+                for trigger in items["triggers"]:
+                    
+                    self.reaction_dict[reactor][trigger["name"]] = trigger
+            
+            
                 
-                # Rename to include reactor name in reaction name
-                reaction_name = reaction.pop("name")
-                reaction["reaction_name"] = reaction_name
-                self.reaction_dict[reactor][reaction_name] = reaction
-                
-
-
-
+            # if reactions["inputs"] is not None:
+            # if reactions["outputs"] is not None:
                 
