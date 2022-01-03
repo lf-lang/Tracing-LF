@@ -31,6 +31,11 @@ class parse_yaml:
             if items["triggers"] is not None:
                 for trigger in items["triggers"]:
                     
+                    # rename trigger_of and event_of for clarity
+                    trigger["effect"] = trigger.pop("effect_of")
+                    trigger["trigger"] = trigger.pop("trigger_of")
+                    
+                
                     self.reaction_dict[reactor][trigger["name"]] = trigger
             
             
