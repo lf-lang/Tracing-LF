@@ -9,7 +9,8 @@ class parse_yaml:
         
     def __init__(self, filepath):
         
-        # Attributes
+        # Structure: Nested dict of reactions
+        # {reactor : {reaction : {attribute : value}}}
         self.reaction_dict = {}
        
         # Open yaml file and parse with pyyaml
@@ -36,9 +37,7 @@ class parse_yaml:
                 reaction["reaction_name"] = reaction_name
                 self.reaction_dict[reactor][reaction_name] = reaction
                 
-                
-test = parse_yaml("YamlFiles/ReflexGame.yaml")
-print("lol")
+
 
 
                 
