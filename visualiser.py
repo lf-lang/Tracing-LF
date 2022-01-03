@@ -4,7 +4,7 @@ from Parser.yamlParser import parse_yaml
 
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource
-from bokeh.plotting import figure
+from bokeh.plotting import figure, show
 from bokeh.transform import jitter
 
 import pandas as pd
@@ -71,8 +71,24 @@ class visualiser:
 
         # output to static HTML file
         output_file("test.html")
+        
+        df = pd.DataFrame({"name": self.ordered_data_dict["name"]})
+        df.insert(1, "time_start", self.ordered_data_dict["time_start"])
+        df.insert(2, "trace_event_type",
+                  self.ordered_data_dict["trace_event_type"])
+        df.insert(3, "priority",
+                  self.ordered_data_dict["priority"])
+        df.insert(4, "level",
+                  self.ordered_data_dict["level"])
+        df.insert(5, "triggers",
+                  self.ordered_data_dict["triggers"])
+        df.insert(6, "effects",
+                  self.ordered_data_dict["trace_event_type"])
 
+        source = ColumnDataSource(df)
+        
         TOOLTIPS = [
+            ("name", "@name"),
             ("time_start", "@time_start"),
             ("trace_event_type", "@trace_event_type"),
             ("priority", "@priority"),
@@ -80,18 +96,13 @@ class visualiser:
             ("triggers", "@triggers"),
             ("effects", "@effects"),
         ]
-        
-        df = pd.DataFrame({"names": self.ordered_data_dict["name"]})
-        df.insert(1, "times", self.ordered_data_dict["time_start"])
-
-        source = ColumnDataSource(df)
 
         y = ['.'.join(tup) for tup in self.y_axis_labels]
 
-        p = figure(height=300, y_range=y, sizing_mode="stretch_width",
-                title="test")
+        p = figure(height=800, y_range=y, sizing_mode="stretch_width",
+                title="test", tooltips=TOOLTIPS)
 
-        p.circle(x='times', y=jitter('names', width=0.6, range=p.y_range),  source=source, alpha=0.3)
+        p.diamond(x='time_start', y=jitter('name', width=0.6, range=p.y_range), size=10, source=source)
 
         p.x_range.range_padding = 0
         p.ygrid.grid_line_color = None
