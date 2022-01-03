@@ -2,10 +2,12 @@
 from Parser.jsonParser import parse_json
 from Parser.yamlParser import parse_yaml
 
-from bokeh.models.sources import ColumnarDataSource
-from bokeh.plotting import figure, show, output_file
+from bokeh.io import output_file, show
+from bokeh.models import ColumnDataSource
+from bokeh.plotting import figure
+from bokeh.transform import jitter
 
-
+import pandas as pd
 
 
 
@@ -25,7 +27,7 @@ class visualiser:
         
         
         # Dictionary containing all compiled data for each reaction execution
-        self.ordered_data_dict = {"reactor": [], "reaction": [], "name": [], "time_start": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
+        self.ordered_data_dict = {"name": [], "reactor": [], "reaction": [], "event_name": [], "time_start": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
 
         
         for reactor, reactions in json_data.items():
@@ -39,10 +41,11 @@ class visualiser:
                 
                 for reaction_instance in json_data[reactor][reaction]:
                     
+                    self.ordered_data_dict["name"].append(reactor + "." + reaction)
                     self.ordered_data_dict["reactor"].append(reactor)
                     self.ordered_data_dict["reaction"].append(reaction)
                     
-                    self.ordered_data_dict["name"].append(
+                    self.ordered_data_dict["event_name"].append(
                         reaction_instance["name"])
                     self.ordered_data_dict["time_start"].append(
                         reaction_instance["ts"])
@@ -60,15 +63,9 @@ class visualiser:
                                 current_reaction[attribute])
                         else:
                             self.ordered_data_dict[attribute].append(None)
-                    
-                
-                    
-                
-            
-                
-                
 
-
+    def get_ordered_data(self):
+        return self.ordered_data_dict
     
     def build_graph(self):
 
@@ -76,7 +73,6 @@ class visualiser:
         output_file("test.html")
 
         TOOLTIPS = [
-            ("name", "@name"),
             ("time_start", "@time_start"),
             ("trace_event_type", "@trace_event_type"),
             ("priority", "@priority"),
@@ -85,22 +81,26 @@ class visualiser:
             ("effects", "@effects"),
         ]
         
-        # Configyre y-axis range to be the concatenation of reactor and reaction (E.g. Reactor1, reaction1 -> Reactor1.reaction1 would be the new label)
-        y = ['.'.join(tup) for tup in self.y_axis_labels]
-        p = figure(width=400, height=400, tooltips=TOOLTIPS, y_range=y)
-        p.yaxis.axis_label = 'Reactions'
-        p.xaxis.axis_label = 'Time'
-        
-        
-        # Provide DataSource
-        
-        source = ColumnarDataSource(data=self.ordered_data_dict)
-        
-        p.circle(x="reactor", y="time_start", size=20, source=source)
-        
+        df = pd.DataFrame({"names": self.ordered_data_dict["name"]})
+        df.insert(1, "times", self.ordered_data_dict["time_start"])
 
-        # show the results
+        source = ColumnDataSource(df)
+
+        y = ['.'.join(tup) for tup in self.y_axis_labels]
+
+        p = figure(height=300, y_range=y, sizing_mode="stretch_width",
+                title="test")
+
+        p.circle(x='times', y=jitter('names', width=0.6, range=p.y_range),  source=source, alpha=0.3)
+
+        p.x_range.range_padding = 0
+        p.ygrid.grid_line_color = None
+
         show(p)
+                
+    
+    
+    
         
         
 
