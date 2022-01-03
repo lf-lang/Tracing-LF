@@ -10,8 +10,7 @@ class parse_yaml:
     def __init__(self, filepath):
         
         # Attributes
-        self.reaction_list = list()
-        self.dependecy_dict = defaultdict(list)
+        self.reaction_dict = {}
        
         # Open yaml file and parse with pyyaml
         self.data = yaml.load(open(filepath), Loader=yaml.FullLoader)
@@ -24,59 +23,22 @@ class parse_yaml:
         del reactor_instances[next(iter(reactor_instances))]
                        
         # Iterate through reactors and get reactions 
-        for reactor in reactor_instances.items():
-            reactor_name = reactor[0]
+        for reactor, reactions in reactor_instances.items():
+            
+            if reactor not in self.reaction_dict:
+                self.reaction_dict[reactor] = {}
             
             # For each reaction, add it to the list of reactions
-            for reaction in reactor[1]["reactions"]:
+            for reaction in reactions["reactions"]:
                 
                 # Rename to include reactor name in reaction name
-                reaction["reaction_name"] = reaction.pop("name")
-                reaction["reactor_name"] = reactor_name
-                self.reaction_list.append(reaction)
-              
+                reaction_name = reaction.pop("name")
+                reaction["reaction_name"] = reaction_name
+                self.reaction_dict[reactor][reaction_name] = reaction
                 
-        # Determine dependency list for each reaction
-        dependencies = self.data['reaction_dependencies']
-        
-        iterator = iter(dependencies)
-        for node in iterator:
-            from_node = node["from"]
-            to_node = next(iterator)["to"]
-            
-            # Add to dependecy dict
-            self.dependecy_dict[from_node].append(to_node)
-            
-            
-            
-        # find all nodes without dependecies and add these
-        for reaction in self.reaction_list:
-            reaction_name = reaction["name"]
-            if reaction_name not in self.dependecy_dict:
-                self.dependecy_dict[reaction_name] = []
-        
-        
-
-        
                 
-   
-    def get_level(self, reaction_name):
-        """ Finds the level of a given node """
-        
-        for reaction in self.reaction_list:
-            if reaction_name == reaction["name"]:
-                return reaction["level"]
-        
-        raise ValueError("The given node does not exist. Possibly wrong name given")   
-    
-    def get_dependencies(self, reaction_name):
-        """ Gets the list of dependencies for a given node """
-        if reaction_name in self.dependecy_dict:
-            return self.dependecy_dict[reaction_name]
-        else:
-            raise ValueError(
-                "The given node does not exist. Possibly wrong name given")
-            
-    def get_dependency_iterator(self):
-        return iter(self.data['reaction_dependencies'])
+test = parse_yaml("YamlFiles/ReflexGame.yaml")
+print("lol")
 
+
+                
