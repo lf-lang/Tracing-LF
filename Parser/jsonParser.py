@@ -21,7 +21,7 @@ class parse_json:
             else:
                 execution_dict["Worker" + key] = value
         
-        self.data["Exection"] = execution_dict
+        self.data["Execution"] = execution_dict
         
         
         
