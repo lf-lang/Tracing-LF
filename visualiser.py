@@ -2,10 +2,9 @@
 from Parser.jsonParser import parse_json
 from Parser.yamlParser import parse_yaml
 
-from collections import defaultdict
-
+from bokeh.models.sources import ColumnarDataSource
 from bokeh.plotting import figure, show, output_file
-import pandas as pd
+
 
 
 
@@ -26,7 +25,7 @@ class visualiser:
         
         
         # Dictionary containing all compiled data for each reaction execution
-        ordered_data_dict = {"reactor": [], "reaction": [], "name": [], "time_start": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
+        self.ordered_data_dict = {"reactor": [], "reaction": [], "name": [], "time_start": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
 
         
         for reactor, reactions in json_data.items():
@@ -40,12 +39,15 @@ class visualiser:
                 
                 for reaction_instance in json_data[reactor][reaction]:
                     
-                    ordered_data_dict["reactor"].append(reactor)
-                    ordered_data_dict["reaction"].append(reaction)
+                    self.ordered_data_dict["reactor"].append(reactor)
+                    self.ordered_data_dict["reaction"].append(reaction)
                     
-                    ordered_data_dict["name"].append(reaction_instance["name"])
-                    ordered_data_dict["time_start"].append(reaction_instance["ts"])
-                    ordered_data_dict["trace_event_type"].append(reaction_instance["ph"])
+                    self.ordered_data_dict["name"].append(
+                        reaction_instance["name"])
+                    self.ordered_data_dict["time_start"].append(
+                        reaction_instance["ts"])
+                    self.ordered_data_dict["trace_event_type"].append(
+                        reaction_instance["ph"])
                     
                     current_reaction = yaml_data[reactor][reaction]
                     
@@ -54,11 +56,11 @@ class visualiser:
                     
                     for attribute in attribute_list:
                         if attribute in current_reaction:
-                            ordered_data_dict[attribute].append(current_reaction[attribute])
+                            self.ordered_data_dict[attribute].append(
+                                current_reaction[attribute])
                         else:
-                            ordered_data_dict[attribute].append(None)
+                            self.ordered_data_dict[attribute].append(None)
                     
-        print(ordered_data_dict)
                 
                     
                 
@@ -72,27 +74,33 @@ class visualiser:
 
         # output to static HTML file
         output_file("test.html")
+
+        TOOLTIPS = [
+            ("name", "@name"),
+            ("time_start", "@time_start"),
+            ("trace_event_type", "@trace_event_type"),
+            ("priority", "@priority"),
+            ("level", "@level"),
+            ("triggers", "@triggers"),
+            ("effects", "@effects"),
+        ]
         
-        x = [1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2, 3, 4, 5, 1, 2]
+        # Configyre y-axis range to be the concatenation of reactor and reaction (E.g. Reactor1, reaction1 -> Reactor1.reaction1 would be the new label)
         y = ['.'.join(tup) for tup in self.y_axis_labels]
-        
-        p = figure(width=400, height=400, y_range=y)
+        p = figure(width=400, height=400, tooltips=TOOLTIPS, y_range=y)
         p.yaxis.axis_label = 'Reactions'
         p.xaxis.axis_label = 'Time'
-
         
-        # add a circle renderer with a size, color, and alpha
-        p.circle(x, y, size=20)
+        
+        # Provide DataSource
+        
+        source = ColumnarDataSource(data=self.ordered_data_dict)
+        
+        p.circle(x="reactor", y="time_start", size=20, source=source)
+        
 
         # show the results
         show(p)
-
-        
-        # Add info to edges:
-        # - trigger, triggered by, dependency?
-        
-        # Add info to nodes (each node is an instance of a reaction, as recorded in the program trace):
-        # - Level, reactor
         
         
 
