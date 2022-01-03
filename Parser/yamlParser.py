@@ -31,7 +31,8 @@ class parse_yaml:
             for reaction in reactor[1]["reactions"]:
                 
                 # Rename to include reactor name in reaction name
-                reaction["name"] = reactor_name + "." + reaction["name"]
+                reaction["reaction_name"] = reaction.pop("name")
+                reaction["reactor_name"] = reactor_name
                 self.reaction_list.append(reaction)
               
                 
@@ -59,20 +60,19 @@ class parse_yaml:
         
                 
    
-    def get_level(self, node_name):
+    def get_level(self, reaction_name):
         """ Finds the level of a given node """
         
         for reaction in self.reaction_list:
-            if node_name == reaction["name"]:
+            if reaction_name == reaction["name"]:
                 return reaction["level"]
         
         raise ValueError("The given node does not exist. Possibly wrong name given")   
     
-    
-    def get_dependencies(self, node_name):
+    def get_dependencies(self, reaction_name):
         """ Gets the list of dependencies for a given node """
-        if node_name in self.dependecy_dict:
-            return self.dependecy_dict[node_name]
+        if reaction_name in self.dependecy_dict:
+            return self.dependecy_dict[reaction_name]
         else:
             raise ValueError(
                 "The given node does not exist. Possibly wrong name given")
