@@ -64,10 +64,16 @@ class visualiser:
                         else:
                             self.ordered_data_dict[attribute].append(None)
 
+    
+    
     def get_ordered_data(self):
+        """Returns the dictionary of the ordered data"""
         return self.ordered_data_dict
     
+    
+    
     def build_graph(self):
+        """Builds the bokeh graph"""
 
         # output to static HTML file
         output_file("test.html")
@@ -99,10 +105,11 @@ class visualiser:
 
         y = ['.'.join(tup) for tup in self.y_axis_labels]
 
-        p = figure(height=800, y_range=y, sizing_mode="stretch_width",
-                title="test", tooltips=TOOLTIPS)
+        p = figure(y_range=y, sizing_mode="stretch_both",
+                title="Trace Visualisation", tooltips=TOOLTIPS)
 
-        p.diamond(x='time_start', y=jitter('name', width=0.6, range=p.y_range), size=10, source=source)
+        p.diamond(x='time_start', y=jitter('name', width=0.6, range=p.y_range),
+                  size=10, source=source, legend_label="Instantaneous Events")
 
         p.x_range.range_padding = 0
         p.ygrid.grid_line_color = None
