@@ -26,30 +26,36 @@ class visualiser:
         # {reactor: {reaction: [list of executions of reactions]}}
         
         
-        # Dictionary containing all compiled data for each reaction execution
-        self.ordered_data_dict = {"name": [], "reactor": [], "reaction": [], "event_name": [], "time_start": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
+        # Dictionary containing all compiled data for each instantaneous event execution
+        self.ordered_inst_events_dict = {"name": [], "reactor": [], "reaction": [], "event_name": [], "time_start": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
+        
+        # Dictionary containing all compiled data for each instantaneous event execution
+        self.ordered_inst_events_dict = {"name": [], "reactor": [], "reaction": [], "event_name": [], "time_start": [], "time_end": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
 
         
         for reactor, reactions in json_data.items():
             
-            # TODO: Handle duration events
+
             if reactor == "Execution":
+                # execution_events_iter = iter(reactions)
+                # for reaction in execution_events_iter:
                 continue
+                    
             
             for reaction in reactions:
                 self.y_axis_labels.append((reactor, reaction))
                 
                 for reaction_instance in json_data[reactor][reaction]:
                     
-                    self.ordered_data_dict["name"].append(reactor + "." + reaction)
-                    self.ordered_data_dict["reactor"].append(reactor)
-                    self.ordered_data_dict["reaction"].append(reaction)
+                    self.ordered_inst_events_dict["name"].append(reactor + "." + reaction)
+                    self.ordered_inst_events_dict["reactor"].append(reactor)
+                    self.ordered_inst_events_dict["reaction"].append(reaction)
                     
-                    self.ordered_data_dict["event_name"].append(
+                    self.ordered_inst_events_dict["event_name"].append(
                         reaction_instance["name"])
-                    self.ordered_data_dict["time_start"].append(
+                    self.ordered_inst_events_dict["time_start"].append(
                         reaction_instance["ts"])
-                    self.ordered_data_dict["trace_event_type"].append(
+                    self.ordered_inst_events_dict["trace_event_type"].append(
                         reaction_instance["ph"])
                     
                     current_reaction = yaml_data[reactor][reaction]
@@ -59,16 +65,10 @@ class visualiser:
                     
                     for attribute in attribute_list:
                         if attribute in current_reaction:
-                            self.ordered_data_dict[attribute].append(
+                            self.ordered_inst_events_dict[attribute].append(
                                 current_reaction[attribute])
                         else:
-                            self.ordered_data_dict[attribute].append(None)
-
-    
-    
-    def get_ordered_data(self):
-        """Returns the dictionary of the ordered data"""
-        return self.ordered_data_dict
+                            self.ordered_inst_events_dict[attribute].append(None)
     
     
     
@@ -78,18 +78,18 @@ class visualiser:
         # output to static HTML file
         output_file("test.html")
         
-        df = pd.DataFrame({"name": self.ordered_data_dict["name"]})
-        df.insert(1, "time_start", self.ordered_data_dict["time_start"])
+        df = pd.DataFrame({"name": self.ordered_inst_events_dict["name"]})
+        df.insert(1, "time_start", self.ordered_inst_events_dict["time_start"])
         df.insert(2, "trace_event_type",
-                  self.ordered_data_dict["trace_event_type"])
+                  self.ordered_inst_events_dict["trace_event_type"])
         df.insert(3, "priority",
-                  self.ordered_data_dict["priority"])
+                  self.ordered_inst_events_dict["priority"])
         df.insert(4, "level",
-                  self.ordered_data_dict["level"])
+                  self.ordered_inst_events_dict["level"])
         df.insert(5, "triggers",
-                  self.ordered_data_dict["triggers"])
+                  self.ordered_inst_events_dict["triggers"])
         df.insert(6, "effects",
-                  self.ordered_data_dict["trace_event_type"])
+                  self.ordered_inst_events_dict["trace_event_type"])
 
         source = ColumnDataSource(df)
         
@@ -108,11 +108,19 @@ class visualiser:
         p = figure(y_range=y, sizing_mode="stretch_both",
                 title="Trace Visualisation", tooltips=TOOLTIPS)
 
+        # All instantaneous events
         p.diamond(x='time_start', y=jitter('name', width=0.6, range=p.y_range),
-                  size=10, source=source, legend_label="Instantaneous Events")
+                  size=10, source=source, legend_label="Instantaneous Events", muted_alpha=0.2)
+        
+        # Use multi_line to generate a line for each of the execution events
+        # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
+        # Add muted_alpha=0.2 to allow toggle 
 
-        p.x_range.range_padding = 0
-        p.ygrid.grid_line_color = None
+
+        # Legend 
+        p.legend.location = "top_left"
+        # Toggle to hide/show events
+        p.legend.click_policy = "mute"        
 
         show(p)
                 
