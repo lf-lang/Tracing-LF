@@ -1,7 +1,6 @@
 # Other
 *.html
 .vscode
-
 traces/
 YamlFiles/
 DotFiles/
