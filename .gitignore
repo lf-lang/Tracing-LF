@@ -2,6 +2,10 @@
 *.html
 .vscode
 
+traces/
+YamlFiles/
+DotFiles/
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
