@@ -7,8 +7,6 @@ from bokeh.models import ColumnDataSource
 from bokeh.plotting import figure, show
 from bokeh.transform import jitter
 
-import pandas as pd
-
 
 
 
@@ -27,48 +25,84 @@ class visualiser:
         
         
         # Dictionary containing all compiled data for each instantaneous event execution
-        self.ordered_inst_events_dict = {"name": [], "reactor": [], "reaction": [], "event_name": [], "time_start": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
+        self.ordered_inst_events_dict = {"name": [], "reactor": [], "reaction": [], "time_start": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
         
-        # Dictionary containing all compiled data for each instantaneous event execution
-        self.ordered_inst_events_dict = {"name": [], "reactor": [], "reaction": [], "event_name": [], "time_start": [], "time_end": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
+        # Dictionary containing all compiled data for each execution event execution
+        self.ordered_exe_events_dict = {"name": [], "time_start": [], "time_end": [], "priority": [], "level": [], "triggers": [], "effects": [], "x_multi_line" : [], "y_multi_line" : []}
 
         
+        # Iterate through all recorded reactions and order into dicts
         for reactor, reactions in json_data.items():
             
-
+            # Execution events (not instantaneous)
             if reactor == "Execution":
-                # execution_events_iter = iter(reactions)
-                # for reaction in execution_events_iter:
-                continue
+                for reaction in reactions:
+                    execution_events_iter = iter(json_data[reactor][reaction])
+                    for reaction_instance in execution_events_iter:
                     
-            
-            for reaction in reactions:
-                self.y_axis_labels.append((reactor, reaction))
-                
-                for reaction_instance in json_data[reactor][reaction]:
+                        # JSON Data
+                        self.ordered_exe_events_dict["name"].append(reaction_instance["name"])
+                        self.ordered_exe_events_dict["time_start"].append(
+                            reaction_instance["ts"])
+                        
+                        # x - main reactor name
+                        # y - reactor name
+                        # z - reaction name
+                        x,y,z = reaction_instance["name"].split(".", 2)
+                        
+                        current_reactor_name = x + "." + y
+                        current_reaction_name = z
+                        
+                        current_reaction = yaml_data[current_reactor_name][current_reaction_name]
+                        
+                        # YAML Data
+                        attribute_list = ["priority", "level", "triggers", "effects"]
+                        for attribute in attribute_list:
+                            if attribute in current_reaction:
+                                self.ordered_exe_events_dict[attribute].append(
+                                    current_reaction[attribute])
+                            else:
+                                self.ordered_exe_events_dict[attribute].append(
+                                    "Not Found")
+                        
+                        # Get end time of event by going to the next json event (start and end events are distinct)
+                        try:
+                            next_reaction = next(execution_events_iter)
+                            self.ordered_exe_events_dict["time_end"].append(
+                                next_reaction["ts"])
+                        
+                        # If no end event exists, add end time as same timestamp (i.e. the last element of time_start)
+                        except StopIteration as e:
+                            self.ordered_exe_events_dict["time_end"].append(
+                                self.ordered_exe_events_dict["time_start"][-1])
                     
-                    self.ordered_inst_events_dict["name"].append(reactor + "." + reaction)
-                    self.ordered_inst_events_dict["reactor"].append(reactor)
-                    self.ordered_inst_events_dict["reaction"].append(reaction)
+            # All other events from the trace 
+            else:
+                for reaction in reactions:
+                    self.y_axis_labels.append((reactor, reaction))
                     
-                    self.ordered_inst_events_dict["event_name"].append(
-                        reaction_instance["name"])
-                    self.ordered_inst_events_dict["time_start"].append(
-                        reaction_instance["ts"])
-                    self.ordered_inst_events_dict["trace_event_type"].append(
-                        reaction_instance["ph"])
-                    
-                    current_reaction = yaml_data[reactor][reaction]
-                    
-                    attribute_list = ["priority",
-                                      "level", "triggers", "effects"]
-                    
-                    for attribute in attribute_list:
-                        if attribute in current_reaction:
-                            self.ordered_inst_events_dict[attribute].append(
-                                current_reaction[attribute])
-                        else:
-                            self.ordered_inst_events_dict[attribute].append(None)
+                    for reaction_instance in json_data[reactor][reaction]:
+                        
+                        # JSON Data
+                        self.ordered_inst_events_dict["name"].append(reactor + "." + reaction)
+                        self.ordered_inst_events_dict["reactor"].append(reactor)
+                        self.ordered_inst_events_dict["reaction"].append(reaction)
+                        self.ordered_inst_events_dict["time_start"].append(
+                            reaction_instance["ts"])
+                        self.ordered_inst_events_dict["trace_event_type"].append(
+                            reaction_instance["ph"])
+                        
+                        # YAML Data
+                        current_reaction = yaml_data[reactor][reaction]
+                        
+                        attribute_list = ["priority", "level", "triggers", "effects"]
+                        for attribute in attribute_list:
+                            if attribute in current_reaction:
+                                self.ordered_inst_events_dict[attribute].append(
+                                    current_reaction[attribute])
+                            else:
+                                self.ordered_inst_events_dict[attribute].append("Not Found")
+        
     
     
     
@@ -77,21 +111,6 @@ class visualiser:
 
         # output to static HTML file
         output_file("test.html")
-        
-        df = pd.DataFrame({"name": self.ordered_inst_events_dict["name"]})
-        df.insert(1, "time_start", self.ordered_inst_events_dict["time_start"])
-        df.insert(2, "trace_event_type",
-                  self.ordered_inst_events_dict["trace_event_type"])
-        df.insert(3, "priority",
-                  self.ordered_inst_events_dict["priority"])
-        df.insert(4, "level",
-                  self.ordered_inst_events_dict["level"])
-        df.insert(5, "triggers",
-                  self.ordered_inst_events_dict["triggers"])
-        df.insert(6, "effects",
-                  self.ordered_inst_events_dict["trace_event_type"])
-
-        source = ColumnDataSource(df)
         
         TOOLTIPS = [
             ("name", "@name"),
@@ -102,37 +121,53 @@ class visualiser:
             ("triggers", "@triggers"),
             ("effects", "@effects"),
         ]
+        
+        y_axis_names = ['.'.join(tup) for tup in self.y_axis_labels]
 
-        y = ['.'.join(tup) for tup in self.y_axis_labels]
-
-        p = figure(y_range=y, sizing_mode="stretch_both",
-                title="Trace Visualisation", tooltips=TOOLTIPS)
-
+        p = figure(y_range=y_axis_names, sizing_mode="stretch_both",
+                   title="Trace Visualisation", tooltips=TOOLTIPS)
+        
+        
+        # -------------------------------------------------------------------
         # All instantaneous events
+        source_inst_events = ColumnDataSource(self.ordered_inst_events_dict)
+
         p.diamond(x='time_start', y=jitter('name', width=0.6, range=p.y_range),
-                  size=10, source=source, legend_label="Instantaneous Events", muted_alpha=0.2)
+                  size=10, source=source_inst_events, legend_label="Instantaneous Events", muted_alpha=0.2)
         
-        # Use multi_line to generate a line for each of the execution events
-        # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
-        # Add muted_alpha=0.2 to allow toggle 
+        
+        # -------------------------------------------------------------------
+        # All execution events
+        
+        # order data for multiline graph
+        for start_time, end_time in zip(self.ordered_exe_events_dict["time_start"], self.ordered_exe_events_dict["time_end"]):
+            self.ordered_exe_events_dict["x_multi_line"].append(
+                [start_time, end_time])
 
+        for reaction_name in self.ordered_exe_events_dict["name"]:
+            self.ordered_exe_events_dict["y_multi_line"].append(
+                [reaction_name, reaction_name])
 
-        # Legend 
-        p.legend.location = "top_left"
-        # Toggle to hide/show events
-        p.legend.click_policy = "mute"        
-
-        show(p)
+        
+        # data source
+            # source_exec_events = ColumnDataSource(
+            #     self.ordered_exe_events_dict)
                 
-    
-    
-    
+            # # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
+
+            # p.line( ,
+            #             legend_label="Execution Events", muted_alpha=0.2)
+
+        # -------------------------------------------------------------------      
+
+
+        p.legend.location = "top_left"
+
+        # Toggle to hide/show events
+        p.legend.click_policy = "mute"
         
         
-
-
-
-
+        show(p)
 
 
 
