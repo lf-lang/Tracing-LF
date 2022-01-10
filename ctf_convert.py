@@ -8,7 +8,9 @@
 
 
 
-# Converts to more comfortable json format
+# Converts to more comfortable json format:
+# 1. Ordered by reactor 
+# 2. Executions ordered in consequtive pairs
 
 import argparse
 import bt2
@@ -90,11 +92,24 @@ def main():
             
             
             # Add events to the trace_events dict, sorting by pid
-            if (event.name == "reactor_cpp:reaction_execution_starts"):
-                reaction_execution_starts_to_dict(trace_events, msg)
             
+            # If the event is an execution, then add it pairwise to the dictionary, such that the start and end event
+            # are added in pairs
+            execution_messages_dict = {}
+            
+            # Store the message in a dict (ph = 'B')
+            if (event.name == "reactor_cpp:reaction_execution_starts"):
+                execution_messages_dict[msg.event["reaction_name"]] = msg
+            
+            # Add the begin and end message of the execution to the trace dict (ph = 'E')
             elif (event.name == "reactor_cpp:reaction_execution_finishes"):
-                reaction_execution_finishes_to_dict(trace_events, msg)
+                reaction_name = msg.event["reaction_name"]
+                if reaction_name in execution_messages_dict:
+                    # Add the begin message and remove from dict
+                    reaction_execution_starts_to_dict(trace_events, execution_messages_dict.pop(reaction_name))
+                    # Add the end message
+                    reaction_execution_finishes_to_dict(trace_events, msg)
+                
             
             elif (event.name == "reactor_cpp:schedule_action"):
                 # get pid, tid
