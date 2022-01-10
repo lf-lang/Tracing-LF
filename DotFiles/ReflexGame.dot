@@ -1,0 +1,32 @@
+digraph {
+rankdir=LR;
+subgraph {
+rank=same;
+ReflexGame_p_reaction_1 [label="ReflexGame.p.reaction_1"];
+ReflexGame_g_reaction_1 [label="ReflexGame.g.reaction_1"];
+}
+subgraph {
+rank=same;
+ReflexGame_p_reaction_2 [label="ReflexGame.p.reaction_2"];
+}
+subgraph {
+rank=same;
+ReflexGame_g_reaction_2 [label="ReflexGame.g.reaction_2"];
+}
+subgraph {
+rank=same;
+ReflexGame_g_reaction_3 [label="ReflexGame.g.reaction_3"];
+}
+subgraph {
+rank=same;
+ReflexGame_p_reaction_3 [label="ReflexGame.p.reaction_3"];
+ReflexGame_g_reaction_4 [label="ReflexGame.g.reaction_4"];
+}
+ReflexGame_p_reaction_3 -> ReflexGame_g_reaction_3
+ReflexGame_p_reaction_2 -> ReflexGame_p_reaction_1
+ReflexGame_p_reaction_3 -> ReflexGame_p_reaction_2
+ReflexGame_g_reaction_2 -> ReflexGame_p_reaction_2
+ReflexGame_g_reaction_2 -> ReflexGame_g_reaction_1
+ReflexGame_g_reaction_3 -> ReflexGame_g_reaction_2
+ReflexGame_g_reaction_4 -> ReflexGame_g_reaction_3
+}

@@ -1,0 +1,361 @@
+---
+top_level_instances:
+  - FullyConnected_00_Broadcast
+all_reactor_instances:
+  FullyConnected_00_Broadcast:
+    name: FullyConnected_00_Broadcast
+    container: null
+    reactor_instances:
+      - FullyConnected_00_Broadcast.nodes_0
+      - FullyConnected_00_Broadcast.nodes_1
+      - FullyConnected_00_Broadcast.nodes_2
+      - FullyConnected_00_Broadcast.nodes_3
+    inputs:
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+  FullyConnected_00_Broadcast.nodes_0:
+    name: nodes_0
+    container: FullyConnected_00_Broadcast
+    reactor_instances:
+    inputs:
+      in_0:
+        upstream_port: FullyConnected_00_Broadcast.nodes_0.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_0.reaction_2
+        source_of: 
+        effect_of: 
+      in_1:
+        upstream_port: FullyConnected_00_Broadcast.nodes_1.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_0.reaction_2
+        source_of: 
+        effect_of: 
+      in_2:
+        upstream_port: FullyConnected_00_Broadcast.nodes_2.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_0.reaction_2
+        source_of: 
+        effect_of: 
+      in_3:
+        upstream_port: FullyConnected_00_Broadcast.nodes_3.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_0.reaction_2
+        source_of: 
+        effect_of: 
+      out:
+        upstream_port: null
+        downstream_ports: 
+          - FullyConnected_00_Broadcast.nodes_0.in_0
+          - FullyConnected_00_Broadcast.nodes_1.in_0
+          - FullyConnected_00_Broadcast.nodes_2.in_0
+          - FullyConnected_00_Broadcast.nodes_3.in_0
+        trigger_of: 
+        source_of: 
+        effect_of: 
+          - FullyConnected_00_Broadcast.nodes_0.reaction_1
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+          - FullyConnected_00_Broadcast.nodes_0.reaction_1
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 0
+        triggers:
+          - FullyConnected_00_Broadcast.nodes_0.startup
+        sources:
+        effects:
+          - FullyConnected_00_Broadcast.nodes_0.out
+      - name: reaction_2
+        priority: 2
+        level: 1
+        triggers:
+          - FullyConnected_00_Broadcast.nodes_0.in_0
+          - FullyConnected_00_Broadcast.nodes_0.in_1
+          - FullyConnected_00_Broadcast.nodes_0.in_2
+          - FullyConnected_00_Broadcast.nodes_0.in_3
+        sources:
+        effects:
+  FullyConnected_00_Broadcast.nodes_1:
+    name: nodes_1
+    container: FullyConnected_00_Broadcast
+    reactor_instances:
+    inputs:
+      in_0:
+        upstream_port: FullyConnected_00_Broadcast.nodes_0.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_1.reaction_2
+        source_of: 
+        effect_of: 
+      in_1:
+        upstream_port: FullyConnected_00_Broadcast.nodes_1.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_1.reaction_2
+        source_of: 
+        effect_of: 
+      in_2:
+        upstream_port: FullyConnected_00_Broadcast.nodes_2.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_1.reaction_2
+        source_of: 
+        effect_of: 
+      in_3:
+        upstream_port: FullyConnected_00_Broadcast.nodes_3.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_1.reaction_2
+        source_of: 
+        effect_of: 
+      out:
+        upstream_port: null
+        downstream_ports: 
+          - FullyConnected_00_Broadcast.nodes_0.in_1
+          - FullyConnected_00_Broadcast.nodes_1.in_1
+          - FullyConnected_00_Broadcast.nodes_2.in_1
+          - FullyConnected_00_Broadcast.nodes_3.in_1
+        trigger_of: 
+        source_of: 
+        effect_of: 
+          - FullyConnected_00_Broadcast.nodes_1.reaction_1
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+          - FullyConnected_00_Broadcast.nodes_1.reaction_1
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 0
+        triggers:
+          - FullyConnected_00_Broadcast.nodes_1.startup
+        sources:
+        effects:
+          - FullyConnected_00_Broadcast.nodes_1.out
+      - name: reaction_2
+        priority: 2
+        level: 1
+        triggers:
+          - FullyConnected_00_Broadcast.nodes_1.in_0
+          - FullyConnected_00_Broadcast.nodes_1.in_1
+          - FullyConnected_00_Broadcast.nodes_1.in_2
+          - FullyConnected_00_Broadcast.nodes_1.in_3
+        sources:
+        effects:
+  FullyConnected_00_Broadcast.nodes_2:
+    name: nodes_2
+    container: FullyConnected_00_Broadcast
+    reactor_instances:
+    inputs:
+      in_0:
+        upstream_port: FullyConnected_00_Broadcast.nodes_0.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_2.reaction_2
+        source_of: 
+        effect_of: 
+      in_1:
+        upstream_port: FullyConnected_00_Broadcast.nodes_1.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_2.reaction_2
+        source_of: 
+        effect_of: 
+      in_2:
+        upstream_port: FullyConnected_00_Broadcast.nodes_2.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_2.reaction_2
+        source_of: 
+        effect_of: 
+      in_3:
+        upstream_port: FullyConnected_00_Broadcast.nodes_3.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_2.reaction_2
+        source_of: 
+        effect_of: 
+      out:
+        upstream_port: null
+        downstream_ports: 
+          - FullyConnected_00_Broadcast.nodes_0.in_2
+          - FullyConnected_00_Broadcast.nodes_1.in_2
+          - FullyConnected_00_Broadcast.nodes_2.in_2
+          - FullyConnected_00_Broadcast.nodes_3.in_2
+        trigger_of: 
+        source_of: 
+        effect_of: 
+          - FullyConnected_00_Broadcast.nodes_2.reaction_1
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+          - FullyConnected_00_Broadcast.nodes_2.reaction_1
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 0
+        triggers:
+          - FullyConnected_00_Broadcast.nodes_2.startup
+        sources:
+        effects:
+          - FullyConnected_00_Broadcast.nodes_2.out
+      - name: reaction_2
+        priority: 2
+        level: 1
+        triggers:
+          - FullyConnected_00_Broadcast.nodes_2.in_0
+          - FullyConnected_00_Broadcast.nodes_2.in_1
+          - FullyConnected_00_Broadcast.nodes_2.in_2
+          - FullyConnected_00_Broadcast.nodes_2.in_3
+        sources:
+        effects:
+  FullyConnected_00_Broadcast.nodes_3:
+    name: nodes_3
+    container: FullyConnected_00_Broadcast
+    reactor_instances:
+    inputs:
+      in_0:
+        upstream_port: FullyConnected_00_Broadcast.nodes_0.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_3.reaction_2
+        source_of: 
+        effect_of: 
+      in_1:
+        upstream_port: FullyConnected_00_Broadcast.nodes_1.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_3.reaction_2
+        source_of: 
+        effect_of: 
+      in_2:
+        upstream_port: FullyConnected_00_Broadcast.nodes_2.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_3.reaction_2
+        source_of: 
+        effect_of: 
+      in_3:
+        upstream_port: FullyConnected_00_Broadcast.nodes_3.out
+        downstream_ports: 
+        trigger_of: 
+          - FullyConnected_00_Broadcast.nodes_3.reaction_2
+        source_of: 
+        effect_of: 
+      out:
+        upstream_port: null
+        downstream_ports: 
+          - FullyConnected_00_Broadcast.nodes_0.in_3
+          - FullyConnected_00_Broadcast.nodes_1.in_3
+          - FullyConnected_00_Broadcast.nodes_2.in_3
+          - FullyConnected_00_Broadcast.nodes_3.in_3
+        trigger_of: 
+        source_of: 
+        effect_of: 
+          - FullyConnected_00_Broadcast.nodes_3.reaction_1
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+          - FullyConnected_00_Broadcast.nodes_3.reaction_1
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 0
+        triggers:
+          - FullyConnected_00_Broadcast.nodes_3.startup
+        sources:
+        effects:
+          - FullyConnected_00_Broadcast.nodes_3.out
+      - name: reaction_2
+        priority: 2
+        level: 1
+        triggers:
+          - FullyConnected_00_Broadcast.nodes_3.in_0
+          - FullyConnected_00_Broadcast.nodes_3.in_1
+          - FullyConnected_00_Broadcast.nodes_3.in_2
+          - FullyConnected_00_Broadcast.nodes_3.in_3
+        sources:
+        effects:
+reaction_dependencies:
+  - from: FullyConnected_00_Broadcast.nodes_0.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_0.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_0.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_1.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_0.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_2.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_0.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_3.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_0.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_0.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_1.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_0.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_1.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_1.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_1.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_2.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_1.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_3.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_1.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_1.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_2.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_0.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_2.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_1.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_2.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_2.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_2.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_3.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_2.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_2.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_3.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_0.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_3.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_1.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_3.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_2.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_3.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_3.reaction_1
+  - from: FullyConnected_00_Broadcast.nodes_3.reaction_2
+  - to: FullyConnected_00_Broadcast.nodes_3.reaction_1
