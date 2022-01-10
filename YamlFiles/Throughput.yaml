@@ -1,0 +1,2223 @@
+---
+top_level_instances:
+  - Throughput
+all_reactor_instances:
+  Throughput:
+    name: Throughput
+    container: null
+    reactor_instances:
+      - Throughput.producer
+      - Throughput.runner
+      - Throughput.worker_0
+      - Throughput.worker_1
+      - Throughput.worker_2
+      - Throughput.worker_3
+      - Throughput.worker_4
+      - Throughput.worker_5
+      - Throughput.worker_6
+      - Throughput.worker_7
+      - Throughput.worker_8
+      - Throughput.worker_9
+      - Throughput.worker_10
+      - Throughput.worker_11
+      - Throughput.worker_12
+      - Throughput.worker_13
+      - Throughput.worker_14
+      - Throughput.worker_15
+      - Throughput.worker_16
+      - Throughput.worker_17
+      - Throughput.worker_18
+      - Throughput.worker_19
+      - Throughput.worker_20
+      - Throughput.worker_21
+      - Throughput.worker_22
+      - Throughput.worker_23
+      - Throughput.worker_24
+      - Throughput.worker_25
+      - Throughput.worker_26
+      - Throughput.worker_27
+      - Throughput.worker_28
+      - Throughput.worker_29
+      - Throughput.worker_30
+      - Throughput.worker_31
+      - Throughput.worker_32
+      - Throughput.worker_33
+      - Throughput.worker_34
+      - Throughput.worker_35
+      - Throughput.worker_36
+      - Throughput.worker_37
+      - Throughput.worker_38
+      - Throughput.worker_39
+      - Throughput.worker_40
+      - Throughput.worker_41
+      - Throughput.worker_42
+      - Throughput.worker_43
+      - Throughput.worker_44
+      - Throughput.worker_45
+      - Throughput.worker_46
+      - Throughput.worker_47
+      - Throughput.worker_48
+      - Throughput.worker_49
+      - Throughput.worker_50
+      - Throughput.worker_51
+      - Throughput.worker_52
+      - Throughput.worker_53
+      - Throughput.worker_54
+      - Throughput.worker_55
+      - Throughput.worker_56
+      - Throughput.worker_57
+      - Throughput.worker_58
+      - Throughput.worker_59
+    inputs:
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+          - Throughput.reaction_1
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 0
+        triggers:
+          - Throughput.startup
+        sources:
+        effects:
+  Throughput.producer:
+    name: producer
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inStart:
+        upstream_port: Throughput.runner.start
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.producer.reaction_1
+        source_of: 
+        effect_of: 
+      outFinished:
+        upstream_port: null
+        downstream_ports: 
+          - Throughput.runner.finished
+        trigger_of: 
+        source_of: 
+        effect_of: 
+          - Throughput.producer.reaction_2
+      outMessage:
+        upstream_port: null
+        downstream_ports: 
+          - Throughput.worker_0.inMessage
+          - Throughput.worker_1.inMessage
+          - Throughput.worker_2.inMessage
+          - Throughput.worker_3.inMessage
+          - Throughput.worker_4.inMessage
+          - Throughput.worker_5.inMessage
+          - Throughput.worker_6.inMessage
+          - Throughput.worker_7.inMessage
+          - Throughput.worker_8.inMessage
+          - Throughput.worker_9.inMessage
+          - Throughput.worker_10.inMessage
+          - Throughput.worker_11.inMessage
+          - Throughput.worker_12.inMessage
+          - Throughput.worker_13.inMessage
+          - Throughput.worker_14.inMessage
+          - Throughput.worker_15.inMessage
+          - Throughput.worker_16.inMessage
+          - Throughput.worker_17.inMessage
+          - Throughput.worker_18.inMessage
+          - Throughput.worker_19.inMessage
+          - Throughput.worker_20.inMessage
+          - Throughput.worker_21.inMessage
+          - Throughput.worker_22.inMessage
+          - Throughput.worker_23.inMessage
+          - Throughput.worker_24.inMessage
+          - Throughput.worker_25.inMessage
+          - Throughput.worker_26.inMessage
+          - Throughput.worker_27.inMessage
+          - Throughput.worker_28.inMessage
+          - Throughput.worker_29.inMessage
+          - Throughput.worker_30.inMessage
+          - Throughput.worker_31.inMessage
+          - Throughput.worker_32.inMessage
+          - Throughput.worker_33.inMessage
+          - Throughput.worker_34.inMessage
+          - Throughput.worker_35.inMessage
+          - Throughput.worker_36.inMessage
+          - Throughput.worker_37.inMessage
+          - Throughput.worker_38.inMessage
+          - Throughput.worker_39.inMessage
+          - Throughput.worker_40.inMessage
+          - Throughput.worker_41.inMessage
+          - Throughput.worker_42.inMessage
+          - Throughput.worker_43.inMessage
+          - Throughput.worker_44.inMessage
+          - Throughput.worker_45.inMessage
+          - Throughput.worker_46.inMessage
+          - Throughput.worker_47.inMessage
+          - Throughput.worker_48.inMessage
+          - Throughput.worker_49.inMessage
+          - Throughput.worker_50.inMessage
+          - Throughput.worker_51.inMessage
+          - Throughput.worker_52.inMessage
+          - Throughput.worker_53.inMessage
+          - Throughput.worker_54.inMessage
+          - Throughput.worker_55.inMessage
+          - Throughput.worker_56.inMessage
+          - Throughput.worker_57.inMessage
+          - Throughput.worker_58.inMessage
+          - Throughput.worker_59.inMessage
+        trigger_of: 
+        source_of: 
+        effect_of: 
+          - Throughput.producer.reaction_2
+    outputs:
+    triggers:
+      - name: sendNextMessage
+        type: logical action
+        trigger_of:
+          - Throughput.producer.reaction_2
+        effect_of:
+          - Throughput.producer.reaction_1
+          - Throughput.producer.reaction_2
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 2
+        triggers:
+          - Throughput.producer.inStart
+        sources:
+        effects:
+          - Throughput.producer.sendNextMessage
+      - name: reaction_2
+        priority: 2
+        level: 3
+        triggers:
+          - Throughput.producer.sendNextMessage
+        sources:
+        effects:
+          - Throughput.producer.outFinished
+          - Throughput.producer.outMessage
+          - Throughput.producer.sendNextMessage
+  Throughput.runner:
+    name: runner
+    container: Throughput
+    reactor_instances:
+    inputs:
+      finished:
+        upstream_port: Throughput.producer.outFinished
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.runner.reaction_3
+        source_of: 
+        effect_of: 
+      start:
+        upstream_port: null
+        downstream_ports: 
+          - Throughput.producer.inStart
+        trigger_of: 
+        source_of: 
+        effect_of: 
+          - Throughput.runner.reaction_2
+    outputs:
+    triggers:
+      - name: nextIteration
+        type: logical action
+        trigger_of:
+          - Throughput.runner.reaction_2
+        effect_of:
+          - Throughput.runner.reaction_1
+          - Throughput.runner.reaction_3
+      - name: done
+        type: logical action
+        trigger_of:
+          - Throughput.runner.reaction_4
+        effect_of:
+          - Throughput.runner.reaction_3
+      - name: startup
+        type: startup
+        trigger_of:
+          - Throughput.runner.reaction_1
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 0
+        triggers:
+          - Throughput.runner.startup
+        sources:
+        effects:
+          - Throughput.runner.nextIteration
+      - name: reaction_2
+        priority: 2
+        level: 1
+        triggers:
+          - Throughput.runner.nextIteration
+        sources:
+        effects:
+          - Throughput.runner.start
+      - name: reaction_3
+        priority: 3
+        level: 4
+        triggers:
+          - Throughput.runner.finished
+        sources:
+        effects:
+          - Throughput.runner.nextIteration
+          - Throughput.runner.done
+      - name: reaction_4
+        priority: 4
+        level: 5
+        triggers:
+          - Throughput.runner.done
+        sources:
+        effects:
+  Throughput.worker_0:
+    name: worker_0
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_0.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_0.inMessage
+        sources:
+        effects:
+  Throughput.worker_1:
+    name: worker_1
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_1.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_1.inMessage
+        sources:
+        effects:
+  Throughput.worker_2:
+    name: worker_2
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_2.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_2.inMessage
+        sources:
+        effects:
+  Throughput.worker_3:
+    name: worker_3
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_3.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_3.inMessage
+        sources:
+        effects:
+  Throughput.worker_4:
+    name: worker_4
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_4.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_4.inMessage
+        sources:
+        effects:
+  Throughput.worker_5:
+    name: worker_5
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_5.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_5.inMessage
+        sources:
+        effects:
+  Throughput.worker_6:
+    name: worker_6
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_6.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_6.inMessage
+        sources:
+        effects:
+  Throughput.worker_7:
+    name: worker_7
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_7.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_7.inMessage
+        sources:
+        effects:
+  Throughput.worker_8:
+    name: worker_8
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_8.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_8.inMessage
+        sources:
+        effects:
+  Throughput.worker_9:
+    name: worker_9
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_9.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_9.inMessage
+        sources:
+        effects:
+  Throughput.worker_10:
+    name: worker_10
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_10.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_10.inMessage
+        sources:
+        effects:
+  Throughput.worker_11:
+    name: worker_11
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_11.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_11.inMessage
+        sources:
+        effects:
+  Throughput.worker_12:
+    name: worker_12
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_12.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_12.inMessage
+        sources:
+        effects:
+  Throughput.worker_13:
+    name: worker_13
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_13.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_13.inMessage
+        sources:
+        effects:
+  Throughput.worker_14:
+    name: worker_14
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_14.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_14.inMessage
+        sources:
+        effects:
+  Throughput.worker_15:
+    name: worker_15
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_15.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_15.inMessage
+        sources:
+        effects:
+  Throughput.worker_16:
+    name: worker_16
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_16.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_16.inMessage
+        sources:
+        effects:
+  Throughput.worker_17:
+    name: worker_17
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_17.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_17.inMessage
+        sources:
+        effects:
+  Throughput.worker_18:
+    name: worker_18
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_18.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_18.inMessage
+        sources:
+        effects:
+  Throughput.worker_19:
+    name: worker_19
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_19.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_19.inMessage
+        sources:
+        effects:
+  Throughput.worker_20:
+    name: worker_20
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_20.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_20.inMessage
+        sources:
+        effects:
+  Throughput.worker_21:
+    name: worker_21
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_21.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_21.inMessage
+        sources:
+        effects:
+  Throughput.worker_22:
+    name: worker_22
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_22.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_22.inMessage
+        sources:
+        effects:
+  Throughput.worker_23:
+    name: worker_23
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_23.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_23.inMessage
+        sources:
+        effects:
+  Throughput.worker_24:
+    name: worker_24
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_24.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_24.inMessage
+        sources:
+        effects:
+  Throughput.worker_25:
+    name: worker_25
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_25.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_25.inMessage
+        sources:
+        effects:
+  Throughput.worker_26:
+    name: worker_26
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_26.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_26.inMessage
+        sources:
+        effects:
+  Throughput.worker_27:
+    name: worker_27
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_27.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_27.inMessage
+        sources:
+        effects:
+  Throughput.worker_28:
+    name: worker_28
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_28.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_28.inMessage
+        sources:
+        effects:
+  Throughput.worker_29:
+    name: worker_29
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_29.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_29.inMessage
+        sources:
+        effects:
+  Throughput.worker_30:
+    name: worker_30
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_30.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_30.inMessage
+        sources:
+        effects:
+  Throughput.worker_31:
+    name: worker_31
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_31.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_31.inMessage
+        sources:
+        effects:
+  Throughput.worker_32:
+    name: worker_32
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_32.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_32.inMessage
+        sources:
+        effects:
+  Throughput.worker_33:
+    name: worker_33
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_33.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_33.inMessage
+        sources:
+        effects:
+  Throughput.worker_34:
+    name: worker_34
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_34.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_34.inMessage
+        sources:
+        effects:
+  Throughput.worker_35:
+    name: worker_35
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_35.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_35.inMessage
+        sources:
+        effects:
+  Throughput.worker_36:
+    name: worker_36
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_36.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_36.inMessage
+        sources:
+        effects:
+  Throughput.worker_37:
+    name: worker_37
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_37.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_37.inMessage
+        sources:
+        effects:
+  Throughput.worker_38:
+    name: worker_38
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_38.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_38.inMessage
+        sources:
+        effects:
+  Throughput.worker_39:
+    name: worker_39
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_39.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_39.inMessage
+        sources:
+        effects:
+  Throughput.worker_40:
+    name: worker_40
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_40.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_40.inMessage
+        sources:
+        effects:
+  Throughput.worker_41:
+    name: worker_41
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_41.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_41.inMessage
+        sources:
+        effects:
+  Throughput.worker_42:
+    name: worker_42
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_42.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_42.inMessage
+        sources:
+        effects:
+  Throughput.worker_43:
+    name: worker_43
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_43.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_43.inMessage
+        sources:
+        effects:
+  Throughput.worker_44:
+    name: worker_44
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_44.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_44.inMessage
+        sources:
+        effects:
+  Throughput.worker_45:
+    name: worker_45
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_45.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_45.inMessage
+        sources:
+        effects:
+  Throughput.worker_46:
+    name: worker_46
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_46.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_46.inMessage
+        sources:
+        effects:
+  Throughput.worker_47:
+    name: worker_47
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_47.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_47.inMessage
+        sources:
+        effects:
+  Throughput.worker_48:
+    name: worker_48
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_48.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_48.inMessage
+        sources:
+        effects:
+  Throughput.worker_49:
+    name: worker_49
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_49.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_49.inMessage
+        sources:
+        effects:
+  Throughput.worker_50:
+    name: worker_50
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_50.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_50.inMessage
+        sources:
+        effects:
+  Throughput.worker_51:
+    name: worker_51
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_51.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_51.inMessage
+        sources:
+        effects:
+  Throughput.worker_52:
+    name: worker_52
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_52.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_52.inMessage
+        sources:
+        effects:
+  Throughput.worker_53:
+    name: worker_53
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_53.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_53.inMessage
+        sources:
+        effects:
+  Throughput.worker_54:
+    name: worker_54
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_54.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_54.inMessage
+        sources:
+        effects:
+  Throughput.worker_55:
+    name: worker_55
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_55.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_55.inMessage
+        sources:
+        effects:
+  Throughput.worker_56:
+    name: worker_56
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_56.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_56.inMessage
+        sources:
+        effects:
+  Throughput.worker_57:
+    name: worker_57
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_57.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_57.inMessage
+        sources:
+        effects:
+  Throughput.worker_58:
+    name: worker_58
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_58.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_58.inMessage
+        sources:
+        effects:
+  Throughput.worker_59:
+    name: worker_59
+    container: Throughput
+    reactor_instances:
+    inputs:
+      inMessage:
+        upstream_port: Throughput.producer.outMessage
+        downstream_ports: 
+        trigger_of: 
+          - Throughput.worker_59.reaction_1
+        source_of: 
+        effect_of: 
+    outputs:
+    triggers:
+      - name: startup
+        type: startup
+        trigger_of:
+        effect_of:
+      - name: shutdown
+        type: shutdown
+        trigger_of:
+        effect_of:
+    reactions:
+      - name: reaction_1
+        priority: 1
+        level: 4
+        triggers:
+          - Throughput.worker_59.inMessage
+        sources:
+        effects:
+reaction_dependencies:
+  - from: Throughput.producer.reaction_1
+  - to: Throughput.runner.reaction_2
+  - from: Throughput.producer.reaction_2
+  - to: Throughput.producer.reaction_1
+  - from: Throughput.runner.reaction_3
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.runner.reaction_2
+  - to: Throughput.runner.reaction_1
+  - from: Throughput.runner.reaction_3
+  - to: Throughput.runner.reaction_2
+  - from: Throughput.runner.reaction_4
+  - to: Throughput.runner.reaction_3
+  - from: Throughput.worker_0.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_1.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_2.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_3.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_4.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_5.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_6.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_7.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_8.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_9.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_10.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_11.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_12.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_13.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_14.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_15.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_16.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_17.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_18.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_19.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_20.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_21.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_22.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_23.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_24.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_25.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_26.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_27.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_28.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_29.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_30.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_31.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_32.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_33.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_34.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_35.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_36.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_37.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_38.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_39.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_40.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_41.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_42.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_43.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_44.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_45.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_46.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_47.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_48.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_49.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_50.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_51.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_52.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_53.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_54.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_55.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_56.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_57.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_58.reaction_1
+  - to: Throughput.producer.reaction_2
+  - from: Throughput.worker_59.reaction_1
+  - to: Throughput.producer.reaction_2
