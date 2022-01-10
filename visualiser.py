@@ -14,21 +14,31 @@ class visualiser:
     
     def __init__(self, yaml_filepath, json_filepath):
         
-        # list of tuples - [(reactor1, reaction1),(reactor2, reaction2)]
-        self.y_axis_labels = []
+        yaml = parse_yaml(yaml_filepath)
+        json = parse_json(json_filepath)
+        
+        # [reactor.name0, reactor.name1, ...]
+        self.y_axis_labels = json.y_axis_labels
+        
+        # {reactor.name0 : 0, reactor.name1 : 1, ...}
+        self.reactor_number = json.reactor_number
 
-        yaml_data = parse_yaml(yaml_filepath).reaction_dict
+        # reversal of reactor_number
+        self.number_label = json.number_label
+
+        yaml_data = yaml.reaction_dict
         # {reactor : {reaction : {attribute : value}}}
         
-        json_data = parse_json(json_filepath).data
+        json_data = json.data
         # {reactor: {reaction: [list of executions of reactions]}}
         
         
         # Dictionary containing all compiled data for each instantaneous event execution
-        self.ordered_inst_events_dict = {"name": [], "reactor": [], "reaction": [], "time_start": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": []}
+        self.ordered_inst_events_dict = {"name": [], "reactor": [], "reaction": [], "time_start": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": [], "y_axis" : []}
         
         # Dictionary containing all compiled data for each execution event execution
-        self.ordered_exe_events_dict = {"name": [], "time_start": [], "time_end": [], "priority": [], "level": [], "triggers": [], "effects": [], "x_multi_line" : [], "y_multi_line" : []}
+        self.ordered_exe_events_dict = {"name": [], "time_start": [], "time_end": [], "priority": [
+        ], "level": [], "triggers": [], "effects": [], "x_multi_line": [], "y_multi_line": [], "y_axis": []}
 
         
         # Iterate through all recorded reactions and order into dicts
@@ -42,16 +52,18 @@ class visualiser:
                     
                         # JSON Data
                         self.ordered_exe_events_dict["name"].append(reaction_instance["name"])
-                        self.ordered_exe_events_dict["time_start"].append(
-                            reaction_instance["ts"])
+                        self.ordered_exe_events_dict["time_start"].append(reaction_instance["ts"])
                         
                         # x - main reactor name
-                        # y - reactor name
+                        # y - reactor name                      E.g. ReflexGame.g.reaction1
                         # z - reaction name
                         x,y,z = reaction_instance["name"].split(".", 2)
                         
                         current_reactor_name = x + "." + y
                         current_reaction_name = z
+                        
+                        self.ordered_exe_events_dict["y_axis"].append(
+                            self.reactor_number[reaction_instance["name"]])
                         
                         current_reaction = yaml_data[current_reactor_name][current_reaction_name]
                         
@@ -79,18 +91,19 @@ class visualiser:
             # All other events from the trace 
             else:
                 for reaction in reactions:
-                    self.y_axis_labels.append((reactor, reaction))
-                    
                     for reaction_instance in json_data[reactor][reaction]:
                         
                         # JSON Data
-                        self.ordered_inst_events_dict["name"].append(reactor + "." + reaction)
+                        self.ordered_inst_events_dict["name"].append(
+                            reactor + "." + reaction)
                         self.ordered_inst_events_dict["reactor"].append(reactor)
                         self.ordered_inst_events_dict["reaction"].append(reaction)
                         self.ordered_inst_events_dict["time_start"].append(
                             reaction_instance["ts"])
                         self.ordered_inst_events_dict["trace_event_type"].append(
                             reaction_instance["ph"])
+                        self.ordered_inst_events_dict["y_axis"].append(
+                            self.reactor_number[reactor + "." + reaction])
                         
                         # YAML Data
                         current_reaction = yaml_data[reactor][reaction]
@@ -121,10 +134,8 @@ class visualiser:
             ("triggers", "@triggers"),
             ("effects", "@effects"),
         ]
-        
-        y_axis_names = ['.'.join(tup) for tup in self.y_axis_labels]
 
-        p = figure(y_range=y_axis_names, sizing_mode="stretch_both",
+        p = figure(sizing_mode="stretch_both",
                    title="Trace Visualisation", tooltips=TOOLTIPS)
         
         
@@ -132,7 +143,7 @@ class visualiser:
         # All instantaneous events
         source_inst_events = ColumnDataSource(self.ordered_inst_events_dict)
 
-        p.diamond(x='time_start', y=jitter('name', width=0.6, range=p.y_range),
+        p.diamond(x='time_start', y=jitter('y_axis', width=0.6),
                   size=10, source=source_inst_events, legend_label="Instantaneous Events", muted_alpha=0.2)
         
         
@@ -144,19 +155,23 @@ class visualiser:
             self.ordered_exe_events_dict["x_multi_line"].append(
                 [start_time, end_time])
 
-        for reaction_name in self.ordered_exe_events_dict["name"]:
+        for y_value in self.ordered_exe_events_dict["y_axis"]:
             self.ordered_exe_events_dict["y_multi_line"].append(
-                [reaction_name, reaction_name])
+                [y_value, y_value])
 
         
         # data source
-            # source_exec_events = ColumnDataSource(
-            #     self.ordered_exe_events_dict)
-                
-            # # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
+        source_exec_events = ColumnDataSource(
+            self.ordered_exe_events_dict)
+        
+        print(self.ordered_exe_events_dict["x_multi_line"])
+        print("\n")
+        print(self.ordered_exe_events_dict["y_multi_line"])
+            
+        # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
 
-            # p.line( ,
-            #             legend_label="Execution Events", muted_alpha=0.2)
+        p.multi_line(xs='x_multi_line', ys='y_multi_line', width=0.6,
+                    source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------      
 
@@ -166,6 +181,10 @@ class visualiser:
         # Toggle to hide/show events
         p.legend.click_policy = "mute"
         
+        # Rename Axes
+        p.yaxis.ticker = [y for y in range(len(self.y_axis_labels))]
+        p.yaxis.major_label_overrides = self.number_label
+
         
         show(p)
 
