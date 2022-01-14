@@ -189,9 +189,8 @@ class visualiser:
         show(p)
 
 
-
-vis = visualiser("YamlFiles/ReflexGame.yaml",
-                 "traces/reflextrace_formatted.json")
+vis = visualiser("YamlFiles/FullyConnected_00_Broadcast.yaml",
+                 "traces/broadcast_formatted.json")
 
 vis.build_graph()
 
