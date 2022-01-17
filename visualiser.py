@@ -3,7 +3,7 @@ from Parser.jsonParser import parse_json
 from Parser.yamlParser import parse_yaml
 
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource
+from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.plotting import figure, show
 from bokeh.transform import jitter
 
@@ -146,15 +146,8 @@ class visualiser:
 
         # Define figure
         p = figure(sizing_mode="stretch_both",
-                   title=self.graph_name, tooltips=TOOLTIPS)
+                   title=self.graph_name)
         
-        
-        # -------------------------------------------------------------------
-        # All instantaneous events
-        source_inst_events = ColumnDataSource(self.ordered_inst_events_dict)
-
-        p.diamond(x='time_start', y=jitter('y_axis', width=0.6),
-                  size=15, source=source_inst_events, legend_label="Instantaneous Events", muted_alpha=0.2)
         
         
         # -------------------------------------------------------------------
@@ -177,10 +170,27 @@ class visualiser:
             
         # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
 
-        p.multi_line(xs='x_multi_line', ys='y_multi_line', width=12, color="mediumseagreen", hover_alpha=0.5,
+        exe_line = p.multi_line(xs='x_multi_line', ys='y_multi_line', width=12, color="mediumseagreen", hover_alpha=0.5,
                     source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------      
+        
+        # Execution event markers 
+        exe_x_marker = [((x1 + x2)/2) for x1, x2 in self.ordered_exe_events_dict["x_multi_line"]] 
+        exe_y_marker = self.ordered_exe_events_dict["y_axis"]
+        
+        exe_marker = p.diamond(exe_x_marker, exe_y_marker, color="mediumspringgreen",
+                    size = 10, legend_label = "Execution Event Markers", muted_alpha = 0.2)
+        
+        # -------------------------------------------------------------------
+        
+        # All instantaneous events
+        source_inst_events = ColumnDataSource(self.ordered_inst_events_dict)
+
+        inst_hex = p.hex(x='time_start', y=jitter('y_axis', width=0, mean=0.25),
+              size=10, source=source_inst_events, legend_label="Instantaneous Events", muted_alpha=0.2)
+
+        # -------------------------------------------------------------------
 
         p.legend.location = "top_left"
 
@@ -191,9 +201,16 @@ class visualiser:
         p.yaxis.ticker = [y for y in range(len(self.y_axis_labels))]
         p.yaxis.major_label_overrides = self.number_label
 
+        # background
         p.background_fill_color = "beige"
         p.background_fill_alpha = 0.5
         
+        # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
+        hover_tool = HoverTool(tooltips=TOOLTIPS, renderers=[
+                               inst_hex, exe_line])
+        p.add_tools(hover_tool)
+        
+                
         show(p)
 
 
