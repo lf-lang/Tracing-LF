@@ -66,12 +66,3 @@ class parse_json:
         # reverse number_label dict
         self.reactor_number = {v: k for k, v in self.number_label.items()}
 
-
-       
-    def get_reactions(self, reactor_name, reaction_name):
-        """Returns the trace information of a given reactor and reaction"""
-        for reactor, reactions in self.data.items():
-            if reactor == reactor_name:
-                for reaction in reactions:
-                    if reaction == reaction_name:
-                        return reactions[reaction]
