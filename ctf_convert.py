@@ -99,7 +99,7 @@ def main():
             
             # Store the message in a dict (ph = 'B')
             if (event.name == "reactor_cpp:reaction_execution_starts"):
-                execution_messages_dict[msg.event["reaction_name"]] = msg
+                execution_messages_dict[msg.event["reaction_name"]] = msg.event
             
             # Add the begin and end message of the execution to the trace dict (ph = 'E')
             elif (event.name == "reactor_cpp:reaction_execution_finishes"):
@@ -179,9 +179,7 @@ def get_timestamp_us(msg):
     return timestamp_ns / 1000.0
 
 
-def reaction_execution_starts_to_dict(trace_events, msg):
-    
-    event = msg.event
+def reaction_execution_starts_to_dict(trace_events, event):
     tid = int(event["worker_id"])
     
     trace_events["0"][str(tid)].append({
