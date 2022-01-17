@@ -17,6 +17,8 @@ class visualiser:
         yaml = parse_yaml(yaml_filepath)
         json = parse_json(json_filepath)
         
+        self.graph_name = yaml_filepath.split(".")[0] + "_Trace"
+        
         # [reactor.name0, reactor.name1, ...]
         self.y_axis_labels = json.y_axis_labels
         
@@ -122,9 +124,10 @@ class visualiser:
     def build_graph(self):
         """Builds the bokeh graph"""
 
-        # output to static HTML file
-        output_file("test.html")
+        # Output to 
+        output_file(self.graph_name + ".html")
         
+        # Define tooltips
         TOOLTIPS = [
             ("name", "@name"),
             ("time_start", "@time_start"),
@@ -135,8 +138,9 @@ class visualiser:
             ("effects", "@effects"),
         ]
 
+        # Define figure
         p = figure(sizing_mode="stretch_both",
-                   title="Trace Visualisation", tooltips=TOOLTIPS)
+                   title=self.graph_name, tooltips=TOOLTIPS)
         
         
         # -------------------------------------------------------------------
@@ -164,17 +168,13 @@ class visualiser:
         source_exec_events = ColumnDataSource(
             self.ordered_exe_events_dict)
         
-        print(self.ordered_exe_events_dict["x_multi_line"])
-        print("\n")
-        print(self.ordered_exe_events_dict["y_multi_line"])
             
         # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
 
-        p.multi_line(xs='x_multi_line', ys='y_multi_line', width=0.6,
+        p.multi_line(xs='x_multi_line', ys='y_multi_line', width=5, color="darkorange",
                     source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------      
-
 
         p.legend.location = "top_left"
 
@@ -190,7 +190,7 @@ class visualiser:
 
 
 vis = visualiser("YamlFiles/FullyConnected_00_Broadcast.yaml",
-                 "traces/broadcast_formatted.json")
+                 "traces/trace.json")
 
 vis.build_graph()
 
