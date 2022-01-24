@@ -3,7 +3,7 @@ from Parser.parse_files import parser
 
 
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, HoverTool
+from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead
 from bokeh.plotting import figure, show
 from bokeh.transform import jitter
 
@@ -89,13 +89,77 @@ class visualiser:
                                 size=10, source=source_inst_events_actions, legend_label="Instantaneous Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
+        
+        # Arrows
+        
+        # Iterate over all reactions
+        for i in range(len(self.ordered_inst_events_dict["name"])):
+            
+            # Get the string of the reaction that is triggered as an effect of the current reaction
+            reaction_effect = str(self.ordered_inst_events_dict["effects"][i])[0]
+            reaction_trigger = self.ordered_inst_events_dict["triggers"][i][0]
+            
+            print("reaction: " + self.ordered_inst_events_dict["name"][i] + " - reaction trigger: " + reaction_trigger)
+            
+            # If the reaction has an effect
+            if reaction_effect != "n":
+                x_start = self.ordered_inst_events_dict["time_start"][i]
+                y_start = self.ordered_inst_events_dict["y_axis"][i]
+                
+                # start iteration from current reaction index plus one (list is ordered chronologically)
+                j = i + 1
+                future_reactions = self.ordered_inst_events_dict["name"][i+1:]
+                print(future_reactions)
+                for reaction in future_reactions:
+                    if reaction == reaction_effect:
+                        x_end = self.ordered_inst_events_dict["time_start"][j]
+                        y_end = self.ordered_inst_events_dict["y_axis"][j]
+                        p.add_layout(Arrow(end=OpenHead(line_width=1, size=10),
+                                           x_start=x_start, y_start=y_start, x_end=x_end, y_end=y_end))
+                        
+                        # Goto next reaction
+                        break
 
+                    # increment index
+                    j += 1
+        
+            # If the reaction has an effect
+            if reaction_trigger != "n":
+                print("wow")
+                x_end = self.ordered_inst_events_dict["time_start"][i]
+                y_end = self.ordered_inst_events_dict["y_axis"][i]
+
+                # Iterate over all previous reactions (from start to current reaction), reversing the list to go from more recent to least recent
+                j = i - 1
+                previous_reactions = list(
+                    reversed(self.ordered_inst_events_dict["name"][:j-1]))
+                for reaction in previous_reactions:
+                    if reaction == reaction_trigger:
+                        x_start = self.ordered_inst_events_dict["time_start"][j]
+                        y_start = self.ordered_inst_events_dict["y_axis"][j]
+                        p.add_layout(Arrow(end=OpenHead(line_width=2, size=10),
+                                           x_start=x_start, y_start=y_start, x_end=x_end, y_end=y_end))
+
+                        # Goto next reaction
+                        break
+
+                    # increment index
+                    j -= 1
+        
+
+        
+        
+        
+        # -------------------------------------------------------------------
+        
+        
+        
 
         p.legend.location = "top_left"
 
         # Toggle to hide/show events
         p.legend.click_policy = "mute"
-        
+
         # Rename Axes
         p.yaxis.ticker = [y for y in range(len(self.y_axis_labels))]
         p.yaxis.major_label_overrides = self.number_label
