@@ -226,9 +226,3 @@ class parser:
     def get_number_label(self):
         return self.number_label
     
-
-p = parser()
-p.parse("yaml_files/Throughput.yaml",
-        "traces/throughput_new.json")
-
-print("done")
