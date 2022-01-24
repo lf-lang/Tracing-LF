@@ -74,16 +74,24 @@ def main():
 
     # keep a list of events to dump later to JSON
     trace_events = []
+    
+    execution_messages_dict = {}
 
     # Iterate the trace messages.
     for msg in msg_it:
         # `bt2._EventMessageConst` is the Python type of an event message.
         if type(msg) is bt2._EventMessageConst:
             event = msg.event
+            
 
             if (event.name == "reactor_cpp:reaction_execution_starts"):
-                trace_events.append(reaction_execution_starts_to_dict(msg))
+                execution_messages_dict[str(event["reaction_name"])] = msg
+                
             elif (event.name == "reactor_cpp:reaction_execution_finishes"):
+                
+                value = execution_messages_dict[str(event["reaction_name"])]
+                
+                trace_events.append(reaction_execution_starts_to_dict(value))
                 trace_events.append(reaction_execution_finishes_to_dict(msg))
             elif (event.name == "reactor_cpp:schedule_action"):
                 trace_events.append(schedule_action_to_dict(msg))
@@ -131,7 +139,6 @@ def reaction_execution_finishes_to_dict(msg):
 
 def schedule_action_to_dict(msg):
     event = msg.event
-    pid, tid = get_ids(str(event["reactor_name"]), str(event["action_name"]))
     return {
         "name": "schedule",
         "cat": "Reactors",
@@ -149,7 +156,6 @@ def schedule_action_to_dict(msg):
 
 def trigger_reaction_to_dict(msg):
     event = msg.event
-    pid, tid = get_ids(str(event["reactor_name"]), str(event["reaction_name"]))
     return {
         "name": "trigger",
         "cat": "Reactors",
