@@ -33,11 +33,13 @@ class visualiser:
         # {reactor: {reaction: [list of executions of reactions]}}
         
         
-        # Dictionary containing all compiled data for each instantaneous event execution
+        # Dictionary containing all compiled data for each instantaneous event execution 
+        # Note: time_start is used for the x-axis, y-axis is the y value which is later substituted for a reaction name
         self.ordered_inst_events_dict = {"name": [], "reactor": [], "reaction": [], "time_start": [], "time_end": [], 
                                          "trace_event_type": [], "priority": [], "level": [], "triggers": [], "effects": [], "y_axis": []}
         
         # Dictionary containing all compiled data for each execution event execution
+        # x_multi_line and y_multi_line contain nested lists with start and end x and y values respectively. These are used to draw the multilines
         self.ordered_exe_events_dict = {"name": [], "time_start": [], "time_end": [], "trace_event_type": [], "priority": [], 
                                         "level": [], "triggers": [], "effects": [], "x_multi_line": [], "y_multi_line": [], "y_axis": []}
 
