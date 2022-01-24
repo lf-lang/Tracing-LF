@@ -98,6 +98,7 @@ class visualiser:
                 action_triggers = self.ordered_inst_events_actions["triggers"][i]
                 action_time_start = self.ordered_inst_events_actions["time_start"][i]
                 action_y_coord = self.ordered_inst_events_actions["y_axis"][i]
+                
                 for effect in action_effects:
                     for reaction in range(len(self.ordered_inst_events_reactions["name"])):
                         reaction_name = self.ordered_inst_events_reactions["name"][reaction]
