@@ -59,7 +59,7 @@ class visualiser:
             
         # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
 
-        exe_line = p.multi_line(xs='x_multi_line', ys='y_multi_line', width=12, color="mediumseagreen", hover_alpha=0.5,
+        exe_line = p.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="cornflowerblue", hover_alpha=0.5,
                     source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------      
@@ -75,18 +75,18 @@ class visualiser:
         # -------------------------------------------------------------------
         
         # All instantaneous events that are reactions
-        source_inst_events = ColumnDataSource(self.ordered_inst_events_reactions)
+        source_inst_events_reactions = ColumnDataSource(self.ordered_inst_events_reactions)
 
         inst_reaction_hex = p.hex(x='time_start', y=jitter('y_axis', width=0, mean=0.25), fill_color="hotpink",
-                         size=10, source=source_inst_events, legend_label="Instantaneous Events", muted_alpha=0.2)
+                                  size=10, source=source_inst_events_reactions, legend_label="Instantaneous Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
         
         # All instantaneous events that are actions
-        source_inst_events = ColumnDataSource(self.ordered_inst_events_actions)
+        source_inst_events_actions = ColumnDataSource(self.ordered_inst_events_actions)
 
-        inst_action_hex = p.hex(x='time_start', y=jitter('y_axis', width=0, mean=0.25), fill_color=" cadetblue",
-                         size=10, source=source_inst_events, legend_label="Instantaneous Events", muted_alpha=0.2)
+        inst_action_hex = p.hex(x='time_start', y=jitter('y_axis', width=0, mean=0.25), fill_color="cadetblue",
+                                size=10, source=source_inst_events_actions, legend_label="Instantaneous Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
 
@@ -116,7 +116,7 @@ class visualiser:
 
 
 if(__name__ == "__main__"):
-    vis = visualiser("yaml_files/Throughput.yaml",
-                     "traces/throughput_new.json")
+    vis = visualiser("yaml_files/FullyConnected_01_Addressable.yaml",
+                     "traces/FullyConnected_01_Addressable.json")
 
     vis.build_graph()
