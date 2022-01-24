@@ -33,14 +33,15 @@ class parser:
             item["ts"] = current_start_time - start_time
             
             # add reaction to reactions
-            reaction_name = item["reactor"] + "." + item["reaction"]
-            
-            if reaction_name not in self.y_axis_labels:
-                self.number_label[len(
-                    self.y_axis_labels)] = reaction_name
+            if item["reactor"] != "Execution":
+                reaction_name = item["reactor"] + "." + item["reaction"]
+                
+                if reaction_name not in self.y_axis_labels:
+                    self.number_label[len(
+                        self.y_axis_labels)] = reaction_name
 
-                # Add reactor name to list
-                self.y_axis_labels.append(reaction_name)
+                    # Add reactor name to list
+                    self.y_axis_labels.append(reaction_name)
                 
         # inverse of number_label dictionary
         self.reactor_number = {v: k for k, v in self.number_label.items()}
@@ -52,7 +53,7 @@ class parser:
         
         # Dictionary containing all compiled data for each instantaneous event execution
         self.ordered_inst_events_actions = {"name": [], "reactor": [], "reaction": [], "time_start": [], "time_end": [],
-                                         "trace_event_type": [], "y_axis": []}
+                                            "trace_event_type": [], "y_axis": [], "effects": []}
 
         # Dictionary containing all compiled data for each execution event execution
         # x_multi_line and y_multi_line contain nested lists with start and end x and y values respectively. These are used to draw the multilines
@@ -92,9 +93,10 @@ class parser:
                 reaction_yaml_data = yaml_data[current_reactor_name][current_reaction_name]
 
                 # JSON Data
-                self.ordered_exe_events["name"].append(reactor_reaction_name)
+                self.ordered_exe_events["name"].append(item["name"])
                 self.ordered_exe_events["time_start"].append(time_start)
-                self.ordered_exe_events["y_axis"].append(self.reactor_number[reactor_reaction_name])
+                self.ordered_exe_events["y_axis"].append(
+                    self.reactor_number[item["name"]])
                 self.ordered_exe_events["trace_event_type"].append("execution")
 
                 # YAML Data
@@ -135,10 +137,13 @@ class parser:
                     self.ordered_inst_events_actions["time_end"].append(time_start)   #same for instant events
                     self.ordered_inst_events_actions["trace_event_type"].append("instant")
                     self.ordered_inst_events_actions["y_axis"].append(self.reactor_number[reactor_reaction_name])
+                    self.ordered_inst_events_actions["effects"].append(reaction_yaml_data["effects"])
 
                 
                 # If the the event is a reaction, add to self.ordered_inst_events_reactions
                 else:
+                    if reactor_reaction_name == "Throughput.runner.reaction_3":
+                        print(time_start)
                     # JSON Data
                     self.ordered_inst_events_reactions["name"].append(reactor_reaction_name)
                     self.ordered_inst_events_reactions["reactor"].append(reactor_name)
