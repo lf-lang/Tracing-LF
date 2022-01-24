@@ -53,7 +53,7 @@ class parser:
         
         # Dictionary containing all compiled data for each instantaneous event execution
         self.ordered_inst_events_actions = {"name": [], "reactor": [], "reaction": [], "time_start": [], "time_end": [],
-                                            "trace_event_type": [], "y_axis": [], "effects": []}
+                                            "trace_event_type": [], "y_axis": [], "effects": [], "triggers": []}
 
         # Dictionary containing all compiled data for each execution event execution
         # x_multi_line and y_multi_line contain nested lists with start and end x and y values respectively. These are used to draw the multilines
@@ -136,8 +136,10 @@ class parser:
                     self.ordered_inst_events_actions["time_start"].append(time_start)
                     self.ordered_inst_events_actions["time_end"].append(time_start)   #same for instant events
                     self.ordered_inst_events_actions["trace_event_type"].append("instant")
-                    self.ordered_inst_events_actions["y_axis"].append(self.reactor_number[reactor_reaction_name])
+                    self.ordered_inst_events_actions["y_axis"].append(self.reactor_number[reactor_reaction_name] + 0.25) # Add some to display 0.25 above and make room
                     self.ordered_inst_events_actions["effects"].append(reaction_yaml_data["effects"])
+                    self.ordered_inst_events_actions["triggers"].append(
+                        reaction_yaml_data["triggers"])
 
                 
                 # If the the event is a reaction, add to self.ordered_inst_events_reactions
@@ -151,7 +153,7 @@ class parser:
                     self.ordered_inst_events_reactions["time_start"].append(time_start)
                     self.ordered_inst_events_reactions["time_end"].append(time_start)  # start and end is the same for instant events
                     self.ordered_inst_events_reactions["trace_event_type"].append("instant")
-                    self.ordered_inst_events_reactions["y_axis"].append(self.reactor_number[reactor_reaction_name])
+                    self.ordered_inst_events_reactions["y_axis"].append(self.reactor_number[reactor_reaction_name] + 0.25)  # Add some to display 0.25 above and make room
 
                     # YAML Data
                     for attribute in attribute_list:
