@@ -24,9 +24,10 @@ class visualiser:
         
         self.graph_name = "Trace"
     
-    
-    def build_graph(self):
+    def build_graph(self, draw_arrows):
         """Builds the bokeh graph"""
+        
+        self.draw_arrows = draw_arrows
 
         # Output to 
         output_file(self.graph_name + ".html")
@@ -69,7 +70,7 @@ class visualiser:
                         for x1, x2 in self.ordered_exe_events["x_multi_line"]]
         exe_y_marker = self.ordered_exe_events["y_axis"]
         
-        exe_marker = p.diamond(exe_x_marker, exe_y_marker, color="mediumspringgreen",
+        exe_marker = p.diamond(exe_x_marker, exe_y_marker, color="mediumspringgreen", 
                     size = 10, legend_label = "Execution Event Markers", muted_alpha = 0.2)
         
         # -------------------------------------------------------------------
@@ -77,7 +78,7 @@ class visualiser:
         # All instantaneous events that are reactions
         source_inst_events_reactions = ColumnDataSource(self.ordered_inst_events_reactions)
 
-        inst_reaction_hex = p.hex(x='time_start', y=jitter('y_axis', width=0, mean=0.25), fill_color="hotpink",
+        inst_reaction_hex = p.hex(x='time_start', y='y_axis', fill_color="hotpink", 
                                   size=10, source=source_inst_events_reactions, legend_label="Instantaneous Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
@@ -85,71 +86,39 @@ class visualiser:
         # All instantaneous events that are actions
         source_inst_events_actions = ColumnDataSource(self.ordered_inst_events_actions)
 
-        inst_action_hex = p.hex(x='time_start', y=jitter('y_axis', width=0, mean=0.25), fill_color="cadetblue",
+        inst_action_hex = p.hex(x='time_start', y='y_axis', fill_color="cadetblue",
                                 size=10, source=source_inst_events_actions, legend_label="Instantaneous Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
         
         # Arrows
-        
-        # Iterate over all reactions
-        for i in range(len(self.ordered_inst_events_dict["name"])):
-            
-            # Get the string of the reaction that is triggered as an effect of the current reaction
-            reaction_effect = str(self.ordered_inst_events_dict["effects"][i])[0]
-            reaction_trigger = self.ordered_inst_events_dict["triggers"][i][0]
-            
-            print("reaction: " + self.ordered_inst_events_dict["name"][i] + " - reaction trigger: " + reaction_trigger)
-            
-            # If the reaction has an effect
-            if reaction_effect != "n":
-                x_start = self.ordered_inst_events_dict["time_start"][i]
-                y_start = self.ordered_inst_events_dict["y_axis"][i]
-                
-                # start iteration from current reaction index plus one (list is ordered chronologically)
-                j = i + 1
-                future_reactions = self.ordered_inst_events_dict["name"][i+1:]
-                print(future_reactions)
-                for reaction in future_reactions:
-                    if reaction == reaction_effect:
-                        x_end = self.ordered_inst_events_dict["time_start"][j]
-                        y_end = self.ordered_inst_events_dict["y_axis"][j]
-                        p.add_layout(Arrow(end=OpenHead(line_width=1, size=10),
-                                           x_start=x_start, y_start=y_start, x_end=x_end, y_end=y_end))
+        if self.draw_arrows == True:
+            for i in range(len(self.ordered_inst_events_actions["name"])):
+                action_effects = self.ordered_inst_events_actions["effects"][i]
+                action_triggers = self.ordered_inst_events_actions["triggers"][i]
+                action_time_start = self.ordered_inst_events_actions["time_start"][i]
+                action_y_coord = self.ordered_inst_events_actions["y_axis"][i]
+                for effect in action_effects:
+                    for reaction in range(len(self.ordered_inst_events_reactions["name"])):
+                        reaction_name = self.ordered_inst_events_reactions["name"][reaction]
+                        reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
+                        if reaction_name == effect and reaction_time >= action_time_start:
+                            p.add_layout(Arrow(end=OpenHead(
+                                line_width=1, size=10), x_start=action_time_start, y_start=action_y_coord, 
+                                x_end=reaction_time, y_end=self.ordered_inst_events_reactions["y_axis"][reaction]))
+                            break
                         
-                        # Goto next reaction
-                        break
-
-                    # increment index
-                    j += 1
-        
-            # If the reaction has an effect
-            if reaction_trigger != "n":
-                print("wow")
-                x_end = self.ordered_inst_events_dict["time_start"][i]
-                y_end = self.ordered_inst_events_dict["y_axis"][i]
-
-                # Iterate over all previous reactions (from start to current reaction), reversing the list to go from more recent to least recent
-                j = i - 1
-                previous_reactions = list(
-                    reversed(self.ordered_inst_events_dict["name"][:j-1]))
-                for reaction in previous_reactions:
-                    if reaction == reaction_trigger:
-                        x_start = self.ordered_inst_events_dict["time_start"][j]
-                        y_start = self.ordered_inst_events_dict["y_axis"][j]
-                        p.add_layout(Arrow(end=OpenHead(line_width=2, size=10),
-                                           x_start=x_start, y_start=y_start, x_end=x_end, y_end=y_end))
-
-                        # Goto next reaction
-                        break
-
-                    # increment index
-                    j -= 1
-        
-
-        
-        
-        
+                for trigger in action_triggers:
+                    previous_reactions = reversed( range(len(self.ordered_inst_events_reactions["name"])) )
+                    for reaction in previous_reactions:
+                        reaction_name = self.ordered_inst_events_reactions["name"][reaction]
+                        reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
+                        if reaction_name == trigger and reaction_time <= action_time_start:
+                            p.add_layout(Arrow(end=OpenHead(
+                                line_width=1, size=10), x_start=reaction_time, y_start=self.ordered_inst_events_reactions["y_axis"][reaction],
+                                x_end=action_time_start, y_end=action_y_coord))
+                            break
+                
         # -------------------------------------------------------------------
         
         
@@ -170,7 +139,7 @@ class visualiser:
         
         # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
         hover_tool = HoverTool(tooltips=TOOLTIPS, renderers=[
-                               inst_reaction_hex, exe_line])
+                               inst_reaction_hex, exe_line, inst_action_hex])
         p.add_tools(hover_tool)
         
                 
@@ -180,7 +149,7 @@ class visualiser:
 
 
 if(__name__ == "__main__"):
-    vis = visualiser("yaml_files/FullyConnected_01_Addressable.yaml",
-                     "traces/FullyConnected_01_Addressable.json")
+    vis = visualiser("yaml_files/ReflexGame.yaml",
+                     "traces/ReflexGame.json")
 
-    vis.build_graph()
+    vis.build_graph(True)
