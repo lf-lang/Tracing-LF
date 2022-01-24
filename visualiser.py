@@ -7,8 +7,6 @@ from bokeh.models import ColumnDataSource, HoverTool
 from bokeh.plotting import figure, show
 from bokeh.transform import jitter
 
-import argparse
-
 
 class visualiser:
     
@@ -187,8 +185,8 @@ class visualiser:
         # All instantaneous events
         source_inst_events = ColumnDataSource(self.ordered_inst_events_dict)
 
-        inst_hex = p.hex(x='time_start', y=jitter('y_axis', width=0, mean=0.25),
-              size=10, source=source_inst_events, legend_label="Instantaneous Events", muted_alpha=0.2)
+        inst_hex = p.hex(x='time_start', y=jitter('y_axis', width=0, mean=0.25), fill_color="hotpink",
+                         size=10, source=source_inst_events, legend_label="Instantaneous Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
 
@@ -216,16 +214,7 @@ class visualiser:
 
 
 
-
-
 if(__name__ == "__main__"):
-    # parser = argparse.ArgumentParser(
-    #     description="Trace visualisation of a lingua franca C++ trace")
-    # parser.add_argument("json_trace", metavar="Json Trace File", type=str, help="Path to the json trace")
-    # parser.add_argument("yaml_file", metavar="Yaml File", type=str,
-    #                     help="Path to the yaml file")
-    # args = parser.parse_args()
-    
     vis = visualiser("yaml_files/ReflexGame.yaml",
                      "traces/reflextrace_formatted.json")
 
