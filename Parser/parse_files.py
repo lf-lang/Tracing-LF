@@ -205,8 +205,8 @@ class parser:
                 for trigger in items["triggers"]:
 
                     # rename trigger_of and event_of for clarity
-                    trigger["effects"] = trigger.pop("effect_of")
-                    trigger["triggers"] = trigger.pop("trigger_of")
+                    trigger["triggers"] = trigger.pop("effect_of")
+                    trigger["effects"] = trigger.pop("trigger_of")
 
                     reaction_dict[reactor][trigger["name"]] = trigger
 
