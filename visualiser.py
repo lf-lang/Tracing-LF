@@ -3,7 +3,7 @@ from Parser.parse_files import parser
 
 
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead
+from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead, NormalHead
 from bokeh.plotting import figure, show
 from bokeh.palettes import Spectral as spectral_palette
 
@@ -52,8 +52,8 @@ class visualiser:
                         reaction_name = self.ordered_inst_events_reactions["name"][reaction]
                         reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
                         if reaction_name == effect and reaction_time >= action_time_start:
-                            p.add_layout(Arrow(end=OpenHead(
-                                line_width=1, size=10), x_start=action_time_start, y_start=action_y_coord,
+                            p.add_layout(Arrow(end=NormalHead(
+                                line_width=1, size=5), line_color="burlywood", x_start=action_time_start, y_start=action_y_coord,
                                 x_end=reaction_time, y_end=self.ordered_inst_events_reactions["y_axis"][reaction]))
                             break
 
@@ -64,17 +64,19 @@ class visualiser:
                         reaction_name = self.ordered_inst_events_reactions["name"][reaction]
                         reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
                         if reaction_name == trigger and reaction_time <= action_time_start:
-                            p.add_layout(Arrow(end=OpenHead(
-                                line_width=1, size=10), x_start=reaction_time, y_start=self.ordered_inst_events_reactions["y_axis"][reaction],
+                            p.add_layout(Arrow(end=NormalHead(
+                                line_width=1, size=5), line_color="burlywood", x_start=reaction_time, y_start=self.ordered_inst_events_reactions["y_axis"][reaction],
                                 x_end=action_time_start, y_end=action_y_coord))
                             break
 
         # -------------------------------------------------------------------
 
         # Colors for action/reaction pairs
+        
+        colour_reactions = []
+        colour_actions = []
 
         if draw_colors is True:
-            colour_reactions = []
             for i in range(len(self.ordered_inst_events_actions["name"])):
                 action_effects = self.ordered_inst_events_actions["effects"][i]
                 action_time_start = self.ordered_inst_events_actions["time_start"][i]
@@ -82,15 +84,20 @@ class visualiser:
                     for reaction in range(len(self.ordered_inst_events_reactions["name"])):
                         reaction_name = self.ordered_inst_events_reactions["name"][reaction]
                         reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
-                        if reaction_name == effect and reaction_time == action_time_start:
-                            colour_reactions.append(spectral_palette[6][i % 6])
+                        if reaction_name == effect:
+                            if reaction_time == action_time_start:
+                                colour_reactions.append(spectral_palette[6][i % 6])
                         else:
                             colour_reactions.append("darkgrey")
             
-            colour_actions = colour_reactions 
+            action_amount = len(self.ordered_inst_events_actions["name"])
+            colour_actions = [spectral_palette[6][x % 6] for x in range(action_amount)]
         else:
             colour_reactions = ["hotpink" for x in self.ordered_inst_events_reactions["name"]]
-            colour_actions = ["cadetblue" for x in self.ordered_inst_events_reactions["name"]]
+            colour_actions = ["cadetblue" for x in self.ordered_inst_events_actions["name"]]
+            
+        self.ordered_inst_events_reactions["colours"] = colour_reactions
+        self.ordered_inst_events_actions["colours"] = colour_actions
         
         # -------------------------------------------------------------------
         # All execution events
@@ -120,7 +127,7 @@ class visualiser:
         # All instantaneous events that are reactions
         source_inst_events_reactions = ColumnDataSource(self.ordered_inst_events_reactions)
 
-        inst_reaction_hex = p.hex(x='time_start', y='y_axis', fill_color=colour_reactions, line_color="lightgrey",
+        inst_reaction_hex = p.hex(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                   size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
@@ -128,7 +135,7 @@ class visualiser:
         # All instantaneous events that are actions
         source_inst_events_actions = ColumnDataSource(self.ordered_inst_events_actions)
 
-        inst_action_hex = p.hex(x='time_start', y='y_axis', fill_color=colour_actions, line_color="lightgrey",
+        inst_action_hex = p.hex(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                 size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
         
         # -------------------------------------------------------------------
@@ -188,4 +195,4 @@ if(__name__ == "__main__"):
     vis = visualiser("yaml_files/ReflexGame.yaml",
                      "traces/ReflexGame.json")
 
-    vis.build_graph(False, True)
+    vis.build_graph(True, False)
