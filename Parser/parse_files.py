@@ -7,6 +7,7 @@ class parser:
     def parse(self, yaml_filepath, json_filepath):
 
         # Variables
+        self.x_offset = 0.25
         
         yaml_data = self.parse_yaml(yaml_filepath)
         json_data = self.parse_json(json_filepath)
@@ -136,7 +137,7 @@ class parser:
                     self.ordered_inst_events_actions["time_start"].append(time_start)
                     self.ordered_inst_events_actions["time_end"].append(time_start)   #same for instant events
                     self.ordered_inst_events_actions["trace_event_type"].append("instant")
-                    self.ordered_inst_events_actions["y_axis"].append(self.reactor_number[reactor_reaction_name] + 0.25) # Add some to display 0.25 above and make room
+                    self.ordered_inst_events_actions["y_axis"].append(self.reactor_number[reactor_reaction_name] + self.x_offset)  # Add some to display 0.25 above and make room
                     self.ordered_inst_events_actions["effects"].append(reaction_yaml_data["effects"])
                     self.ordered_inst_events_actions["triggers"].append(
                         reaction_yaml_data["triggers"])
@@ -153,7 +154,7 @@ class parser:
                     self.ordered_inst_events_reactions["time_start"].append(time_start)
                     self.ordered_inst_events_reactions["time_end"].append(time_start)  # start and end is the same for instant events
                     self.ordered_inst_events_reactions["trace_event_type"].append("instant")
-                    self.ordered_inst_events_reactions["y_axis"].append(self.reactor_number[reactor_reaction_name] + 0.25)  # Add some to display 0.25 above and make room
+                    self.ordered_inst_events_reactions["y_axis"].append(self.reactor_number[reactor_reaction_name] + self.x_offset)  # Add some to display 0.25 above and make room
 
                     # YAML Data
                     for attribute in attribute_list:

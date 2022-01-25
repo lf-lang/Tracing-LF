@@ -5,7 +5,6 @@ from Parser.parse_files import parser
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead
 from bokeh.plotting import figure, show
-from bokeh.transform import jitter
 
 
 class visualiser:
