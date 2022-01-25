@@ -5,6 +5,7 @@ from Parser.parse_files import parser
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead
 from bokeh.plotting import figure, show
+from bokeh.palettes import Spectral as spectral_palette
 
 
 class visualiser:
@@ -23,31 +24,73 @@ class visualiser:
         
         self.graph_name = "Trace"
     
-    def build_graph(self, draw_arrows):
+    def build_graph(self, draw_arrows, draw_colors):
         """Builds the bokeh graph"""
         
         self.draw_arrows = draw_arrows
+        self.draw_colors = draw_colors
 
         # Output to 
         output_file(self.graph_name + ".html")
-        
-        # Define tooltips
-        TOOLTIPS = [
-            ("name", "@name"),
-            ("time_start", "@time_start"),
-            ("time_end", "@time_end"),
-            ("trace_event_type", "@trace_event_type"),
-            ("priority", "@priority"),
-            ("level", "@level"),
-            ("triggers", "@triggers"),
-            ("effects", "@effects"),
-        ]
 
         # Define figure
         p = figure(sizing_mode="stretch_both",
                    title=self.graph_name)
         
         
+        # -------------------------------------------------------------------
+
+        # Arrows
+        if self.draw_arrows is True:
+            for i in range(len(self.ordered_inst_events_actions["name"])):
+                action_effects = self.ordered_inst_events_actions["effects"][i]
+                action_triggers = self.ordered_inst_events_actions["triggers"][i]
+                action_time_start = self.ordered_inst_events_actions["time_start"][i]
+                action_y_coord = self.ordered_inst_events_actions["y_axis"][i]
+                for effect in action_effects:
+                    for reaction in range(len(self.ordered_inst_events_reactions["name"])):
+                        reaction_name = self.ordered_inst_events_reactions["name"][reaction]
+                        reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
+                        if reaction_name == effect and reaction_time >= action_time_start:
+                            p.add_layout(Arrow(end=OpenHead(
+                                line_width=1, size=10), x_start=action_time_start, y_start=action_y_coord,
+                                x_end=reaction_time, y_end=self.ordered_inst_events_reactions["y_axis"][reaction]))
+                            break
+
+                for trigger in action_triggers:
+                    previous_reactions = reversed(
+                        range(len(self.ordered_inst_events_reactions["name"])))
+                    for reaction in previous_reactions:
+                        reaction_name = self.ordered_inst_events_reactions["name"][reaction]
+                        reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
+                        if reaction_name == trigger and reaction_time <= action_time_start:
+                            p.add_layout(Arrow(end=OpenHead(
+                                line_width=1, size=10), x_start=reaction_time, y_start=self.ordered_inst_events_reactions["y_axis"][reaction],
+                                x_end=action_time_start, y_end=action_y_coord))
+                            break
+
+        # -------------------------------------------------------------------
+
+        # Colors for action/reaction pairs
+
+        if draw_colors is True:
+            colour_reactions = []
+            for i in range(len(self.ordered_inst_events_actions["name"])):
+                action_effects = self.ordered_inst_events_actions["effects"][i]
+                action_time_start = self.ordered_inst_events_actions["time_start"][i]
+                for effect in action_effects:
+                    for reaction in range(len(self.ordered_inst_events_reactions["name"])):
+                        reaction_name = self.ordered_inst_events_reactions["name"][reaction]
+                        reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
+                        if reaction_name == effect and reaction_time == action_time_start:
+                            colour_reactions.append(spectral_palette[6][i % 6])
+                        else:
+                            colour_reactions.append("darkgrey")
+            
+            colour_actions = colour_reactions 
+        else:
+            colour_reactions = ["hotpink" for x in self.ordered_inst_events_reactions["name"]]
+            colour_actions = ["cadetblue" for x in self.ordered_inst_events_reactions["name"]]
         
         # -------------------------------------------------------------------
         # All execution events
@@ -77,53 +120,20 @@ class visualiser:
         # All instantaneous events that are reactions
         source_inst_events_reactions = ColumnDataSource(self.ordered_inst_events_reactions)
 
-        inst_reaction_hex = p.hex(x='time_start', y='y_axis', fill_color="hotpink", 
-                                  size=10, source=source_inst_events_reactions, legend_label="Instantaneous Events", muted_alpha=0.2)
+        inst_reaction_hex = p.hex(x='time_start', y='y_axis', fill_color=colour_reactions, line_color="lightgrey",
+                                  size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
         
         # All instantaneous events that are actions
         source_inst_events_actions = ColumnDataSource(self.ordered_inst_events_actions)
 
-        inst_action_hex = p.hex(x='time_start', y='y_axis', fill_color="cadetblue",
-                                size=10, source=source_inst_events_actions, legend_label="Instantaneous Events", muted_alpha=0.2)
-
+        inst_action_hex = p.hex(x='time_start', y='y_axis', fill_color=colour_actions, line_color="lightgrey",
+                                size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
+        
         # -------------------------------------------------------------------
-        
-        # Arrows
-        if self.draw_arrows == True:
-            for i in range(len(self.ordered_inst_events_actions["name"])):
-                action_effects = self.ordered_inst_events_actions["effects"][i]
-                action_triggers = self.ordered_inst_events_actions["triggers"][i]
-                action_time_start = self.ordered_inst_events_actions["time_start"][i]
-                action_y_coord = self.ordered_inst_events_actions["y_axis"][i]
-                
-                for effect in action_effects:
-                    for reaction in range(len(self.ordered_inst_events_reactions["name"])):
-                        reaction_name = self.ordered_inst_events_reactions["name"][reaction]
-                        reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
-                        if reaction_name == effect and reaction_time >= action_time_start:
-                            p.add_layout(Arrow(end=OpenHead(
-                                line_width=1, size=10), x_start=action_time_start, y_start=action_y_coord, 
-                                x_end=reaction_time, y_end=self.ordered_inst_events_reactions["y_axis"][reaction]))
-                            break
-                        
-                for trigger in action_triggers:
-                    previous_reactions = reversed( range(len(self.ordered_inst_events_reactions["name"])) )
-                    for reaction in previous_reactions:
-                        reaction_name = self.ordered_inst_events_reactions["name"][reaction]
-                        reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
-                        if reaction_name == trigger and reaction_time <= action_time_start:
-                            p.add_layout(Arrow(end=OpenHead(
-                                line_width=1, size=10), x_start=reaction_time, y_start=self.ordered_inst_events_reactions["y_axis"][reaction],
-                                x_end=action_time_start, y_end=action_y_coord))
-                            break
-                
-        # -------------------------------------------------------------------
-        
-        
-        
 
+        
         p.legend.location = "top_left"
 
         # Toggle to hide/show events
@@ -137,11 +147,37 @@ class visualiser:
         p.background_fill_color = "beige"
         p.background_fill_alpha = 0.5
         
+        # Define tooltips for Reactions and Execution Events
+        TOOLTIPS = [
+            ("name", "@name"),
+            ("time_start", "@time_start"),
+            ("time_end", "@time_end"),
+            ("trace_event_type", "@trace_event_type"),
+            ("priority", "@priority"),
+            ("level", "@level"),
+            ("triggers", "@triggers"),
+            ("effects", "@effects"),
+        ]
+        
         # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
         hover_tool = HoverTool(tooltips=TOOLTIPS, renderers=[
-                               inst_reaction_hex, exe_line, inst_action_hex])
-        p.add_tools(hover_tool)
+                               inst_reaction_hex, exe_line])
         
+        # Define tooltips for Reactions and Execution Events
+        TOOLTIPS = [
+            ("name", "@name"),
+            ("time_start", "@time_start"),
+            ("trace_event_type", "@trace_event_type"),
+            ("triggers", "@triggers"),
+            ("effects", "@effects"),
+        ]
+
+        # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
+        hover_tool_actions = HoverTool(
+            tooltips=TOOLTIPS, renderers=[inst_action_hex])
+        
+        
+        p.add_tools(hover_tool, hover_tool_actions)
                 
         show(p)
 
@@ -152,4 +188,4 @@ if(__name__ == "__main__"):
     vis = visualiser("yaml_files/ReflexGame.yaml",
                      "traces/ReflexGame.json")
 
-    vis.build_graph(True)
+    vis.build_graph(False, True)
