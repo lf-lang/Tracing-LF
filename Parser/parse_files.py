@@ -1,4 +1,6 @@
+from collections import defaultdict
 import json
+from re import S
 import yaml
 
 
@@ -7,9 +9,10 @@ class parser:
     def parse(self, yaml_filepath, json_filepath):
 
         # Variables
-        self.x_offset = 0.25
+        self.x_offset = 0.15
         
-        yaml_data = self.parse_yaml(yaml_filepath)
+        self.parse_yaml(yaml_filepath)
+        yaml_data = self.reaction_dict
         json_data = self.parse_json(json_filepath)
         
         # list of reactor names - [reactor.name0, reactor.name1, ...]
@@ -184,7 +187,12 @@ class parser:
     def parse_yaml(self, filepath):
         # Structure: Nested dict of reactions
         # {reactor : {reaction : {attribute : value}}}
-        reaction_dict= {}
+        self.reaction_dict = {}
+        
+        
+        # Dictionary of inputs and their triggers/effects
+        input_output_dict = {}
+
 
         # Open yaml file and parse with pyyaml
         yaml_data = yaml.load(open(filepath), Loader=yaml.FullLoader)
@@ -192,14 +200,15 @@ class parser:
         # Iterate through reactors and get reactions
         for reactor, items in yaml_data['all_reactor_instances'].items():
 
-            if reactor not in reaction_dict:
-                reaction_dict[reactor] = {}
+            if reactor not in self.reaction_dict:
+                self.reaction_dict[reactor] = {}
 
             # For each reaction, add it to the list of reactions
             if items["reactions"] is not None:
                 for reaction in items["reactions"]:
 
-                    reaction_dict[reactor][reaction["name"]] = reaction
+                    self.reaction_dict[reactor][reaction["name"]] = reaction
+                    
 
             if items["triggers"] is not None:
                 for trigger in items["triggers"]:
@@ -208,11 +217,38 @@ class parser:
                     trigger["triggers"] = trigger.pop("effect_of")
                     trigger["effects"] = trigger.pop("trigger_of")
 
-                    reaction_dict[reactor][trigger["name"]] = trigger
+                    self.reaction_dict[reactor][trigger["name"]] = trigger
+                    
+           
+            # For each input, add it to the inputs dictionary
+            if items["inputs"] is not None:
+                for input, values in items["inputs"].items():
+                    port_name = reactor + "." + str(input)
+                    
+                    values["port_name"] = port_name
+                    input_output_dict[port_name] = values
+                    
+        
+        # Iterate through inputs_outputs_dict, discover chain such that:
+        # Reaction_i -> output -> input -> Reaction_j 
+        # Where reaction_i triggers reaction_j
+        self.port_dict = defaultdict(list)
+        
+        for port in input_output_dict.values():
+            # Find an output port
+            if port["downstream_ports"] is not None:
+                
+                # Find the corresponding downstream ports (inputs)
+                downstream_ports = port["downstream_ports"]
+                for item in downstream_ports:
+                    port_triggers = input_output_dict[item]["trigger_of"]
+                    self.port_dict[port["port_name"]].extend(port_triggers)
+                
+           
 
-        return reaction_dict
-    
-    
+                
+
+        
     
     def parse_json(self, filepath):
         data = json.load(open(filepath))
