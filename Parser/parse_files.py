@@ -192,6 +192,9 @@ class parser:
         
         # Dictionary of inputs and their triggers/effects
         input_output_dict = {}
+        
+        # List containing the name of all reactions
+        self.action_names = []
 
 
         # Open yaml file and parse with pyyaml
@@ -218,6 +221,11 @@ class parser:
                     trigger["effects"] = trigger.pop("trigger_of")
 
                     self.reaction_dict[reactor][trigger["name"]] = trigger
+                    
+                    # add all logical and physical actions to a list
+                    action_name = reactor + "." + trigger["name"]
+                    if action_name not in self.action_names and "action" in trigger["type"]:
+                        self.action_names.append(action_name)
                     
            
             # For each input, add it to the inputs dictionary
@@ -255,23 +263,25 @@ class parser:
         return data
     
     
-    def get_reaction_pos(self, reaction_name, reaction_time):
+    def get_reaction_pos(self, reaction_name, prev_reaction_time):
         '''Given some reaction and its start time, find its position in the dictionary of reactions'''
+        
+        reaction_pos = None
 
         for i in range(len(self.ordered_inst_events_reactions["name"])):
-            
-            reaction_pos = None
             
             # Time of the current reaction
             i_time = self.ordered_inst_events_reactions["time_start"][i]
             
             # Find the first reaction which matches the given name and has a start time greater than the given time
-            if reaction_time >= i_time:
+            if i_time >= prev_reaction_time:
                 i_name = self.ordered_inst_events_reactions["name"][i]
                 if reaction_name == i_name:  
                     reaction_pos = i
+                    break
 
         return reaction_pos
+    
 
     def get_ordered_inst_events_reactions(self):
         return self.ordered_inst_events_reactions
@@ -288,3 +298,8 @@ class parser:
     def get_number_label(self):
         return self.number_label
     
+    def get_port_dict(self):
+        return self.port_dict
+    
+    def get_action_names(self):
+        return self.action_names
