@@ -253,6 +253,18 @@ class parser:
     def parse_json(self, filepath):
         data = json.load(open(filepath))
         return data
+    
+    
+    def get_reaction_pos(self, reaction_name, reaction_time):
+        '''Given some reaction and its start time, find its position in the dictionary of reactions'''
+
+        for i in range(len(self.ordered_inst_events_reactions["name"])):
+            i_name = self.ordered_inst_events_reactions["name"][i]
+            i_time = self.ordered_inst_events_reactions["time_start"][i]
+            
+            # Find the first reaction which matches the given name and has a start time greater than the given time
+            if reaction_name == i_name and reaction_time >= i_time:
+                return i
 
 
     def get_ordered_inst_events_reactions(self):
