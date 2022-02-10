@@ -76,7 +76,9 @@ class visualiser:
                     reaction_effect_pos = self.data_parser.get_reaction_pos(
                         reaction_effect, reaction_effect_time)
                     
-                    self.colour_nodes(reaction_effect_pos, palette_pos)
+                    if reaction_effect_pos is not None:
+                        self.colour_nodes(reaction_effect_pos, palette_pos)
+                    
 
         
         
