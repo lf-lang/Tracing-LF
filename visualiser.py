@@ -167,7 +167,8 @@ class visualiser:
                     # Retrieve the position of the reaction within the reaction dictionary (of lists)
                     current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start)
                     
-                    self.colour_nodes(current_reaction_pos, palette_pos)
+                    if current_reaction_pos is not None:
+                        self.colour_nodes(current_reaction_pos, palette_pos)
                     
                     # Increment the palette colour
                     palette_pos += 1
