@@ -259,13 +259,19 @@ class parser:
         '''Given some reaction and its start time, find its position in the dictionary of reactions'''
 
         for i in range(len(self.ordered_inst_events_reactions["name"])):
-            i_name = self.ordered_inst_events_reactions["name"][i]
+            
+            reaction_pos = None
+            
+            # Time of the current reaction
             i_time = self.ordered_inst_events_reactions["time_start"][i]
             
             # Find the first reaction which matches the given name and has a start time greater than the given time
-            if reaction_name == i_name and reaction_time >= i_time:
-                return i
+            if reaction_time >= i_time:
+                i_name = self.ordered_inst_events_reactions["name"][i]
+                if reaction_name == i_name:  
+                    reaction_pos = i
 
+        return reaction_pos
 
     def get_ordered_inst_events_reactions(self):
         return self.ordered_inst_events_reactions
