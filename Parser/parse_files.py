@@ -30,6 +30,11 @@ class parser:
         # Get first reaction 
         start_time = json_data["traceEvents"][0]["ts"]
         
+        # Axis time scaling
+        # end_tine = json_data["traceEvents"][-1]["ts"]
+        # if end_time - start_time > :
+            
+        
         for item in json_data["traceEvents"]:
             
             # set new start time
@@ -148,8 +153,6 @@ class parser:
                 
                 # If the the event is a reaction, add to self.ordered_inst_events_reactions
                 else:
-                    if reactor_reaction_name == "Throughput.runner.reaction_3":
-                        print(time_start)
                     # JSON Data
                     self.ordered_inst_events_reactions["name"].append(reactor_reaction_name)
                     self.ordered_inst_events_reactions["reactor"].append(reactor_name)
@@ -165,10 +168,6 @@ class parser:
                             self.ordered_inst_events_reactions[attribute].append(reaction_yaml_data[attribute])
                         else:
                             self.ordered_inst_events_reactions[attribute].append("n.a.")
-                    
-                    if len(self.ordered_inst_events_reactions["name"]) != len(self.ordered_inst_events_reactions["priority"]):
-                        print("lol")
-         
          
             
         # order data for multiline graph
@@ -281,6 +280,25 @@ class parser:
                     break
 
         return reaction_pos
+    
+    def get_execution_pos(self, reaction_name, prev_reaction_time):
+        '''Given some reaction and its start time, find its position in the dictionary of reactions'''
+
+        event_pos = None
+
+        for i in range(len(self.ordered_exe_events["name"])):
+
+            # Time of the current reaction
+            i_time = self.ordered_exe_events["time_start"][i]
+
+            # Find the first execution events which matches the given name and has a start time greater than the given time
+            if i_time >= prev_reaction_time:
+                i_name = self.ordered_exe_events["name"][i]
+                if reaction_name == i_name:
+                    event_pos = i
+                    break
+
+        return event_pos
     
 
     def get_ordered_inst_events_reactions(self):

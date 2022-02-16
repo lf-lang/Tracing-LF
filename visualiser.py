@@ -6,7 +6,7 @@ from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead, NormalHead
 from bokeh.plotting import figure, show
 from bokeh.palettes import Spectral as spectral_palette
-from numpy import true_divide
+from bokeh.models import Title
 
 
 class visualiser:
@@ -36,50 +36,6 @@ class visualiser:
         
         # Graph name
         self.graph_name = "Trace"
-        
-    
-    
-    
-    def colour_nodes(self, reaction_pos, palette_pos):
-        '''Function which recursively colours reaction chains (triggers/effects) from a given origin reaction
-        First assigns the colour to a given reaction, then finds the reactions triggered and calls itself'''
-
-        # Assign the current colour to the reaction
-        self.ordered_inst_events_reactions["colours"][reaction_pos] = spectral_palette[5][palette_pos % 5]
-
-        # Check if the reaction has further effects
-        reaction_effects = self.ordered_inst_events_reactions[
-            "effects"][reaction_pos]
-        
-        # For each reaction effect, colour iteratively 
-        for reaction_effect in (reaction_effects or []):
-            
-            # Check if the reaction effect is a reaction (If not, its an action and causes cycles while colouring)
-            if reaction_effect not in self.action_names:
-            
-                reaction_effect_time = self.ordered_inst_events_reactions["time_start"][reaction_pos]
-                
-                # If the reaction effect is a write to a port, deduce the downstream port and its corresponding effect. This is the reaction which is to be coloured
-                if reaction_effect not in self.labels:
-                    port_triggered_reactions = self.port_dict[reaction_effect]
-                    
-                    for reaction in port_triggered_reactions:
-                        reaction_effect_pos = self.data_parser.get_reaction_pos(
-                            reaction, reaction_effect_time)
-                        
-                        if reaction_effect_pos is not None:
-                            self.colour_nodes(reaction_effect_pos, palette_pos)
-                
-                else:
-                    # Find the position of the reaction effect in the dict, using its name and the position of the reaction it was triggered by
-                    # The reactions in the dictionary are ordered chronologically
-                    reaction_effect_pos = self.data_parser.get_reaction_pos(
-                        reaction_effect, reaction_effect_time)
-                    
-                    if reaction_effect_pos is not None:
-                        self.colour_nodes(reaction_effect_pos, palette_pos)
-                    
-
         
         
     
@@ -143,11 +99,17 @@ class visualiser:
         # Colours chains of reactions originating from an action. 
         # Uses the colour_nodes function to recursively assign a colour to nodes which are triggered by an action
         
+        default_reaction_colour = "hotpink"
+        default_action_colour = "cadetblue"
+        default_exection_event_colour = "powderblue"
+        
         # Set the default colours for all actions and reactions
         self.ordered_inst_events_reactions["colours"] = [
-            "hotpink" for x in self.ordered_inst_events_reactions["name"]]
+            default_reaction_colour for x in self.ordered_inst_events_reactions["name"]]
         self.ordered_inst_events_actions["colours"] = [
-            "cadetblue" for x in self.ordered_inst_events_actions["name"]]
+            default_action_colour for x in self.ordered_inst_events_actions["name"]]
+        self.ordered_exe_events["colours"] = [
+            default_exection_event_colour for x in self.ordered_exe_events["name"]]
 
         if draw_colors is True:
             
@@ -164,12 +126,19 @@ class visualiser:
                 # Iterate through all effects of the action and colour accordingly
                 for effect in effects:
                     
-                    # Retrieve the position of the reaction within the reaction dictionary (of lists)
+                    # Retrieve the position of the reaction within the reaction dictionary 
                     current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start)
                     
                     if current_reaction_pos is not None:
-                        self.colour_nodes(current_reaction_pos, palette_pos)
+                        self.colour_reaction(current_reaction_pos, palette_pos)
                     
+                    # Retrieve the position of the execution event within the dictionary
+                    current_exe_pos = self.data_parser.get_execution_pos(
+                        effect, action_time_start)
+                    
+                    if current_exe_pos is not None:
+                        self.colour_execution(current_exe_pos, palette_pos)
+
                     # Increment the palette colour
                     palette_pos += 1
 
@@ -186,7 +155,7 @@ class visualiser:
             
         # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
 
-        exe_line = p.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="cornflowerblue", hover_alpha=0.5,
+        exe_line = p.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="colours", hover_alpha=0.5,
                     source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
 
         # -------------------------------------------------------------------      
@@ -195,9 +164,10 @@ class visualiser:
         exe_x_marker = [((x1 + x2)/2)
                         for x1, x2 in self.ordered_exe_events["x_multi_line"]]
         exe_y_marker = self.ordered_exe_events["y_axis"]
+        exe_marker_colour = self.ordered_exe_events["colours"]
         
-        exe_marker = p.diamond(exe_x_marker, exe_y_marker, color="mediumspringgreen", 
-                    size = 10, legend_label = "Execution Event Markers", muted_alpha = 0.2)
+        exe_marker = p.diamond(exe_x_marker, exe_y_marker, color=exe_marker_colour,
+                    size = 7, legend_label = "Execution Event Markers", muted_alpha = 0.2)
         
         # -------------------------------------------------------------------
         
@@ -260,17 +230,100 @@ class visualiser:
         hover_tool_actions = HoverTool(
             tooltips=TOOLTIPS, renderers=[inst_action_hex])
         
-        
+        # Add the tools to the plot
         p.add_tools(hover_tool, hover_tool_actions)
+        
+        
+        p.add_layout(Title(text="Graph visualisation of a recorded LF trace. Use options (-a and -c) to show arrows and colours respectively. \n The tools on the right can be used to navigate the graph. Legend items can be clicked to mute a series", align="center"), "below")
                 
         show(p)
+        
+        
+    def colour_reaction(self, reaction_pos, palette_pos):
+        '''Function which recursively colours reaction chains (via triggers/effects) from a given origin reaction
+            First assigns the colour to a given reaction, then finds the reactions triggered and calls itself'''
+
+        # Assign the current colour to the reaction
+        self.ordered_inst_events_reactions["colours"][reaction_pos] = spectral_palette[5][palette_pos % 5]
+
+        # Check if the reaction has further effects
+        reaction_effects = self.ordered_inst_events_reactions[
+            "effects"][reaction_pos]
+
+        # For each reaction effect, colour iteratively
+        for reaction_effect in (reaction_effects or []):
+
+            # Check if the reaction effect is a reaction (If not, its an action and causes cycles while colouring)
+            if reaction_effect not in self.action_names:
+
+                reaction_effect_time = self.ordered_inst_events_reactions["time_start"][reaction_pos]
+
+                # If the reaction effect is a write to a port, deduce the downstream port and its corresponding effect. This is the triggered reaction which is to be coloured
+                if reaction_effect not in self.labels:
+                        port_triggered_reactions = self.port_dict[reaction_effect]
+
+                        for reaction in port_triggered_reactions:
+                            reaction_effect_pos = self.data_parser.get_reaction_pos(
+                                reaction, reaction_effect_time)
+
+                            if reaction_effect_pos is not None:
+                                self.colour_reaction(
+                                    reaction_effect_pos, palette_pos)
+
+                else:
+                    # Find the position of the reaction effect in the dict, using its name and the position of the reaction it was triggered by
+                    # The reactions in the dictionary are ordered chronologically
+                    reaction_effect_pos = self.data_parser.get_reaction_pos(
+                        reaction_effect, reaction_effect_time)
+
+                    if reaction_effect_pos is not None:
+                        self.colour_reaction(reaction_effect_pos, palette_pos)
+                        
+
+    def colour_execution(self, execution_pos, palette_pos):
+        '''Identical function to colour_reactions, but for execution events'''
+
+        # Assign the current colour to the reaction
+        self.ordered_exe_events["colours"][execution_pos] = spectral_palette[5][palette_pos % 5]
+
+        # Check if the reaction has further effects
+        reaction_effects = self.ordered_exe_events[
+            "effects"][execution_pos]
+
+        # For each reaction effect, colour iteratively
+        for reaction_effect in (reaction_effects or []):
+
+            # Check if the reaction effect is a reaction (If not, its an action and causes cycles while colouring)
+            if reaction_effect not in self.action_names:
+
+                reaction_effect_end_time = self.ordered_exe_events["time_end"][execution_pos]
+
+                # If the reaction effect is a write to a port, deduce the downstream port and its corresponding effect. This is the triggered reaction which is to be coloured
+                if reaction_effect not in self.labels:
+                        port_triggered_reactions = self.port_dict[reaction_effect]
+
+                        for reaction in port_triggered_reactions:
+                            reaction_effect_pos = self.data_parser.get_execution_pos(
+                                reaction, reaction_effect_end_time)
+
+                            if reaction_effect_pos is not None:
+                                self.colour_execution(reaction_effect_pos, palette_pos)
+
+                else:
+                    # Find the position of the reaction effect in the dict, using its name and the position of the reaction it was triggered by
+                    # The reactions in the dictionary are ordered chronologically
+                    reaction_effect_pos = self.data_parser.get_execution_pos(
+                        reaction_effect, reaction_effect_end_time)
+
+                    if reaction_effect_pos is not None:
+                        self.colour_execution(reaction_effect_pos, palette_pos)
 
 
 
 
 if(__name__ == "__main__"):
-    vis = visualiser("yaml_files/ReflexGame.yaml",
-                     "traces/ReflexGame.json")
+    vis = visualiser("yaml_files/Throughput.yaml",
+                     "traces/Throughput.json")
 
     arrows = False
     colours = True
