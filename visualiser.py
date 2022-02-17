@@ -3,9 +3,9 @@ from Parser.parse_files import parser
 
 
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead, NormalHead
+from bokeh.models import ColumnDataSource, HoverTool, Arrow, NormalHead
 from bokeh.plotting import figure, show
-from bokeh.palettes import Spectral as spectral_palette
+from bokeh.palettes import OrRd as palette
 from bokeh.models import Title
 
 
@@ -99,9 +99,9 @@ class visualiser:
         # Colours chains of reactions originating from an action. 
         # Uses the colour_nodes function to recursively assign a colour to nodes which are triggered by an action
         
-        default_reaction_colour = "hotpink"
+        default_reaction_colour = "lightgreen"
         default_action_colour = "cadetblue"
-        default_exection_event_colour = "powderblue"
+        default_exection_event_colour = "darkseagreen"
         
         # Set the default colours for all actions and reactions
         self.ordered_inst_events_reactions["colours"] = [
@@ -121,7 +121,7 @@ class visualiser:
                 effects = self.ordered_inst_events_actions["effects"][i]
                 action_time_start = self.ordered_inst_events_actions["time_start"][i]
                 
-                self.ordered_inst_events_actions["colours"][i] = spectral_palette[5][palette_pos % 5]
+                self.ordered_inst_events_actions["colours"][i] = palette[5][palette_pos % 5]
                 
                 # Iterate through all effects of the action and colour accordingly
                 for effect in effects:
@@ -244,7 +244,7 @@ class visualiser:
             First assigns the colour to a given reaction, then finds the reactions triggered and calls itself'''
 
         # Assign the current colour to the reaction
-        self.ordered_inst_events_reactions["colours"][reaction_pos] = spectral_palette[5][palette_pos % 5]
+        self.ordered_inst_events_reactions["colours"][reaction_pos] = palette[5][palette_pos % 5]
 
         # Check if the reaction has further effects
         reaction_effects = self.ordered_inst_events_reactions[
@@ -284,7 +284,7 @@ class visualiser:
         '''Identical function to colour_reactions, but for execution events'''
 
         # Assign the current colour to the reaction
-        self.ordered_exe_events["colours"][execution_pos] = spectral_palette[5][palette_pos % 5]
+        self.ordered_exe_events["colours"][execution_pos] = palette[5][palette_pos % 5]
 
         # Check if the reaction has further effects
         reaction_effects = self.ordered_exe_events[
