@@ -262,43 +262,24 @@ class parser:
         return data
     
     
-    def get_reaction_pos(self, reaction_name, prev_reaction_time):
+    def get_reaction_pos(self, reaction_name, prev_reaction_time, react_dict):
         '''Given some reaction and its start time, find its position in the dictionary of reactions'''
         
         reaction_pos = None
 
-        for i in range(len(self.ordered_inst_events_reactions["name"])):
+        for i in range(len(react_dict["name"])):
             
             # Time of the current reaction
-            i_time = self.ordered_inst_events_reactions["time_start"][i]
+            i_time = react_dict["time_start"][i]
             
             # Find the first reaction which matches the given name and has a start time greater than the given time
             if i_time >= prev_reaction_time:
-                i_name = self.ordered_inst_events_reactions["name"][i]
+                i_name = react_dict["name"][i]
                 if reaction_name == i_name:  
                     reaction_pos = i
                     break
 
         return reaction_pos
-    
-    def get_execution_pos(self, reaction_name, prev_reaction_time):
-        '''Given some reaction and its start time, find its position in the dictionary of reactions'''
-
-        event_pos = None
-
-        for i in range(len(self.ordered_exe_events["name"])):
-
-            # Time of the current reaction
-            i_time = self.ordered_exe_events["time_start"][i]
-
-            # Find the first execution events which matches the given name and has a start time greater than the given time
-            if i_time >= prev_reaction_time:
-                i_name = self.ordered_exe_events["name"][i]
-                if reaction_name == i_name:
-                    event_pos = i
-                    break
-
-        return event_pos
     
 
     def get_ordered_inst_events_reactions(self):

@@ -140,17 +140,17 @@ class visualiser:
                 for effect in effects:
                     
                     # Retrieve the position of the reaction within the reaction dictionary 
-                    current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start)
+                    current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start, self.ordered_inst_events_reactions)
                     
                     if current_reaction_pos is not None:
-                        self.colour_reaction(current_reaction_pos, palette_pos)
+                        self.colour_reaction(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions)
                     
                     # Retrieve the position of the execution event within the dictionary
-                    current_exe_pos = self.data_parser.get_execution_pos(
-                        effect, action_time_start)
+                    current_exe_pos = self.data_parser.get_reaction_pos(
+                        effect, action_time_start, self.ordered_exe_events)
                     
                     if current_exe_pos is not None:
-                        self.colour_execution(current_exe_pos, palette_pos)
+                        self.colour_reaction(current_exe_pos, palette_pos, self.ordered_exe_events)
 
                     # Increment the palette colour
                     palette_pos += 1
@@ -250,15 +250,15 @@ class visualiser:
         show(p)
         
         
-    def colour_reaction(self, reaction_pos, palette_pos):
+    def colour_reaction(self, reaction_pos, palette_pos, reaction_dictionary):
         '''Function which recursively colours reaction chains (via triggers/effects) from a given origin reaction
             First assigns the colour to a given reaction, then finds the reactions triggered and calls itself'''
 
         # Assign the current colour to the reaction
-        self.ordered_inst_events_reactions["colours"][reaction_pos] = palette[5][palette_pos % 5]
+        reaction_dictionary["colours"][reaction_pos] = palette[5][palette_pos % 5]
 
         # Check if the reaction has further effects
-        reaction_effects = self.ordered_inst_events_reactions[
+        reaction_effects = reaction_dictionary[
             "effects"][reaction_pos]
 
         # For each reaction effect, colour iteratively
@@ -267,7 +267,7 @@ class visualiser:
             # Check if the reaction effect is a reaction (If not, its an action and causes cycles while colouring)
             if reaction_effect not in self.action_names:
 
-                reaction_effect_time = self.ordered_inst_events_reactions["time_start"][reaction_pos]
+                reaction_effect_time = reaction_dictionary["time_end"][reaction_pos]
 
                 # If the reaction effect is a write to a port, deduce the downstream port and its corresponding effect. This is the triggered reaction which is to be coloured
                 if reaction_effect not in self.labels:
@@ -275,11 +275,10 @@ class visualiser:
 
                         for reaction in port_triggered_reactions:
                             reaction_effect_pos = self.data_parser.get_reaction_pos(
-                                reaction, reaction_effect_time)
+                                reaction, reaction_effect_time, reaction_dictionary)
 
                             if reaction_effect_pos is not None:
-                                self.colour_reaction(
-                                    reaction_effect_pos, palette_pos)
+                                self.colour_reaction(reaction_effect_pos, palette_pos, reaction_dictionary)
 
                 else:
                     # Find the position of the reaction effect in the dict, using its name and the position of the reaction it was triggered by
@@ -288,46 +287,10 @@ class visualiser:
                         reaction_effect, reaction_effect_time)
 
                     if reaction_effect_pos is not None:
-                        self.colour_reaction(reaction_effect_pos, palette_pos)
+                        self.colour_reaction(reaction_effect_pos, palette_pos, reaction_dictionary)
                         
 
-    def colour_execution(self, execution_pos, palette_pos):
-        '''Identical function to colour_reactions, but for execution events'''
 
-        # Assign the current colour to the reaction
-        self.ordered_exe_events["colours"][execution_pos] = palette[5][palette_pos % 5]
-
-        # Check if the reaction has further effects
-        reaction_effects = self.ordered_exe_events[
-            "effects"][execution_pos]
-
-        # For each reaction effect, colour iteratively
-        for reaction_effect in (reaction_effects or []):
-
-            # Check if the reaction effect is a reaction (If not, its an action and causes cycles while colouring)
-            if reaction_effect not in self.action_names:
-
-                reaction_effect_end_time = self.ordered_exe_events["time_end"][execution_pos]
-
-                # If the reaction effect is a write to a port, deduce the downstream port and its corresponding effect. This is the triggered reaction which is to be coloured
-                if reaction_effect not in self.labels:
-                        port_triggered_reactions = self.port_dict[reaction_effect]
-
-                        for reaction in port_triggered_reactions:
-                            reaction_effect_pos = self.data_parser.get_execution_pos(
-                                reaction, reaction_effect_end_time)
-
-                            if reaction_effect_pos is not None:
-                                self.colour_execution(reaction_effect_pos, palette_pos)
-
-                else:
-                    # Find the position of the reaction effect in the dict, using its name and the position of the reaction it was triggered by
-                    # The reactions in the dictionary are ordered chronologically
-                    reaction_effect_pos = self.data_parser.get_execution_pos(
-                        reaction_effect, reaction_effect_end_time)
-
-                    if reaction_effect_pos is not None:
-                        self.colour_execution(reaction_effect_pos, palette_pos)
 
 
 
