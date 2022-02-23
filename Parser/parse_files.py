@@ -144,7 +144,7 @@ class parser:
                     self.ordered_inst_events_actions["reaction"].append(reaction_name)
                     self.ordered_inst_events_actions["time_start"].append(time_start)
                     self.ordered_inst_events_actions["time_end"].append(time_start)   #same for instant events
-                    self.ordered_inst_events_actions["trace_event_type"].append("instant")
+                    self.ordered_inst_events_actions["trace_event_type"].append(reaction_yaml_data["type"])
                     self.ordered_inst_events_actions["y_axis"].append(self.reactor_number[reactor_reaction_name] + self.x_offset)  # Add some to display 0.25 above and make room
                     self.ordered_inst_events_actions["effects"].append(reaction_yaml_data["effects"])
                     self.ordered_inst_events_actions["triggers"].append(
@@ -159,7 +159,7 @@ class parser:
                     self.ordered_inst_events_reactions["reaction"].append(reaction_name)
                     self.ordered_inst_events_reactions["time_start"].append(time_start)
                     self.ordered_inst_events_reactions["time_end"].append(time_start)  # start and end is the same for instant events
-                    self.ordered_inst_events_reactions["trace_event_type"].append("instant")
+                    self.ordered_inst_events_reactions["trace_event_type"].append("reaction")
                     self.ordered_inst_events_reactions["y_axis"].append(self.reactor_number[reactor_reaction_name] + self.x_offset)  # Add some to display 0.25 above and make room
 
                     # YAML Data
