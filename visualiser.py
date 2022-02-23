@@ -3,7 +3,7 @@ from Parser.parse_files import parser
 
 
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, HoverTool, Arrow, NormalHead
+from bokeh.models import ColumnDataSource, HoverTool, Arrow, NormalHead, PrintfTickFormatter
 from bokeh.plotting import figure, show
 from bokeh.palettes import RdYlGn as palette
 from bokeh.models import Title
@@ -102,17 +102,31 @@ class visualiser:
                 # Iterate through all effects of the action and colour accordingly
                 for effect in effects:
                     
-                    # Retrieve the position of the reaction within the reaction dictionary 
+                    # Reactions as effect of action
                     current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start, self.ordered_inst_events_reactions)
                     
                     if current_reaction_pos is not None:
+                        
+                        # Add arrow if enabled
+                        if self.draw_arrows is True:
+                            self.arrow_pos.append(
+                                (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_inst_events_reactions["time_start"][current_reaction_pos], self.ordered_inst_events_reactions["y_axis"][current_reaction_pos]))
+
+                        # Colour recursively
                         self.colour_reaction(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions)
                     
-                    # Retrieve the position of the execution event within the dictionary
+                    # Execution events as effect of action
                     current_exe_pos = self.data_parser.get_reaction_pos(
                         effect, action_time_start, self.ordered_exe_events)
                     
                     if current_exe_pos is not None:
+                        
+                        # Add arrow if enabled
+                        if self.draw_arrows is True:
+                            self.arrow_pos.append(
+                                (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_exe_events["time_start"][current_exe_pos], self.ordered_exe_events["y_axis"][current_exe_pos]))
+
+                        # Colour recursively
                         self.colour_reaction(current_exe_pos, palette_pos, self.ordered_exe_events)
 
                     # Increment the palette colour
@@ -177,6 +191,16 @@ class visualiser:
         # Rename Axes
         p.yaxis.ticker = [y for y in range(len(self.labels))]
         p.yaxis.major_label_overrides = self.number_label
+        
+        p.xaxis[0].formatter = PrintfTickFormatter(format="%f")
+        
+        # Add axis labels
+        p.xaxis.axis_label = "Time (ns)"
+        p.xaxis.axis_label_text_font_size = "24px"
+        p.xaxis.axis_label_text_color = "cadetblue"
+        p.yaxis.axis_label = "Reaction Name"
+        p.yaxis.axis_label_text_font_size = "24px"
+        p.yaxis.axis_label_text_color = "cadetblue"
 
         
         
@@ -213,7 +237,7 @@ class visualiser:
         p.add_tools(hover_tool, hover_tool_actions)
         
         
-        p.add_layout(Title(text="Graph visualisation of a recorded LF trace. Use options (-a and -c) to show arrows and colours respectively. \n The tools on the right can be used to navigate the graph. Legend items can be clicked to mute a series", align="center"), "below")
+        p.add_layout(Title(text="Graph visualisation of a recorded LF trace. Use options (-a and -c) to show arrows and colours respectively. \n The tools on the right can be used to navigate the graph. Legend items can be clicked to mute series", align="center"), "below")
                 
         show(p)
         
@@ -281,8 +305,8 @@ class visualiser:
 
 
 if(__name__ == "__main__"):
-    vis = visualiser("yaml_files/ReflexGame.yaml",
-                     "traces/ReflexGame.json")
+    vis = visualiser("yaml_files/FilterBank.yaml",
+                     "traces/FilterBank.json")
 
     arrows = False
     colours = True
