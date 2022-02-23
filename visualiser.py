@@ -5,7 +5,7 @@ from Parser.parse_files import parser
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, HoverTool, Arrow, NormalHead
 from bokeh.plotting import figure, show
-from bokeh.palettes import OrRd as palette
+from bokeh.palettes import RdYlGn as palette
 from bokeh.models import Title
 
 
@@ -99,19 +99,32 @@ class visualiser:
         # Colours chains of reactions originating from an action. 
         # Uses the colour_nodes function to recursively assign a colour to nodes which are triggered by an action
         
-        default_reaction_colour = "lightgreen"
-        default_action_colour = "cadetblue"
-        default_exection_event_colour = "darkseagreen"
         
-        # Set the default colours for all actions and reactions
-        self.ordered_inst_events_reactions["colours"] = [
-            default_reaction_colour for x in self.ordered_inst_events_reactions["name"]]
-        self.ordered_inst_events_actions["colours"] = [
-            default_action_colour for x in self.ordered_inst_events_actions["name"]]
-        self.ordered_exe_events["colours"] = [
-            default_exection_event_colour for x in self.ordered_exe_events["name"]]
+        # If not colouring, set colours for all nodes
+        if draw_colors is False:
+            default_reaction_colour = "gold"
+            default_action_colour = "cadetblue"
+            default_exection_event_colour = "burlywood"
+            
+            # Set the default colours for all actions and reactions
+            self.ordered_inst_events_reactions["colours"] = [
+                default_reaction_colour for x in self.ordered_inst_events_reactions["name"]]
+            self.ordered_inst_events_actions["colours"] = [
+                default_action_colour for x in self.ordered_inst_events_actions["name"]]
+            self.ordered_exe_events["colours"] = [
+                default_exection_event_colour for x in self.ordered_exe_events["name"]]
+
+
 
         if draw_colors is True:
+    
+            # If colouring, set default colour for all non coloured actions/reactions to grey
+            self.ordered_inst_events_reactions["colours"] = [
+                "lightgrey" for x in self.ordered_inst_events_reactions["name"]]
+            self.ordered_inst_events_actions["colours"] = [
+                "lightgrey" for x in self.ordered_inst_events_actions["name"]]
+            self.ordered_exe_events["colours"] = [
+                "lightgrey" for x in self.ordered_exe_events["name"]]
             
             palette_pos = 0
             
@@ -166,7 +179,7 @@ class visualiser:
         exe_y_marker = self.ordered_exe_events["y_axis"]
         exe_marker_colour = self.ordered_exe_events["colours"]
         
-        exe_marker = p.diamond(exe_x_marker, exe_y_marker, color=exe_marker_colour,
+        exe_marker = p.diamond(exe_x_marker, exe_y_marker, color=exe_marker_colour, alpha = 0.5,
                     size = 7, legend_label = "Execution Event Markers", muted_alpha = 0.2)
         
         # -------------------------------------------------------------------
@@ -182,7 +195,7 @@ class visualiser:
         # All instantaneous events that are actions
         source_inst_events_actions = ColumnDataSource(self.ordered_inst_events_actions)
 
-        inst_action_hex = p.hex(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
+        inst_action_hex = p.inverted_triangle(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                 size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
         
         # -------------------------------------------------------------------
@@ -197,9 +210,7 @@ class visualiser:
         p.yaxis.ticker = [y for y in range(len(self.labels))]
         p.yaxis.major_label_overrides = self.number_label
 
-        # background
-        p.background_fill_color = "beige"
-        p.background_fill_alpha = 0.5
+        
         
         # Define tooltips for Reactions and Execution Events
         TOOLTIPS = [
@@ -322,8 +333,8 @@ class visualiser:
 
 
 if(__name__ == "__main__"):
-    vis = visualiser("yaml_files/Throughput.yaml",
-                     "traces/Throughput.json")
+    vis = visualiser("yaml_files/CigaretteSmoker.yaml",
+                     "traces/CigaretteSmoker.json")
 
     arrows = False
     colours = True
