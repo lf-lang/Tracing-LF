@@ -34,6 +34,9 @@ class visualiser:
         # List containing all reaction names
         self.action_names = self.data_parser.get_action_names()
         
+        # List containing 4-tuples for arrow drawing
+        self.arrow_pos = []
+        
         # Graph name
         self.graph_name = "Trace"
         
@@ -52,55 +55,15 @@ class visualiser:
         p = figure(sizing_mode="stretch_both",
                    title=self.graph_name)
         
-        
-        # -------------------------------------------------------------------
-        # Arrows
-        
-        
-        if self.draw_arrows is True:
-            
-            # Iterate through all actions 
-            for i in range(len(self.ordered_inst_events_actions["name"])):
-                action_effects = self.ordered_inst_events_actions["effects"][i]
-                action_triggers = self.ordered_inst_events_actions["triggers"][i]
-                action_time_start = self.ordered_inst_events_actions["time_start"][i]
-                action_y_coord = self.ordered_inst_events_actions["y_axis"][i]
-                
-                for effect in action_effects:
-                    # Iterate through all reactions
-                    for reaction in range(len(self.ordered_inst_events_reactions["name"])):
-                        reaction_name = self.ordered_inst_events_reactions["name"][reaction]
-                        reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
-                        if reaction_name == effect and reaction_time >= action_time_start:
-                            
-                            # Add the arrow 
-                            p.add_layout(Arrow(end=NormalHead(
-                                line_width=1, size=5), line_color="burlywood", x_start=action_time_start, y_start=action_y_coord,
-                                x_end=reaction_time, y_end=self.ordered_inst_events_reactions["y_axis"][reaction]))
-                            break
-                
-                # Iterate through each trigger of the action
-                for trigger in action_triggers:
-                    previous_reactions = reversed(
-                        range(len(self.ordered_inst_events_reactions["name"])))
-                    for reaction in previous_reactions:
-                        reaction_name = self.ordered_inst_events_reactions["name"][reaction]
-                        reaction_time = self.ordered_inst_events_reactions["time_start"][reaction]
-                        if reaction_name == trigger and reaction_time <= action_time_start:
-                            
-                            # Add the arrow
-                            p.add_layout(Arrow(end=NormalHead(
-                                line_width=1, size=5), line_color="burlywood", x_start=reaction_time, y_start=self.ordered_inst_events_reactions["y_axis"][reaction],
-                                x_end=action_time_start, y_end=action_y_coord))
-                            break
 
         # -------------------------------------------------------------------
-
-        # Colours chains of reactions originating from an action. 
+        # Draw colours (if enabled)
+        
+        # Colours chains of reactions originating from an action. (Assumes all chains begin with an action)
         # Uses the colour_nodes function to recursively assign a colour to nodes which are triggered by an action
         
         
-        # If not colouring, set colours for all nodes
+        # If not colouring, set default colours for all nodes
         if draw_colors is False:
             default_reaction_colour = "gold"
             default_action_colour = "cadetblue"
@@ -118,7 +81,7 @@ class visualiser:
 
         if draw_colors is True:
     
-            # If colouring, set default colour for all non coloured actions/reactions to grey
+            # If colouring, set colour to grey
             self.ordered_inst_events_reactions["colours"] = [
                 "lightgrey" for x in self.ordered_inst_events_reactions["name"]]
             self.ordered_inst_events_actions["colours"] = [
@@ -155,8 +118,13 @@ class visualiser:
                     # Increment the palette colour
                     palette_pos += 1
 
+        # -------------------------------------------------------------------
+        # Draw arrows (if enabled)  
 
-
+        for x_start, y_start, x_end, y_end in self.arrow_pos:
+            p.add_layout(Arrow(end=NormalHead(
+                line_width=1, size=5), line_color="burlywood", x_start=x_start, y_start=y_start,
+                x_end=x_end, y_end=y_end))
 
         # -------------------------------------------------------------------
         # All execution events
@@ -250,6 +218,13 @@ class visualiser:
         show(p)
         
         
+        
+        
+        
+        
+        
+        
+        
     def colour_reaction(self, reaction_pos, palette_pos, reaction_dictionary):
         '''Function which recursively colours reaction chains (via triggers/effects) from a given origin reaction
             First assigns the colour to a given reaction, then finds the reactions triggered and calls itself'''
@@ -278,6 +253,11 @@ class visualiser:
                                 reaction, reaction_effect_time, reaction_dictionary)
 
                             if reaction_effect_pos is not None:
+                                # If arrow drawing is true, add the beginning (x,y) and ending (x,y) as 4-tuple to arrow dict
+                                if self.draw_arrows is True:
+                                    self.arrow_pos.append(
+                                        (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
+                                
                                 self.colour_reaction(reaction_effect_pos, palette_pos, reaction_dictionary)
 
                 else:
@@ -287,6 +267,11 @@ class visualiser:
                         reaction_effect, reaction_effect_time)
 
                     if reaction_effect_pos is not None:
+                        # If arrow drawing is true, add the beginning (x,y) and ending (x,y) as 4-tuple to arrow dict
+                        if self.draw_arrows is True:
+                            self.arrow_pos.append(
+                                (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
+                        
                         self.colour_reaction(reaction_effect_pos, palette_pos, reaction_dictionary)
                         
 
@@ -296,8 +281,8 @@ class visualiser:
 
 
 if(__name__ == "__main__"):
-    vis = visualiser("yaml_files/CigaretteSmoker.yaml",
-                     "traces/CigaretteSmoker.json")
+    vis = visualiser("yaml_files/ReflexGame.yaml",
+                     "traces/ReflexGame.json")
 
     arrows = False
     colours = True
