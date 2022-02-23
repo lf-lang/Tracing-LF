@@ -1,6 +1,5 @@
 from collections import defaultdict
 import json
-from re import S
 import yaml
 
 
@@ -85,19 +84,13 @@ class parser:
             
             # Execution events (not instantaneous)
             if item["reactor"] == "Execution":
-                
-                current_reactor_name = "" 
-                current_reaction_name = ""
-                
-                try:
-                    x, y, z = item["name"].split(".", 2)
-                    current_reactor_name = x + "." + y
-                    current_reaction_name = z
-                
-                except Exception:
-                    x, z = item["name"].split(".", 1)
-                    current_reactor_name = x
-                    current_reaction_name = z
+            
+                # Extract reactor and reaction name from trace (reverse the string, everything before "." is the reaction name)
+                rev_name = item["name"][::-1]
+                a, b = rev_name.split(".", 1)
+                current_reactor_name = b[::-1]
+                current_reaction_name = a[::-1]
+            
                 
                 reaction_yaml_data = yaml_data[current_reactor_name][current_reaction_name]
 
@@ -227,11 +220,19 @@ class parser:
                         self.action_names.append(action_name)
                     
            
-            # For each input, add it to the inputs dictionary
+            # For each input, add it to the input & output dictionary
             if items["inputs"] is not None:
                 for input, values in items["inputs"].items():
                     port_name = reactor + "." + str(input)
                     
+                    values["port_name"] = port_name
+                    input_output_dict[port_name] = values
+            
+            # For each input, add it to the input & output dictionary
+            if items["outputs"] is not None:
+                for output, values in items["outputs"].items():
+                    port_name = reactor + "." + str(output)
+
                     values["port_name"] = port_name
                     input_output_dict[port_name] = values
                     
@@ -242,14 +243,24 @@ class parser:
         self.port_dict = defaultdict(list)
         
         for port in input_output_dict.values():
-            # Find an output port
-            if port["downstream_ports"] is not None:
+            # Find an output port (without and upstream port)
+            if port["upstream_port"] is None and port["downstream_ports"] is not None:
                 
-                # Find the corresponding downstream ports (inputs)
+                # Find the corresponding downstream ports (inputs) 
                 downstream_ports = port["downstream_ports"]
                 for item in downstream_ports:
                     port_triggers = input_output_dict[item]["trigger_of"]
-                    self.port_dict[port["port_name"]].extend(port_triggers)
+                    
+                    # Simple Case: Reaction -> output_port -> input_port -> Reaction
+                    if port_triggers is not None:
+                        self.port_dict[port["port_name"]].extend(port_triggers)
+                    
+                    # Complex Case: Reaction -> output_port -> ?ports? -> input_port -> Reaction
+                    else:
+                        downstream_ports.extend(
+                            input_output_dict[item]["downstream_ports"])
+                        
+                        
                 
            
 
