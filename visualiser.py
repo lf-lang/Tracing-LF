@@ -1,12 +1,14 @@
-
+from copy import deepcopy
 from Parser.parse_files import parser
-
 
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, HoverTool, Arrow, NormalHead, PrintfTickFormatter
 from bokeh.plotting import figure, show
 from bokeh.palettes import RdYlGn as palette
 from bokeh.models import Title
+from bokeh.models import CustomJS, MultiChoice, Panel, Tabs
+from bokeh.layouts import column, row
+
 
 
 class visualiser:
@@ -42,11 +44,10 @@ class visualiser:
         
         
     
-    def build_graph(self, draw_arrows, draw_colors):
+    def build_graph(self, draw_arrows):
         """Builds the bokeh graph"""
         
         self.draw_arrows = draw_arrows
-        self.draw_colors = draw_colors
 
         # Output to 
         output_file(self.graph_name + ".html")
@@ -54,83 +55,84 @@ class visualiser:
         # Define figure
         p = figure(sizing_mode="stretch_both",
                    title=self.graph_name)
+        # second plot which displays colours
+        p_colours = figure(sizing_mode="stretch_both",
+                           title=self.graph_name)
+        # third plot for arrows
+        p_arrows = figure(sizing_mode="stretch_both",
+                           title=self.graph_name)
         
-
         # -------------------------------------------------------------------
         # Draw colours (if enabled)
         
         # Colours chains of reactions originating from an action. (Assumes all chains begin with an action)
         # Uses the colour_nodes function to recursively assign a colour to nodes which are triggered by an action
         
-        
-        # If not colouring, set default colours for all nodes
-        if draw_colors is False:
-            default_reaction_colour = "gold"
-            default_action_colour = "cadetblue"
-            default_exection_event_colour = "burlywood"
-            
-            # Set the default colours for all actions and reactions
-            self.ordered_inst_events_reactions["colours"] = [
-                default_reaction_colour for x in self.ordered_inst_events_reactions["name"]]
-            self.ordered_inst_events_actions["colours"] = [
-                default_action_colour for x in self.ordered_inst_events_actions["name"]]
-            self.ordered_exe_events["colours"] = [
-                default_exection_event_colour for x in self.ordered_exe_events["name"]]
-
-
-
-        if draw_colors is True:
     
-            # If colouring, set colour to grey
-            self.ordered_inst_events_reactions["colours"] = [
-                "lightgrey" for x in self.ordered_inst_events_reactions["name"]]
-            self.ordered_inst_events_actions["colours"] = [
-                "lightgrey" for x in self.ordered_inst_events_actions["name"]]
-            self.ordered_exe_events["colours"] = [
-                "lightgrey" for x in self.ordered_exe_events["name"]]
+        # default colours
+        default_reaction_colour = "gold"
+        default_action_colour = "cadetblue"
+        default_exection_event_colour = "burlywood"
+        
+        # Set the default colours for all actions and reactions
+        self.ordered_inst_events_reactions["default_colours"] = [
+            default_reaction_colour for x in self.ordered_inst_events_reactions["name"]]
+        self.ordered_inst_events_actions["default_colours"] = [
+            default_action_colour for x in self.ordered_inst_events_actions["name"]]
+        self.ordered_exe_events["default_colours"] = [
+            default_exection_event_colour for x in self.ordered_exe_events["name"]]
+
+
+        # If colouring, set colour to grey
+        self.ordered_inst_events_reactions["colours"] = [
+            "lightgrey" for x in self.ordered_inst_events_reactions["name"]]
+        self.ordered_inst_events_actions["colours"] = [
+            "lightgrey" for x in self.ordered_inst_events_actions["name"]]
+        self.ordered_exe_events["colours"] = [
+            "lightgrey" for x in self.ordered_exe_events["name"]]
+        
+        palette_pos = 0
+        
+        # Iterate through all actions
+        for i in range(len(self.ordered_inst_events_actions["name"])):
             
-            palette_pos = 0
+            effects = self.ordered_inst_events_actions["effects"][i]
+            action_time_start = self.ordered_inst_events_actions["time_start"][i]
             
-            # Iterate through all actions
-            for i in range(len(self.ordered_inst_events_actions["name"])):
+            self.ordered_inst_events_actions["colours"][i] = palette[5][palette_pos % 5]
+            
+            # Iterate through all effects of the action and colour accordingly
+            for effect in effects:
                 
-                effects = self.ordered_inst_events_actions["effects"][i]
-                action_time_start = self.ordered_inst_events_actions["time_start"][i]
+                # Reactions as effect of action
+                current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start, self.ordered_inst_events_reactions)
                 
-                self.ordered_inst_events_actions["colours"][i] = palette[5][palette_pos % 5]
+                if current_reaction_pos is not None:
+                    
+                    # Add arrow if enabled
+                    if self.draw_arrows is True:
+                        self.arrow_pos.append(
+                            (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_inst_events_reactions["time_start"][current_reaction_pos], self.ordered_inst_events_reactions["y_axis"][current_reaction_pos]))
+
+                    # Colour recursively
+                    self.colour_reaction(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions)
                 
-                # Iterate through all effects of the action and colour accordingly
-                for effect in effects:
+                # Execution events as effect of action
+                current_exe_pos = self.data_parser.get_reaction_pos(
+                    effect, action_time_start, self.ordered_exe_events)
+                
+                if current_exe_pos is not None:
                     
-                    # Reactions as effect of action
-                    current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start, self.ordered_inst_events_reactions)
-                    
-                    if current_reaction_pos is not None:
-                        
-                        # Add arrow if enabled
-                        if self.draw_arrows is True:
-                            self.arrow_pos.append(
-                                (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_inst_events_reactions["time_start"][current_reaction_pos], self.ordered_inst_events_reactions["y_axis"][current_reaction_pos]))
+                    # Add arrow if enabled
+                    if self.draw_arrows is True:
+                        self.arrow_pos.append(
+                            (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_exe_events["time_start"][current_exe_pos], self.ordered_exe_events["y_axis"][current_exe_pos]))
 
-                        # Colour recursively
-                        self.colour_reaction(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions)
-                    
-                    # Execution events as effect of action
-                    current_exe_pos = self.data_parser.get_reaction_pos(
-                        effect, action_time_start, self.ordered_exe_events)
-                    
-                    if current_exe_pos is not None:
-                        
-                        # Add arrow if enabled
-                        if self.draw_arrows is True:
-                            self.arrow_pos.append(
-                                (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_exe_events["time_start"][current_exe_pos], self.ordered_exe_events["y_axis"][current_exe_pos]))
+                    # Colour recursively
+                    self.colour_reaction(current_exe_pos, palette_pos, self.ordered_exe_events)
 
-                        # Colour recursively
-                        self.colour_reaction(current_exe_pos, palette_pos, self.ordered_exe_events)
-
-                    # Increment the palette colour
-                    palette_pos += 1
+                # Increment the palette colour
+                palette_pos += 1
 
         # -------------------------------------------------------------------
         # Draw arrows (if enabled)  
@@ -150,26 +152,35 @@ class visualiser:
             
         # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
 
-        exe_line = p.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="colours", hover_alpha=0.5,
+        exe_line = p.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="default_colours", hover_alpha=0.5,
                     source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
-
+        
+        exe_line_colours = p_colours.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="colours", hover_alpha=0.5,
+                                               source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
         # -------------------------------------------------------------------      
         
         # Execution event markers 
         exe_x_marker = [((x1 + x2)/2)
                         for x1, x2 in self.ordered_exe_events["x_multi_line"]]
         exe_y_marker = self.ordered_exe_events["y_axis"]
-        exe_marker_colour = self.ordered_exe_events["colours"]
+        exe_marker_default = self.ordered_exe_events["default_colours"]
+        exe_marker_colours = self.ordered_exe_events["colours"]
         
-        exe_marker = p.diamond(exe_x_marker, exe_y_marker, color=exe_marker_colour, alpha = 0.5,
-                    size = 7, legend_label = "Execution Event Markers", muted_alpha = 0.2)
+        p.diamond(exe_x_marker, exe_y_marker, color=exe_marker_default, alpha= 0.5,
+                  size=7, legend_label="Execution Event Markers", muted_alpha=0.2)
+        
+        p_colours.diamond(exe_x_marker, exe_y_marker, color=exe_marker_colours, alpha=0.5,
+                  size=7, legend_label="Execution Event Markers", muted_alpha=0.2)
         
         # -------------------------------------------------------------------
         
         # All instantaneous events that are reactions
         source_inst_events_reactions = ColumnDataSource(self.ordered_inst_events_reactions)
 
-        inst_reaction_hex = p.hex(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
+        inst_reaction_hex = p.hex(x='time_start', y='y_axis', fill_color='default_colours', line_color="lightgrey",
+                                  size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
+        
+        inst_reaction_hex_colours = p_colours.hex(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                   size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
@@ -177,35 +188,64 @@ class visualiser:
         # All instantaneous events that are actions
         source_inst_events_actions = ColumnDataSource(self.ordered_inst_events_actions)
 
-        inst_action_hex = p.inverted_triangle(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
+        inst_action_hex = p.inverted_triangle(x='time_start', y='y_axis', fill_color='default_colours', line_color="lightgrey",
                                 size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
+        
+        inst_action_hex_colours = p_colours.inverted_triangle(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
+                                              size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
         
         # -------------------------------------------------------------------
 
-        
-        p.legend.location = "top_left"
+        location = "top_left"
+        p.legend.location = location
+        p_colours.legend.location = location
 
         # Toggle to hide/show events
-        p.legend.click_policy = "mute"
+        click_policy = "mute"
+        p.legend.click_policy = click_policy
+        p_colours.legend.click_policy = click_policy
 
         # Rename Axes
-        p.yaxis.ticker = [y for y in range(len(self.labels))]
-        p.yaxis.major_label_overrides = self.number_label
-        
-        p.xaxis[0].formatter = PrintfTickFormatter(format="%f")
-        
-        # Add axis labels
-        p.xaxis.axis_label = "Time (ns)"
-        p.xaxis.axis_label_text_font_size = "24px"
-        p.xaxis.axis_label_text_color = "cadetblue"
-        p.yaxis.axis_label = "Reaction Name"
-        p.yaxis.axis_label_text_font_size = "24px"
-        p.yaxis.axis_label_text_color = "cadetblue"
+        ticker = [y for y in range(len(self.labels))]
+        p.yaxis.ticker = ticker
+        p_colours.yaxis.ticker = ticker
 
-        
-        
+        major_label_overrides = self.number_label
+        p.yaxis.major_label_overrides = major_label_overrides
+        p_colours.yaxis.major_label_overrides = major_label_overrides
+
+        formatter = PrintfTickFormatter(format="%f")
+        p.xaxis[0].formatter = formatter
+        p_colours.xaxis[0].formatter = formatter
+
+        # Add axis labels
+        xaxis_label = "Time (ns)"
+        xaxis_label_text_font_size = "24px"
+        xaxis_label_text_color = "cadetblue"
+        yaxis_label = "Reaction Name"
+        yaxis_label_text_font_size = "24px"
+        yaxis_label_text_color = "cadetblue"
+
+        p.xaxis.axis_label = xaxis_label
+        p.xaxis.axis_label_text_font_size = xaxis_label_text_font_size
+        p.xaxis.axis_label_text_color = xaxis_label_text_color
+        p.yaxis.axis_label = yaxis_label
+        p.yaxis.axis_label_text_font_size = yaxis_label_text_font_size
+        p.yaxis.axis_label_text_color = yaxis_label_text_color
+
+        p_colours.xaxis.axis_label = xaxis_label
+        p_colours.xaxis.axis_label_text_font_size = xaxis_label_text_font_size
+        p_colours.xaxis.axis_label_text_color = xaxis_label_text_color
+        p_colours.yaxis.axis_label = yaxis_label
+        p_colours.yaxis.axis_label_text_font_size = yaxis_label_text_font_size
+        p_colours.yaxis.axis_label_text_color = yaxis_label_text_color
+
+        title_text = "Graph visualisation of a recorded LF trace. Use options (-a and -c) to show arrows and colours respectively. \n The tools on the right can be used to navigate the graph. Legend items can be clicked to mute series"
+        p.add_layout(Title(text=title_text, align="center"), "below")
+        p_colours.add_layout(Title(text=title_text, align="center"), "below")
+
         # Define tooltips for Reactions and Execution Events
-        TOOLTIPS = [
+        tooltips = [
             ("name", "@name"),
             ("time_start", "@time_start"),
             ("time_end", "@time_end"),
@@ -215,31 +255,40 @@ class visualiser:
             ("triggers", "@triggers"),
             ("effects", "@effects"),
         ]
-        
-        # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
-        hover_tool = HoverTool(tooltips=TOOLTIPS, renderers=[
-                               inst_reaction_hex, exe_line])
-        
+
         # Define tooltips for Reactions and Execution Events
-        TOOLTIPS = [
+        tooltips_actions = [
             ("name", "@name"),
             ("time_start", "@time_start"),
             ("trace_event_type", "@trace_event_type"),
             ("triggers", "@triggers"),
             ("effects", "@effects"),
         ]
-
+        
         # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
-        hover_tool_actions = HoverTool(
-            tooltips=TOOLTIPS, renderers=[inst_action_hex])
+        hover_tool = HoverTool(tooltips=tooltips, renderers=[inst_reaction_hex, exe_line])
+        hover_tool_colours = HoverTool(tooltips=tooltips, renderers=[inst_reaction_hex_colours, exe_line_colours])
+        
+        # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
+        hover_tool_actions = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex])
+        hover_tool_actions_colours = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_colours])
         
         # Add the tools to the plot
         p.add_tools(hover_tool, hover_tool_actions)
+        p_colours.add_tools(hover_tool_colours, hover_tool_actions_colours)
         
         
-        p.add_layout(Title(text="Graph visualisation of a recorded LF trace. Use options (-a and -c) to show arrows and colours respectively. \n The tools on the right can be used to navigate the graph. Legend items can be clicked to mute series", align="center"), "below")
-                
-        show(p)
+        # js radio buttons
+        multi_choice = MultiChoice(
+            value=self.labels, options=self.labels, sizing_mode="scale_width", height=140)
+        
+        layout = column(multi_choice, p, sizing_mode="stretch_both")
+        
+        tab1 = Panel(child=layout, title="trace")
+        tab2 = Panel(child=p_colours, title="coloured trace")
+        
+        show(Tabs(tabs=[tab1, tab2]))
+
         
         
         
@@ -305,9 +354,8 @@ class visualiser:
 
 
 if(__name__ == "__main__"):
-    vis = visualiser("yaml_files/FilterBank.yaml",
-                     "traces/FilterBank.json")
+    vis = visualiser("yaml_files/CigaretteSmoker.yaml",
+                     "traces/CigaretteSmoker.json")
 
     arrows = False
-    colours = True
-    vis.build_graph(arrows, colours)
+    vis.build_graph(arrows)
