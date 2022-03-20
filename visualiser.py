@@ -280,9 +280,14 @@ class visualiser:
         
         # js radio buttons
         multi_choice = MultiChoice(
-            value=self.labels, options=self.labels, sizing_mode="scale_width", height=140)
+            value=self.labels, options=self.labels, sizing_mode="scale_both")
         
-        layout = column(multi_choice, p, sizing_mode="stretch_both")
+        # Tim hier!!! 
+        multi_choice.js_on_change("value", CustomJS(args=dict(source_reactions=source_inst_events_reactions, row_id=self.labels), code="""
+            console.log('multi_choice: value=' + this.value, this.toString())
+        """))
+        
+        layout = column(multi_choice, p, sizing_mode="scale_both")
         
         tab1 = Panel(child=layout, title="trace")
         tab2 = Panel(child=p_colours, title="coloured trace")
