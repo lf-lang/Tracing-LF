@@ -1,4 +1,3 @@
-from copy import deepcopy
 from Parser.parse_files import parser
 
 from bokeh.io import output_file, show
@@ -7,7 +6,6 @@ from bokeh.plotting import figure, show
 from bokeh.palettes import RdYlGn as palette
 from bokeh.models import Title
 from bokeh.models import CustomJS, MultiChoice, Panel, Tabs
-from bokeh.layouts import column, row
 
 
 
@@ -163,14 +161,20 @@ class visualiser:
         exe_x_marker = [((x1 + x2)/2)
                         for x1, x2 in self.ordered_exe_events["x_multi_line"]]
         exe_y_marker = self.ordered_exe_events["y_axis"]
-        exe_marker_default = self.ordered_exe_events["default_colours"]
-        exe_marker_colours = self.ordered_exe_events["colours"]
         
-        p.diamond(exe_x_marker, exe_y_marker, color=exe_marker_default, alpha= 0.5,
-                  size=7, legend_label="Execution Event Markers", muted_alpha=0.2)
+        dict_exec_markers = {"x_values" : exe_x_marker,
+                            "y_values" : exe_y_marker,
+                             "name": self.ordered_exe_events["name"],
+                            "default_colours" : self.ordered_exe_events["default_colours"],
+                            "colours" : self.ordered_exe_events["colours"]}
         
-        p_colours.diamond(exe_x_marker, exe_y_marker, color=exe_marker_colours, alpha=0.5,
-                  size=7, legend_label="Execution Event Markers", muted_alpha=0.2)
+        source_exec_markers = ColumnDataSource(data=dict_exec_markers)
+
+        p.diamond(x='x_values', y='y_values', color="default_colours", alpha=0.5,
+                  size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
+        
+        p_colours.diamond(x='x_values', y='y_values', color="colours", alpha=0.5,
+                          size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
         
         # -------------------------------------------------------------------
         
@@ -280,19 +284,32 @@ class visualiser:
         
         # js radio buttons
         multi_choice = MultiChoice(
-            value=self.labels, options=self.labels, sizing_mode="scale_both")
+            value=self.labels, options=self.labels, sizing_mode="stretch_both")
         
         # Tim hier!!! 
-        multi_choice.js_on_change("value", CustomJS(args=dict(source_reactions=source_inst_events_reactions, row_id=self.labels), code="""
-            console.log('multi_choice: value=' + this.value, this.toString())
+        multi_choice.js_on_change("value", CustomJS(args=dict(sources=[source_inst_events_reactions, source_inst_events_actions, source_exec_events, source_exec_markers]), code="""
+            sources.forEach(source => {
+                console.log(source.data)
+            let active_values = this.value
+            let delete_us = []
+            source.data.name.forEach(function(name, i) {
+                if (!active_values.includes(name)) delete_us.push(i)
+            })
+            delete_us = delete_us.reverse()
+            delete_us.forEach(i => {
+                for (const [key, value] of Object.entries(source.data)) {
+                    source.data[key].splice(i, 1)
+                }
+            })
+            source.change.emit()
+            })
         """))
         
-        layout = column(multi_choice, p, sizing_mode="scale_both")
-        
-        tab1 = Panel(child=layout, title="trace")
+        tab1 = Panel(child=p, title="trace")
         tab2 = Panel(child=p_colours, title="coloured trace")
+        tab3 = Panel(child=multi_choice, title="data picker")
         
-        show(Tabs(tabs=[tab1, tab2]))
+        show(Tabs(tabs=[tab1, tab2, tab3]))
 
         
         
