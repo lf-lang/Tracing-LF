@@ -122,6 +122,10 @@ def reaction_execution_starts_to_dict(msg):
         "ts": get_timestamp_us(msg),
         "reactor": "Execution",
         "reaction": "worker " + str(event["worker_id"]),
+        "args": {
+            "microstep": int(event["timestamp_microstep"]),
+            "timestamp_ns": int(event["timestamp_ns"])
+        }
     }
 
 
@@ -134,6 +138,10 @@ def reaction_execution_finishes_to_dict(msg):
         "ts": get_timestamp_us(msg),
         "reactor": "Execution",
         "reaction": "worker " + str(event["worker_id"]),
+        "args": {
+            "microstep": int(event["timestamp_microstep"]),
+            "timestamp_ns": int(event["timestamp_ns"])
+        }
     }
 
 
@@ -149,7 +157,8 @@ def schedule_action_to_dict(msg):
         "s": "t",
         "cname": "terrible",
         "args": {
-            "microstep": int(event["timestamp_microstep"])
+            "microstep": int(event["timestamp_microstep"]),
+            "timestamp_ns": int(event["timestamp_ns"])
         }
     }
 
@@ -166,7 +175,8 @@ def trigger_reaction_to_dict(msg):
         "s": "t",
         "cname": "light_memory_dump",
         "args": {
-            "microstep": int(event["timestamp_microstep"])
+            "microstep": int(event["timestamp_microstep"]),
+            "timestamp_ns": int(event["timestamp_ns"])
         }
     }
 
