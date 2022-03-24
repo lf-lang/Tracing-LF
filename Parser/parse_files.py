@@ -80,6 +80,7 @@ class parser:
             reaction_name = item["reaction"]
             reactor_reaction_name = reactor_name + "." + reaction_name
             time_start = item["ts"]
+            # time_start = item["args"]["timestamp_ns"]
             
             
             # Execution events (not instantaneous)
