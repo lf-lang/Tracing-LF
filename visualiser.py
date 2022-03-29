@@ -93,34 +93,7 @@ class visualiser:
             self.disable_colouring = True
         
         
-        # Set the active labels (important for the js widget)
-        self.number_labels = {}
-        for i in range(len(self.labels)):
-            self.number_labels[i] = self.labels[i]
-        
-        label_y_pos = {v: k for k, v in self.number_labels.items()}
-        
-        # remove excluded data
-        for data_source in [self.ordered_inst_events_reactions, self.ordered_inst_events_actions, self.ordered_exe_events]:
-            
-            # find all datapoints with exluded names and add their index to a list
-            active_values = self.labels
-            indices_to_remove = []
-            for i in range(len(data_source["name"])):
-                current_label = data_source["name"][i]
-                if current_label not in active_values:
-                    indices_to_remove.append(i)
-                else:
-                    data_source["y_axis"][i] = label_y_pos[current_label]
-                    if data_source is self.ordered_exe_events:
-                        data_source["y_multi_line"][i] = [
-                            label_y_pos[current_label], label_y_pos[current_label]]
-
-            # Going from bottom to top, remove all datapoints with exluded names (using their index in the respective data source table)
-            indices_to_remove.reverse()
-            for index in indices_to_remove:
-                for key in data_source.keys():
-                    data_source[key].pop(index)
+        self.remove_reactions()
         
         # -------------------------------------------------------------------
         # Draw colours (if enabled)
@@ -151,48 +124,7 @@ class visualiser:
         self.ordered_exe_events["colours"] = [
             "lightgrey" for x in self.ordered_exe_events["name"]]
         
-        palette_pos = 0
-        
-        # Iterate through all actions
-        for i in range(len(self.ordered_inst_events_actions["name"])):
-            
-            effects = self.ordered_inst_events_actions["effects"][i]
-            action_time_start = self.ordered_inst_events_actions["time_start"][i]
-            
-            self.ordered_inst_events_actions["colours"][i] = palette[5][palette_pos % 5]
-            
-            # Iterate through all effects of the action and colour accordingly
-            for effect in effects:
-                
-                # Reactions as effect of action
-                current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start, self.ordered_inst_events_reactions)
-                
-                if current_reaction_pos is not None:
-                    
-                    # Add arrow if enabled
-                    if self.draw_arrows is True:
-                        self.arrow_pos.append(
-                            (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_inst_events_reactions["time_start"][current_reaction_pos], self.ordered_inst_events_reactions["y_axis"][current_reaction_pos]))
-
-                    # Colour recursively
-                    self.colour_reaction(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions)
-                
-                # Execution events as effect of action
-                current_exe_pos = self.data_parser.get_reaction_pos(
-                    effect, action_time_start, self.ordered_exe_events)
-                
-                if current_exe_pos is not None:
-                    
-                    # Add arrow if enabled
-                    if self.draw_arrows is True:
-                        self.arrow_pos.append(
-                            (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_exe_events["time_start"][current_exe_pos], self.ordered_exe_events["y_axis"][current_exe_pos]))
-
-                    # Colour recursively
-                    self.colour_reaction(current_exe_pos, palette_pos, self.ordered_exe_events)
-
-                # Increment the palette colour
-                palette_pos += 1
+        self.colour()
 
         # -------------------------------------------------------------------
         # Draw arrows (if enabled)  
@@ -376,16 +308,84 @@ class visualiser:
         else:
             show(Tabs(tabs=[trace, data_picker]))
 
+
+
+
+    def remove_reactions(self):
+        # Set the active labels (important for the js widget)
+        self.number_labels = {}
+        for i in range(len(self.labels)):
+            self.number_labels[i] = self.labels[i]
+        
+        label_y_pos = {v: k for k, v in self.number_labels.items()}
+        
+        # remove excluded data
+        for data_source in [self.ordered_inst_events_reactions, self.ordered_inst_events_actions, self.ordered_exe_events]:
+            # find all datapoints with exluded names and add their index to a list
+            active_values = self.labels
+            indices_to_remove = []
+            for i in range(len(data_source["name"])):
+                current_label = data_source["name"][i]
+                if current_label not in active_values:
+                    indices_to_remove.append(i)
+                else:
+                    data_source["y_axis"][i] = label_y_pos[current_label]
+                    if data_source is self.ordered_exe_events:
+                        data_source["y_multi_line"][i] = [
+                            label_y_pos[current_label], label_y_pos[current_label]]
+
+            # Going from bottom to top, remove all datapoints with exluded names (using their index in the respective data source table)
+            indices_to_remove.reverse()
+            for index in indices_to_remove:
+                for key in data_source.keys():
+                    data_source[key].pop(index)
+
+
+
+
+    def colour(self):
+        palette_pos = 0
+        
+        # Iterate through all actions
+        for i in range(len(self.ordered_inst_events_actions["name"])):
+            effects = self.ordered_inst_events_actions["effects"][i]
+            action_time_start = self.ordered_inst_events_actions["time_start"][i]
+            
+            self.ordered_inst_events_actions["colours"][i] = palette[5][palette_pos % 5]
+            
+            # Iterate through all effects of the action and colour accordingly
+            for effect in effects:
+                # Reactions as effect of action
+                current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start, self.ordered_inst_events_reactions)
+                
+                if current_reaction_pos is not None:
+                    # Add arrow if enabled
+                    if self.draw_arrows is True:
+                        self.arrow_pos.append(
+                            (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_inst_events_reactions["time_start"][current_reaction_pos], self.ordered_inst_events_reactions["y_axis"][current_reaction_pos]))
+
+                    # Colour recursively
+                    self.colour_iteratively(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions)
+                
+                # Execution events as effect of action
+                current_exe_pos = self.data_parser.get_reaction_pos(
+                    effect, action_time_start, self.ordered_exe_events)
+                
+                if current_exe_pos is not None:
+                    # Add arrow if enabled
+                    if self.draw_arrows is True:
+                        self.arrow_pos.append(
+                            (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_exe_events["time_start"][current_exe_pos], self.ordered_exe_events["y_axis"][current_exe_pos]))
+
+                    # Colour recursively
+                    self.colour_iteratively(current_exe_pos, palette_pos, self.ordered_exe_events)
+
+                # Increment the palette colour
+                palette_pos += 1
+
         
         
-        
-        
-        
-        
-        
-        
-        
-    def colour_reaction(self, reaction_pos, palette_pos, reaction_dictionary):
+    def colour_iteratively(self, reaction_pos, palette_pos, reaction_dictionary):
         '''Function which recursively colours reaction chains (via triggers/effects) from a given origin reaction
             First assigns the colour to a given reaction, then finds the reactions triggered and calls itself'''
 
@@ -418,7 +418,7 @@ class visualiser:
                                     self.arrow_pos.append(
                                         (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
                                 
-                                self.colour_reaction(reaction_effect_pos, palette_pos, reaction_dictionary)
+                                self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary)
 
                 else:
                     # Find the position of the reaction effect in the dict, using its name and the position of the reaction it was triggered by
@@ -432,11 +432,8 @@ class visualiser:
                             self.arrow_pos.append(
                                 (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
                         
-                        self.colour_reaction(reaction_effect_pos, palette_pos, reaction_dictionary)
+                        self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary)
                         
-
-
-
 
 
 
