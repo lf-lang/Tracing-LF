@@ -6,6 +6,8 @@ from bokeh.plotting import figure, show
 from bokeh.palettes import RdYlGn as palette
 from bokeh.models import Title
 from bokeh.models import CustomJS, MultiChoice, Panel, Tabs
+import argparse
+import regex
 
 
 
@@ -26,7 +28,6 @@ class visualiser:
         
         # Dictionaries which contain pairs for the numbers assigned to a reactor
         self.labels = self.data_parser.get_y_axis_labels()
-        self.number_label = self.data_parser.get_number_label()
         
         # Dictionary containing a port as a key, with the value containing the reactions triggered by the downstream port (of the current port)
         self.port_dict = self.data_parser.get_port_dict()
@@ -36,6 +37,9 @@ class visualiser:
         
         # List containing 4-tuples for arrow drawing
         self.arrow_pos = []
+        
+        # Stores whether to show coloured graph
+        self.disable_colouring = False
         
         # Graph name
         self.graph_name = "Trace"
@@ -59,6 +63,64 @@ class visualiser:
         # third plot for arrows
         p_arrows = figure(sizing_mode="stretch_both",
                            title=self.graph_name)
+        
+        # -------------------------------------------------------------------
+        # Include/Exclude Reactions
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-i", "--include", type=str,
+                            help="Regex to INCLUDE only certain reactors or reactions")
+        parser.add_argument("-x", "--exclude", type=str,
+                            help="Regex to EXCLUDE certain reactors or reactions")
+        args = parser.parse_args()
+        
+        if args.include and args.exclude:
+            raise TypeError("Too many arguments")
+        
+        filtered_labels = []
+        if args.include:
+            for label in self.labels:
+                if regex.search(args.include, label):
+                    filtered_labels.append(label)
+            self.labels = filtered_labels
+            self.disable_colouring = True
+        
+            
+        if args.exclude:
+            for label in self.labels:
+                if not regex.search(args.exclude, label):
+                    filtered_labels.append(label)
+            self.labels = filtered_labels
+            self.disable_colouring = True
+        
+        
+        # Set the active labels (important for the js widget)
+        self.number_labels = {}
+        for i in range(len(self.labels)):
+            self.number_labels[i] = self.labels[i]
+        
+        label_y_pos = {v: k for k, v in self.number_labels.items()}
+        
+        # remove excluded data
+        for data_source in [self.ordered_inst_events_reactions, self.ordered_inst_events_actions, self.ordered_exe_events]:
+            
+            # find all datapoints with exluded names and add their index to a list
+            active_values = self.labels
+            indices_to_remove = []
+            for i in range(len(data_source["name"])):
+                current_label = data_source["name"][i]
+                if current_label not in active_values:
+                    indices_to_remove.append(i)
+                else:
+                    data_source["y_axis"][i] = label_y_pos[current_label]
+                    if data_source is self.ordered_exe_events:
+                        data_source["y_multi_line"][i] = [
+                            label_y_pos[current_label], label_y_pos[current_label]]
+
+            # Going from bottom to top, remove all datapoints with exluded names (using their index in the respective data source table)
+            indices_to_remove.reverse()
+            for index in indices_to_remove:
+                for key in data_source.keys():
+                    data_source[key].pop(index)
         
         # -------------------------------------------------------------------
         # Draw colours (if enabled)
@@ -214,7 +276,7 @@ class visualiser:
         p.yaxis.ticker = ticker
         p_colours.yaxis.ticker = ticker
 
-        major_label_overrides = self.number_label
+        major_label_overrides = self.number_labels
         p.yaxis.major_label_overrides = major_label_overrides
         p_colours.yaxis.major_label_overrides = major_label_overrides
 
@@ -305,11 +367,14 @@ class visualiser:
             })
         """))
         
-        tab1 = Panel(child=p, title="trace")
-        tab2 = Panel(child=p_colours, title="coloured trace")
-        tab3 = Panel(child=multi_choice, title="data picker")
+        trace = Panel(child=p, title="trace") 
+        coloured_trace = Panel(child=p_colours, title="coloured trace")
+        data_picker = Panel(child=multi_choice, title="data picker")
         
-        show(Tabs(tabs=[tab1, tab2, tab3]))
+        if not self.disable_colouring:
+            show(Tabs(tabs=[trace, coloured_trace, data_picker]))
+        else:
+            show(Tabs(tabs=[trace, data_picker]))
 
         
         
@@ -376,8 +441,8 @@ class visualiser:
 
 
 if(__name__ == "__main__"):
-    vis = visualiser("yaml_files/CigaretteSmoker.yaml",
-                     "traces/CigaretteSmoker.json")
+    vis = visualiser("yaml_files/SleepingBarber.yaml",
+                     "traces/SleepingBarber.json")
 
-    arrows = False
+    arrows = True
     vis.build_graph(arrows)
