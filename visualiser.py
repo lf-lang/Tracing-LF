@@ -3,7 +3,7 @@ from Parser.parse_files import parser
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, HoverTool, Arrow, NormalHead, PrintfTickFormatter
 from bokeh.plotting import figure, show
-from bokeh.palettes import RdYlGn as palette
+from bokeh.palettes import Set1 as palette
 from bokeh.models import Title
 from bokeh.models import CustomJS, MultiChoice, Panel, Tabs
 import argparse
@@ -46,10 +46,8 @@ class visualiser:
         
         
     
-    def build_graph(self, draw_arrows):
+    def build_graph(self):
         """Builds the bokeh graph"""
-        
-        self.draw_arrows = draw_arrows
 
         # Output to 
         output_file(self.graph_name + ".html")
@@ -63,6 +61,10 @@ class visualiser:
         # third plot for arrows
         p_arrows = figure(sizing_mode="stretch_both",
                            title=self.graph_name)
+        
+        # fourth plot for physical time only events
+        p_physical_time = figure(sizing_mode="stretch_both",
+                          title=self.graph_name)
         
         # -------------------------------------------------------------------
         # Include/Exclude Reactions
@@ -130,7 +132,7 @@ class visualiser:
         # Draw arrows (if enabled)  
 
         for x_start, y_start, x_end, y_end in self.arrow_pos:
-            p.add_layout(Arrow(end=NormalHead(
+            p_arrows.add_layout(Arrow(end=NormalHead(
                 line_width=1, size=5), line_color="burlywood", x_start=x_start, y_start=y_start,
                 x_end=x_end, y_end=y_end))
 
@@ -149,6 +151,12 @@ class visualiser:
         
         exe_line_colours = p_colours.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="colours", hover_alpha=0.5,
                                                source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
+        
+        exe_line_arrows = p_arrows.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="colours", hover_alpha=0.5,
+                                                source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
+        
+        exe_line_physical_time = p_physical_time.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="colours", hover_alpha=0.5,
+                                                source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
         # -------------------------------------------------------------------      
         
         # Execution event markers 
@@ -170,6 +178,13 @@ class visualiser:
         p_colours.diamond(x='x_values', y='y_values', color="colours", alpha=0.5,
                           size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
         
+        p_arrows.diamond(x='x_values', y='y_values', color="colours", alpha=0.5,
+                          size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
+
+
+        p_physical_time.diamond(x='x_values', y='y_values', color="colours", alpha=0.5,
+                        size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
+
         # -------------------------------------------------------------------
         
         # All instantaneous events that are reactions
@@ -180,6 +195,10 @@ class visualiser:
         
         inst_reaction_hex_colours = p_colours.hex(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                   size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
+
+
+        inst_reaction_hex_arrows = p_arrows.hex(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
+                                                size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
         
@@ -192,29 +211,26 @@ class visualiser:
         inst_action_hex_colours = p_colours.inverted_triangle(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                               size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
         
+        inst_action_hex_arrows = p_arrows.inverted_triangle(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
+                                                              size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
+
+
+        inst_action_hex_physical_time = p_physical_time.inverted_triangle(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
+                                                      size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
+
+        
         # -------------------------------------------------------------------
 
+        # PLOT OPTIONS
         location = "top_left"
-        p.legend.location = location
-        p_colours.legend.location = location
 
         # Toggle to hide/show events
         click_policy = "mute"
-        p.legend.click_policy = click_policy
-        p_colours.legend.click_policy = click_policy
-
-        # Rename Axes
+        
+        # Rename Axes and format ticks
         ticker = [y for y in range(len(self.labels))]
-        p.yaxis.ticker = ticker
-        p_colours.yaxis.ticker = ticker
-
         major_label_overrides = self.number_labels
-        p.yaxis.major_label_overrides = major_label_overrides
-        p_colours.yaxis.major_label_overrides = major_label_overrides
-
         formatter = PrintfTickFormatter(format="%f")
-        p.xaxis[0].formatter = formatter
-        p_colours.xaxis[0].formatter = formatter
 
         # Add axis labels
         xaxis_label = "Time (ns)"
@@ -224,23 +240,23 @@ class visualiser:
         yaxis_label_text_font_size = "24px"
         yaxis_label_text_color = "cadetblue"
 
-        p.xaxis.axis_label = xaxis_label
-        p.xaxis.axis_label_text_font_size = xaxis_label_text_font_size
-        p.xaxis.axis_label_text_color = xaxis_label_text_color
-        p.yaxis.axis_label = yaxis_label
-        p.yaxis.axis_label_text_font_size = yaxis_label_text_font_size
-        p.yaxis.axis_label_text_color = yaxis_label_text_color
-
-        p_colours.xaxis.axis_label = xaxis_label
-        p_colours.xaxis.axis_label_text_font_size = xaxis_label_text_font_size
-        p_colours.xaxis.axis_label_text_color = xaxis_label_text_color
-        p_colours.yaxis.axis_label = yaxis_label
-        p_colours.yaxis.axis_label_text_font_size = yaxis_label_text_font_size
-        p_colours.yaxis.axis_label_text_color = yaxis_label_text_color
-
+        # Text below graph
         title_text = "Graph visualisation of a recorded LF trace. Use options (-a and -c) to show arrows and colours respectively. \n The tools on the right can be used to navigate the graph. Legend items can be clicked to mute series"
-        p.add_layout(Title(text=title_text, align="center"), "below")
-        p_colours.add_layout(Title(text=title_text, align="center"), "below")
+       
+        # Add all properties to plots    
+        for plot in [p, p_colours, p_arrows, p_physical_time]:
+            plot.legend.location = location
+            plot.legend.click_policy = click_policy
+            plot.yaxis.ticker = ticker
+            plot.yaxis.major_label_overrides = major_label_overrides
+            plot.xaxis[0].formatter = formatter
+            plot.xaxis.axis_label = xaxis_label
+            plot.xaxis.axis_label_text_font_size = xaxis_label_text_font_size
+            plot.xaxis.axis_label_text_color = xaxis_label_text_color
+            plot.yaxis.axis_label = yaxis_label
+            plot.yaxis.axis_label_text_font_size = yaxis_label_text_font_size
+            plot.yaxis.axis_label_text_color = yaxis_label_text_color
+            plot.add_layout(Title(text=title_text, align="center"), "below")
 
         # Define tooltips for Reactions and Execution Events
         tooltips = [
@@ -266,14 +282,20 @@ class visualiser:
         # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
         hover_tool = HoverTool(tooltips=tooltips, renderers=[inst_reaction_hex, exe_line])
         hover_tool_colours = HoverTool(tooltips=tooltips, renderers=[inst_reaction_hex_colours, exe_line_colours])
+        hover_tool_arrows = HoverTool(tooltips=tooltips, renderers=[inst_reaction_hex_arrows, exe_line_arrows])
+        hover_tool_physical_time = HoverTool(tooltips=tooltips, renderers=[exe_line_physical_time])
         
         # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
         hover_tool_actions = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex])
         hover_tool_actions_colours = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_colours])
+        hover_tool_actions_arrows = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_arrows])
+        hover_tool_actions_physical_time = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_physical_time])
         
         # Add the tools to the plot
         p.add_tools(hover_tool, hover_tool_actions)
         p_colours.add_tools(hover_tool_colours, hover_tool_actions_colours)
+        p_arrows.add_tools(hover_tool_arrows, hover_tool_actions_arrows)
+        p_physical_time.add_tools(hover_tool_physical_time, hover_tool_actions_physical_time)
         
         
         # js radio buttons
@@ -301,10 +323,12 @@ class visualiser:
         
         trace = Panel(child=p, title="trace") 
         coloured_trace = Panel(child=p_colours, title="coloured trace")
+        arrows = Panel(child=p_arrows, title="arrows")
+        physical_time = Panel(child=p_physical_time, title="physical time")
         data_picker = Panel(child=multi_choice, title="data picker")
         
         if not self.disable_colouring:
-            show(Tabs(tabs=[trace, coloured_trace, data_picker]))
+            show(Tabs(tabs=[trace, coloured_trace, arrows, physical_time, data_picker]))
         else:
             show(Tabs(tabs=[trace, data_picker]))
 
@@ -351,7 +375,7 @@ class visualiser:
             effects = self.ordered_inst_events_actions["effects"][i]
             action_time_start = self.ordered_inst_events_actions["time_start"][i]
             
-            self.ordered_inst_events_actions["colours"][i] = palette[5][palette_pos % 5]
+            self.ordered_inst_events_actions["colours"][i] = palette[9][palette_pos % 9]
             
             # Iterate through all effects of the action and colour accordingly
             for effect in effects:
@@ -360,9 +384,8 @@ class visualiser:
                 
                 if current_reaction_pos is not None:
                     # Add arrow if enabled
-                    if self.draw_arrows is True:
-                        self.arrow_pos.append(
-                            (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_inst_events_reactions["time_start"][current_reaction_pos], self.ordered_inst_events_reactions["y_axis"][current_reaction_pos]))
+                    self.arrow_pos.append(
+                        (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_inst_events_reactions["time_start"][current_reaction_pos], self.ordered_inst_events_reactions["y_axis"][current_reaction_pos]))
 
                     # Colour recursively
                     self.colour_iteratively(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions)
@@ -373,9 +396,8 @@ class visualiser:
                 
                 if current_exe_pos is not None:
                     # Add arrow if enabled
-                    if self.draw_arrows is True:
-                        self.arrow_pos.append(
-                            (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_exe_events["time_start"][current_exe_pos], self.ordered_exe_events["y_axis"][current_exe_pos]))
+                    self.arrow_pos.append(
+                        (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_exe_events["time_start"][current_exe_pos], self.ordered_exe_events["y_axis"][current_exe_pos]))
 
                     # Colour recursively
                     self.colour_iteratively(current_exe_pos, palette_pos, self.ordered_exe_events)
@@ -390,7 +412,7 @@ class visualiser:
             First assigns the colour to a given reaction, then finds the reactions triggered and calls itself'''
 
         # Assign the current colour to the reaction
-        reaction_dictionary["colours"][reaction_pos] = palette[5][palette_pos % 5]
+        reaction_dictionary["colours"][reaction_pos] = palette[9][palette_pos % 9]
 
         # Check if the reaction has further effects
         reaction_effects = reaction_dictionary[
@@ -414,10 +436,9 @@ class visualiser:
 
                             if reaction_effect_pos is not None:
                                 # If arrow drawing is true, add the beginning (x,y) and ending (x,y) as 4-tuple to arrow dict
-                                if self.draw_arrows is True:
-                                    self.arrow_pos.append(
-                                        (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
-                                
+                                self.arrow_pos.append(
+                                    (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
+                            
                                 self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary)
 
                 else:
@@ -428,9 +449,8 @@ class visualiser:
 
                     if reaction_effect_pos is not None:
                         # If arrow drawing is true, add the beginning (x,y) and ending (x,y) as 4-tuple to arrow dict
-                        if self.draw_arrows is True:
-                            self.arrow_pos.append(
-                                (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
+                        self.arrow_pos.append(
+                            (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
                         
                         self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary)
                         
@@ -441,5 +461,4 @@ if(__name__ == "__main__"):
     vis = visualiser("yaml_files/SleepingBarber.yaml",
                      "traces/SleepingBarber.json")
 
-    arrows = True
-    vis.build_graph(arrows)
+    vis.build_graph()
