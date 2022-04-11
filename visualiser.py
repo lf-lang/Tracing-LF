@@ -39,7 +39,7 @@ class visualiser:
         self.arrow_pos = []
         
         # Stores whether to show coloured graph
-        self.disable_colouring = False
+        self.diable_arrows = False
         
         # Graph name
         self.graph_name = "Trace"
@@ -65,37 +65,6 @@ class visualiser:
         # fourth plot for physical time only events
         p_physical_time = figure(sizing_mode="stretch_both",
                           title=self.graph_name)
-        
-        # -------------------------------------------------------------------
-        # Include/Exclude Reactions
-        parser = argparse.ArgumentParser()
-        parser.add_argument("-i", "--include", type=str,
-                            help="Regex to INCLUDE only certain reactors or reactions")
-        parser.add_argument("-x", "--exclude", type=str,
-                            help="Regex to EXCLUDE certain reactors or reactions")
-        args = parser.parse_args()
-        
-        if args.include and args.exclude:
-            raise TypeError("Too many arguments")
-        
-        filtered_labels = []
-        if args.include:
-            for label in self.labels:
-                if regex.search(args.include, label):
-                    filtered_labels.append(label)
-            self.labels = filtered_labels
-            self.disable_colouring = True
-        
-            
-        if args.exclude:
-            for label in self.labels:
-                if not regex.search(args.exclude, label):
-                    filtered_labels.append(label)
-            self.labels = filtered_labels
-            self.disable_colouring = True
-        
-        
-        self.remove_reactions()
         
         # -------------------------------------------------------------------
         # Draw colours (if enabled)
@@ -127,14 +96,44 @@ class visualiser:
             "lightgrey" for x in self.ordered_exe_events["name"]]
         
         self.colour()
+        
+        # -------------------------------------------------------------------
+        # Include/Exclude Reactions
+        parser = argparse.ArgumentParser()
+        parser.add_argument("-i", "--include", type=str,
+                            help="Regex to INCLUDE only certain reactors or reactions")
+        parser.add_argument("-x", "--exclude", type=str,
+                            help="Regex to EXCLUDE certain reactors or reactions")
+        args = parser.parse_args()
+
+        if args.include and args.exclude:
+            raise TypeError("Too many arguments")
+
+        filtered_labels = []
+        if args.include:
+            for label in self.labels:
+                if regex.search(args.include, label):
+                    filtered_labels.append(label)
+            self.labels = filtered_labels
+            self.diable_arrows = True
+
+        if args.exclude:
+            for label in self.labels:
+                if not regex.search(args.exclude, label):
+                    filtered_labels.append(label)
+            self.labels = filtered_labels
+            self.diable_arrows = True
+
+        self.remove_reactions()
 
         # -------------------------------------------------------------------
         # Draw arrows (if enabled)  
 
-        for x_start, y_start, x_end, y_end in self.arrow_pos:
-            p_arrows.add_layout(Arrow(end=NormalHead(
-                line_width=1, size=5), line_color="burlywood", x_start=x_start, y_start=y_start,
-                x_end=x_end, y_end=y_end))
+        if not self.diable_arrows:
+            for x_start, y_start, x_end, y_end in self.arrow_pos:
+                p_arrows.add_layout(Arrow(end=NormalHead(
+                    line_width=1, size=5), line_color="burlywood", x_start=x_start, y_start=y_start,
+                    x_end=x_end, y_end=y_end))
 
         # -------------------------------------------------------------------
         # All execution events
@@ -172,17 +171,17 @@ class visualiser:
         
         source_exec_markers = ColumnDataSource(data=dict_exec_markers)
 
-        p.diamond(x='x_values', y='y_values', color="default_colours", alpha=0.5,
+        p.diamond(x='x_values', y='y_values', color="default_colours",
                   size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
         
-        p_colours.diamond(x='x_values', y='y_values', color="colours", alpha=0.5,
+        p_colours.diamond(x='x_values', y='y_values', color="colours",
                           size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
         
-        p_arrows.diamond(x='x_values', y='y_values', color="colours", alpha=0.5,
+        p_arrows.diamond(x='x_values', y='y_values', color="colours",
                           size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
 
 
-        p_physical_time.diamond(x='x_values', y='y_values', color="colours", alpha=0.5,
+        p_physical_time.diamond(x='x_values', y='y_values', color="colours",
                         size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
 
         # -------------------------------------------------------------------
@@ -327,10 +326,10 @@ class visualiser:
         physical_time = Panel(child=p_physical_time, title="physical time")
         data_picker = Panel(child=multi_choice, title="data picker")
         
-        if not self.disable_colouring:
+        if not self.diable_arrows:
             show(Tabs(tabs=[trace, coloured_trace, arrows, physical_time, data_picker]))
         else:
-            show(Tabs(tabs=[trace, data_picker]))
+            show(Tabs(tabs=[trace, coloured_trace, physical_time, data_picker]))
 
 
 
