@@ -258,11 +258,9 @@ class visualiser:
             plot.add_layout(Title(text=title_text, align="center"), "below")
 
         # Define tooltips for Reactions and Execution Events
-        tooltips = [
+        tooltips_reactions = [
             ("name", "@name"),
             ("time_start", "@time_start"),
-            ("time_end", "@time_end"),
-            ("trace_event_type", "@trace_event_type"),
             ("priority", "@priority"),
             ("level", "@level"),
             ("triggers", "@triggers"),
@@ -278,11 +276,23 @@ class visualiser:
             ("effects", "@effects"),
         ]
         
-        # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
-        hover_tool = HoverTool(tooltips=tooltips, renderers=[inst_reaction_hex, exe_line])
-        hover_tool_colours = HoverTool(tooltips=tooltips, renderers=[inst_reaction_hex_colours, exe_line_colours])
-        hover_tool_arrows = HoverTool(tooltips=tooltips, renderers=[inst_reaction_hex_arrows, exe_line_arrows])
-        hover_tool_physical_time = HoverTool(tooltips=tooltips, renderers=[exe_line_physical_time])
+        tooltips_executions = [
+            ("name", "@name"),
+            ("time_start", "@time_start"),
+            ("time_end", "@time_end"),
+            ("trace_event_type", "@trace_event_type"),
+            ("priority", "@priority"),
+            ("level", "@level"),
+            ("triggers", "@triggers"),
+            ("effects", "@effects"),
+            ("logical_time", "@logical_time"),
+            ("microstep", "@microstep")
+        ]
+        
+        # Hover tool only for instantaneous events 
+        hover_tool = HoverTool(tooltips=tooltips_reactions, renderers=[inst_reaction_hex])
+        hover_tool_colours = HoverTool(tooltips=tooltips_reactions, renderers=[inst_reaction_hex_colours])
+        hover_tool_arrows = HoverTool(tooltips=tooltips_reactions, renderers=[inst_reaction_hex_arrows])
         
         # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
         hover_tool_actions = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex])
@@ -290,11 +300,18 @@ class visualiser:
         hover_tool_actions_arrows = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_arrows])
         hover_tool_actions_physical_time = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_physical_time])
         
+        # Hover tool only for execution events (so that markers for exe events dont also have a tooltip)
+        hover_tool_executions = HoverTool(tooltips=tooltips_executions, renderers=[exe_line])
+        hover_tool_executions_colours = HoverTool(tooltips=tooltips_executions, renderers=[exe_line_colours])
+        hover_tool_executions_arrows = HoverTool(tooltips=tooltips_executions, renderers=[exe_line_arrows])
+        hover_tool_executions_physical_time = HoverTool(tooltips=tooltips_executions, renderers=[exe_line_physical_time])
+
+        
         # Add the tools to the plot
-        p.add_tools(hover_tool, hover_tool_actions)
-        p_colours.add_tools(hover_tool_colours, hover_tool_actions_colours)
-        p_arrows.add_tools(hover_tool_arrows, hover_tool_actions_arrows)
-        p_physical_time.add_tools(hover_tool_physical_time, hover_tool_actions_physical_time)
+        p.add_tools(hover_tool, hover_tool_actions, hover_tool_executions)
+        p_colours.add_tools(hover_tool_colours, hover_tool_actions_colours, hover_tool_executions_colours)
+        p_arrows.add_tools(hover_tool_arrows, hover_tool_actions_arrows, hover_tool_executions_arrows)
+        p_physical_time.add_tools(hover_tool_actions_physical_time, hover_tool_executions_physical_time)
         
         
         # js radio buttons

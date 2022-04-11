@@ -28,6 +28,7 @@ class parser:
         
         # Get first reaction 
         start_time = json_data["traceEvents"][0]["ts"]
+        start_time_logical = json_data["traceEvents"][0]["args"]["timestamp_ns"]
         
         # Axis time scaling
         # end_tine = json_data["traceEvents"][-1]["ts"]
@@ -39,6 +40,12 @@ class parser:
             # set new start time
             current_start_time = item["ts"]
             item["ts"] = current_start_time - start_time
+            
+            # logical time
+            current_start_time_logical = item["args"]["timestamp_ns"]
+            # logical timestamps are in ns -> convert to ms
+            item["args"]["timestamp_ns"] = int((current_start_time_logical - start_time_logical) / 1000)
+            
             
             # add reaction to reactions
             if item["reactor"] != "Execution":
@@ -56,8 +63,8 @@ class parser:
         
         # Dictionary containing all compiled data for each instantaneous event execution (reactions)
         # Note: time_start is used for the x-axis, y-axis is the y value which is later substituted for a reaction name
-        self.ordered_inst_events_reactions = {"name": [], "reactor": [], "reaction": [], "time_start": [], "time_end": [],
-                                              "trace_event_type": [], "y_axis": [], "priority": [], "level": [], "triggers": [], "effects": []}
+        self.ordered_inst_events_reactions = {"name": [], "reactor": [], "reaction": [], "time_start": [], "time_end": [], "trace_event_type": [], "y_axis": [], 
+                                              "priority": [], "level": [], "triggers": [], "effects": []}
         
         # Dictionary containing all compiled data for each instantaneous event execution
         self.ordered_inst_events_actions = {"name": [], "reactor": [], "reaction": [], "time_start": [], "time_end": [],
@@ -65,8 +72,8 @@ class parser:
 
         # Dictionary containing all compiled data for each execution event execution
         # x_multi_line and y_multi_line contain nested lists with start and end x and y values respectively. These are used to draw the multilines
-        self.ordered_exe_events = {"name": [], "time_start": [], "time_end": [], "trace_event_type": [], "priority": [],
-                                        "level": [], "triggers": [], "effects": [], "x_multi_line": [], "y_multi_line": [], "y_axis": []}
+        self.ordered_exe_events = {"name": [], "time_start": [], "time_end": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [],
+                                   "effects": [], "x_multi_line": [], "y_multi_line": [], "y_axis": [], "logical_time": [], "microstep": []}
 
         # YAML attribute list
         attribute_list = ["priority", "level", "triggers", "effects"]
@@ -101,6 +108,8 @@ class parser:
                 self.ordered_exe_events["y_axis"].append(
                     self.reactor_number[item["name"]])
                 self.ordered_exe_events["trace_event_type"].append("execution")
+                self.ordered_exe_events["logical_time"].append(item["args"]["timestamp_ns"])
+                self.ordered_exe_events["microstep"].append(item["args"]["microstep"])
 
                 # YAML Data
                 attribute_list = ["priority",
