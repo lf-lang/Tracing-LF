@@ -1,7 +1,7 @@
 from Parser.parse_files import parser
 
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, HoverTool, Arrow, NormalHead, PrintfTickFormatter
+from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead, PrintfTickFormatter
 from bokeh.plotting import figure, show
 from bokeh.palettes import Set1 as palette
 from bokeh.models import Title
@@ -95,6 +95,7 @@ class visualiser:
         self.ordered_exe_events["colours"] = [
             "lightgrey" for x in self.ordered_exe_events["name"]]
         
+        # Colour and find arrow positions
         self.colour()
         
         # -------------------------------------------------------------------
@@ -127,11 +128,11 @@ class visualiser:
         self.remove_reactions()
 
         # -------------------------------------------------------------------
-        # Draw arrows (if enabled)  
+        # Draw arrows (if enabled) (self.arrows is constructed in colour())
 
         if not self.diable_arrows:
             for x_start, y_start, x_end, y_end in self.arrow_pos:
-                p_arrows.add_layout(Arrow(end=NormalHead(
+                p_arrows.add_layout(Arrow(end=OpenHead(
                     line_width=1, size=5), line_color="burlywood", x_start=x_start, y_start=y_start,
                     x_end=x_end, y_end=y_end))
 
@@ -395,18 +396,15 @@ class visualiser:
             
             # Iterate through all effects of the action and colour accordingly
             for effect in effects:
-                # Reactions as effect of action
+                
+                # REACTIONS as effect of action
                 current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start, self.ordered_inst_events_reactions)
                 
                 if current_reaction_pos is not None:
-                    # Add arrow if enabled
-                    self.arrow_pos.append(
-                        (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_inst_events_reactions["time_start"][current_reaction_pos], self.ordered_inst_events_reactions["y_axis"][current_reaction_pos]))
-
                     # Colour recursively
-                    self.colour_iteratively(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions)
+                    self.colour_iteratively(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions, False)
                 
-                # Execution events as effect of action
+                # EXECUTIONS as effect of action
                 current_exe_pos = self.data_parser.get_reaction_pos(
                     effect, action_time_start, self.ordered_exe_events)
                 
@@ -416,14 +414,14 @@ class visualiser:
                         (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_exe_events["time_start"][current_exe_pos], self.ordered_exe_events["y_axis"][current_exe_pos]))
 
                     # Colour recursively
-                    self.colour_iteratively(current_exe_pos, palette_pos, self.ordered_exe_events)
+                    self.colour_iteratively(current_exe_pos, palette_pos, self.ordered_exe_events, True)
 
                 # Increment the palette colour
                 palette_pos += 1
 
         
         
-    def colour_iteratively(self, reaction_pos, palette_pos, reaction_dictionary):
+    def colour_iteratively(self, reaction_pos, palette_pos, reaction_dictionary, draw_arrows):
         '''Function which recursively colours reaction chains (via triggers/effects) from a given origin reaction
             First assigns the colour to a given reaction, then finds the reactions triggered and calls itself'''
 
@@ -452,10 +450,10 @@ class visualiser:
 
                             if reaction_effect_pos is not None:
                                 # If arrow drawing is true, add the beginning (x,y) and ending (x,y) as 4-tuple to arrow dict
-                                self.arrow_pos.append(
-                                    (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
+                                if draw_arrows:
+                                    self.arrow_pos.append((reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
                             
-                                self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary)
+                                self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary, draw_arrows)
 
                 else:
                     # Find the position of the reaction effect in the dict, using its name and the position of the reaction it was triggered by
@@ -468,7 +466,7 @@ class visualiser:
                         self.arrow_pos.append(
                             (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
                         
-                        self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary)
+                        self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary, draw_arrows)
                         
 
 

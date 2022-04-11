@@ -8,7 +8,7 @@ class parser:
     def parse(self, yaml_filepath, json_filepath):
 
         # Variables
-        self.x_offset = 0.15
+        self.x_offset = 0
         
         self.parse_yaml(yaml_filepath)
         yaml_data = self.reaction_dict
