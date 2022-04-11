@@ -133,7 +133,7 @@ class visualiser:
         if not self.diable_arrows:
             for x_start, y_start, x_end, y_end in self.arrow_pos:
                 p_arrows.add_layout(Arrow(end=OpenHead(
-                    line_width=1, size=5), line_color="burlywood", x_start=x_start, y_start=y_start,
+                    line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
                     x_end=x_end, y_end=y_end))
 
         # -------------------------------------------------------------------
