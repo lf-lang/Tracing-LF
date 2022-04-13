@@ -1,13 +1,12 @@
 #!/bin/bash
 
 # Script to compile an lf file and trace its execution
-bnry_dir=$(~/lingua-franca/bin/lfc -c $1 | grep -o 'binary is in.*' | cut -d ' ' -f 4)
+bnry_dir=$(lfc -c $1 | grep -o 'binary is in.*' | cut -d ' ' -f 4)
 
 echo "bnry_dir: "
 # Remove .lf from end of string
 v=$1
 rem_extension=${v::-3}
-echo $rem_extension
 
 # Extract program name from input filepath
 bnry_name=$(echo $rem_extension | rev | cut -d '/' -f 1 | rev)
@@ -31,3 +30,5 @@ echo $trace_dir
 ctf_to_json.py $trace_dir
 
 mv trace.json $bnry_name.json
+
+python ../visualiser.py scripts/$bnry_name.json scripts/$bnry_name.yaml

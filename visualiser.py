@@ -13,7 +13,9 @@ import regex
 
 class visualiser:
     
-    def __init__(self, yaml_filepath, json_filepath):
+    def __init__(self, json_filepath, yaml_filepath):
+        
+        
         self.data_parser = parser()
         self.data_parser.parse(yaml_filepath, json_filepath)
         
@@ -46,8 +48,22 @@ class visualiser:
         
         
     
-    def build_graph(self):
+    def build_graph(self, args):
         """Builds the bokeh graph"""
+        
+        # Include/Exclude Reactions
+        parser = argparse.ArgumentParser()
+        parser.add_argument("tracefile", type=str,
+                            help="Path to the .json trace file")
+        parser.add_argument("yamlfile", type=str,
+                            help="Path to the .yaml file")
+        parser.add_argument("-i", "--include", type=str,
+                            help="Regex to INCLUDE only certain reactors or reactions")
+        parser.add_argument("-x", "--exclude", type=str,
+                            help="Regex to EXCLUDE certain reactors or reactions")
+        args = parser.parse_args()
+        
+        
 
         # Output to 
         output_file(self.graph_name + ".html")
@@ -100,16 +116,12 @@ class visualiser:
         
         # -------------------------------------------------------------------
         # Include/Exclude Reactions
-        parser = argparse.ArgumentParser()
-        parser.add_argument("-i", "--include", type=str,
-                            help="Regex to INCLUDE only certain reactors or reactions")
-        parser.add_argument("-x", "--exclude", type=str,
-                            help="Regex to EXCLUDE certain reactors or reactions")
-        args = parser.parse_args()
-
+        
+        # Too many args
         if args.include and args.exclude:
             raise TypeError("Too many arguments")
 
+        # Include reactions
         filtered_labels = []
         if args.include:
             for label in self.labels:
@@ -118,6 +130,7 @@ class visualiser:
             self.labels = filtered_labels
             self.diable_arrows = True
 
+        # Exclude reactions
         if args.exclude:
             for label in self.labels:
                 if not regex.search(args.exclude, label):
@@ -472,7 +485,18 @@ class visualiser:
 
 
 if(__name__ == "__main__"):
-    vis = visualiser("yaml_files/SleepingBarber.yaml",
-                     "traces/SleepingBarber.json")
+    # Include/Exclude Reactions
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("tracefile", type=str,
+                        help="Path to the .json trace file")
+    argparser.add_argument("yamlfile", type=str,
+                        help="Path to the .yaml file")
+    argparser.add_argument("-i", "--include", type=str,
+                        help="Regex to INCLUDE only certain reactors or reactions")
+    argparser.add_argument("-x", "--exclude", type=str,
+                        help="Regex to EXCLUDE certain reactors or reactions")
+    args = argparser.parse_args()
+    
+    vis = visualiser(args.tracefile, args.yamlfile)
 
-    vis.build_graph()
+    vis.build_graph(args)
