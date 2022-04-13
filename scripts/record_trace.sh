@@ -31,4 +31,6 @@ ctf_to_json.py $trace_dir
 
 mv trace.json $bnry_name.json
 
-python ../visualiser.py scripts/$bnry_name.json scripts/$bnry_name.yaml
+python ../visualiser.py $bnry_name.json $bnry_name.yaml
+
+rm $bnry_name.json $bnry_name.yaml
