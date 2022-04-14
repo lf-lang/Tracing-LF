@@ -1,3 +1,4 @@
+#!/usr/bin/env python3
 from Parser.parse_files import parser
 
 from bokeh.io import output_file, show
