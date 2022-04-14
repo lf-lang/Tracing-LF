@@ -1,7 +1,8 @@
 #!/bin/bash
 
+echo $PATH
 # Script to compile an lf file and trace its execution
-bnry_dir=$(lfc -c $1 | grep -o 'binary is in.*' | cut -d ' ' -f 4)
+bnry_dir=$(lfc -c  "$1" | grep -o 'binary is in.*' | cut -d ' ' -f 4)
 
 echo "bnry_dir: "
 # Remove .lf from end of string
