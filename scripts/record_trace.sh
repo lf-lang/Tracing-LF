@@ -28,10 +28,10 @@ $bnry_path
 
 echo "trace dir: "
 echo $trace_dir
-/bin/bash ctf_to_json.py $trace_dir
+python ctf_to_json.py $trace_dir
 
 mv trace.json $bnry_name.json
 
-/bin/bash ../visualiser.py $bnry_name.json $bnry_name.yaml
+python ../visualiser.py $bnry_name.json $bnry_name.yaml
 
 rm $bnry_name.json $bnry_name.yaml
