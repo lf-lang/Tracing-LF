@@ -21,16 +21,16 @@ echo "bnry_path: "
 echo $bnry_path
 
 # Start tracing, execute binary and stop trace
-trace_dir=$(start_tracing.sh | grep -o 'Traces will be output to.*' | cut -d ' ' -f 6)
+trace_dir=$(/bin/bash start_tracing.sh | grep -o 'Traces will be output to.*' | cut -d ' ' -f 6)
 $bnry_path
-stop_tracing.sh
+/bin/bash stop_tracing.sh
 
 echo "trace dir: "
 echo $trace_dir
-ctf_to_json.py $trace_dir
+/bin/bash ctf_to_json.py $trace_dir
 
 mv trace.json $bnry_name.json
 
-python ../visualiser.py $bnry_name.json $bnry_name.yaml
+/bin/bash ../visualiser.py $bnry_name.json $bnry_name.yaml
 
 rm $bnry_name.json $bnry_name.yaml

@@ -83,7 +83,6 @@ def main():
         if type(msg) is bt2._EventMessageConst:
             event = msg.event
             
-
             if (event.name == "reactor_cpp:reaction_execution_starts"):
                 execution_messages_dict[str(event["reaction_name"])] = msg
                 
@@ -98,7 +97,6 @@ def main():
             elif (event.name == "reactor_cpp:trigger_reaction"):
                 trace_events.append(trigger_reaction_to_dict(msg))
   
-
     data = {
         "traceEvents": trace_events,
     }
