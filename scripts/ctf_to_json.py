@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/python
 
 # Copyright (C) 2020 TU Dresden
 # All rights reserved.
