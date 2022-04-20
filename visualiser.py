@@ -35,6 +35,9 @@ class visualiser:
         # Dictionary containing a port as a key, with the value containing the reactions triggered by the downstream port (of the current port)
         self.port_dict = self.data_parser.get_port_dict()
         
+        # Dictionary containing all dependencies between reactions
+        self.dependency_dict = self.data_parser.get_dependency_dict()
+        
         # List containing all reaction names
         self.action_names = self.data_parser.get_action_names()
         
@@ -142,13 +145,14 @@ class visualiser:
         self.remove_reactions()
 
         # -------------------------------------------------------------------
-        # Draw arrows (if enabled) (self.arrows is constructed in colour())
-
+        # Draw arrows (if enabled) 
+        
         if not self.diable_arrows:
             for x_start, y_start, x_end, y_end in self.arrow_pos:
                 p_arrows.add_layout(Arrow(end=OpenHead(
                     line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
                     x_end=x_end, y_end=y_end))
+        
 
         # -------------------------------------------------------------------
         # All execution events
@@ -354,12 +358,13 @@ class visualiser:
         
         trace = Panel(child=p, title="trace") 
         coloured_trace = Panel(child=p_colours, title="coloured trace")
-        arrows = Panel(child=p_arrows, title="arrows")
+        dependencies = Panel(child=p_arrows, title="dependencies")
         physical_time = Panel(child=p_physical_time, title="physical time")
         data_picker = Panel(child=multi_choice, title="data picker")
         
         if not self.diable_arrows:
-            show(Tabs(tabs=[trace, coloured_trace, arrows, physical_time, data_picker]))
+            show(Tabs(tabs=[trace, coloured_trace,
+                 dependencies, physical_time, data_picker]))
         else:
             show(Tabs(tabs=[trace, coloured_trace, physical_time, data_picker]))
 
@@ -449,7 +454,7 @@ class visualiser:
         # For each reaction effect, colour iteratively
         for reaction_effect in (reaction_effects or []):
 
-            # Check if the reaction effect is a reaction (If not, its an action and causes cycles while colouring)
+            # Check if the reaction effect is a reaction (If not, it's an action and causes cycles while colouring)
             if reaction_effect not in self.action_names:
 
                 reaction_effect_time = reaction_dictionary["time_end"][reaction_pos]
@@ -458,15 +463,13 @@ class visualiser:
                 if reaction_effect not in self.labels:
                         port_triggered_reactions = self.port_dict[reaction_effect]
 
+                        # Iterate through all reactions triggered by the port
                         for reaction in port_triggered_reactions:
                             reaction_effect_pos = self.data_parser.get_reaction_pos(
                                 reaction, reaction_effect_time, reaction_dictionary)
 
+                            # continue iteration if the triggered reaction exists
                             if reaction_effect_pos is not None:
-                                # If arrow drawing is true, add the beginning (x,y) and ending (x,y) as 4-tuple to arrow dict
-                                if draw_arrows:
-                                    self.arrow_pos.append((reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
-                            
                                 self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary, draw_arrows)
 
                 else:
@@ -476,13 +479,29 @@ class visualiser:
                         reaction_effect, reaction_effect_time)
 
                     if reaction_effect_pos is not None:
-                        # If arrow drawing is true, add the beginning (x,y) and ending (x,y) as 4-tuple to arrow dict
-                        self.arrow_pos.append(
-                            (reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos], reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
+                        
+                        # draw arrows if enabled
+                        if draw_arrows:
+                            self.draw_dependency(reaction_pos, reaction_effect_pos, reaction_dictionary)
                         
                         self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary, draw_arrows)
-                        
-
+              
+              
+    def draw_dependency(self, reaction_pos, reaction_effect_pos, reaction_dictionary):
+        
+        # If the reactions occur at the same logical time and have a dependency -> draw an arrow
+        if reaction_dictionary["logical_time"][reaction_pos] == reaction_dictionary["logical_time"][reaction_effect_pos]:
+            
+            reaction_name = reaction_dictionary["name"][reaction_pos]
+            reaction_effect_name = reaction_dictionary["name"][reaction_effect_pos]
+            
+            if self.dependency_dict[reaction_name] == reaction_effect_name:
+                
+                # Add the beginning (x,y) and ending (x,y) as 4-tuple to arrow dict
+                self.arrow_pos.append((reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos],
+                                   reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
+        
+           
 
 
 if(__name__ == "__main__"):
