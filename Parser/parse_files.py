@@ -181,9 +181,6 @@ class parser:
         for y_value in self.ordered_exe_events["y_axis"]:
             self.ordered_exe_events["y_multi_line"].append(
                 [y_value, y_value])
-                
-        
-
 
 
     def parse_yaml(self, filepath):
@@ -245,6 +242,14 @@ class parser:
 
                     values["port_name"] = port_name
                     input_output_dict[port_name] = values
+                    
+                    
+        # Add all reaction dependencies to data structure
+        self.dependency_dict = {}
+        dependencies_iter = iter(yaml_data['reaction_dependencies'])
+        for item in dependencies_iter:
+            self.dependency_dict[item["from"]] = next(dependencies_iter)["to"]
+            
                     
         
         # Iterate through inputs_outputs_dict, discover chain such that:
@@ -323,3 +328,6 @@ class parser:
     
     def get_action_names(self):
         return self.action_names
+    
+    def get_dependency_dict(self):
+        return self.dependency_dict
