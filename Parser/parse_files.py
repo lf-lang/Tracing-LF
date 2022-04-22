@@ -248,9 +248,9 @@ class parser:
         self.dependency_dict = {}
         dependencies_iter = iter(yaml_data['reaction_dependencies'])
         for item in dependencies_iter:
-            self.dependency_dict[item["from"]] = next(dependencies_iter)["to"]
-            
-                    
+            from_item = item["from"]
+            self.dependency_dict[next(dependencies_iter)["to"]] = from_item
+
         
         # Iterate through inputs_outputs_dict, discover chain such that:
         # Reaction_i -> output -> input -> Reaction_j 
