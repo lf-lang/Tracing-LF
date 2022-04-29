@@ -48,7 +48,7 @@ class visualiser:
         self.diable_arrows = False
         
         # Graph name
-        self.graph_name = "Trace"
+        self.graph_name = self.data_parser.get_main_reactor_name()
         
         
     
@@ -148,6 +148,11 @@ class visualiser:
         # Draw arrows (if enabled) 
         
         if not self.diable_arrows:
+            
+            # Discover all dependencie
+            self.draw_dependencies()
+            
+            # Draw
             for x_start, y_start, x_end, y_end in self.arrow_pos:
                 p_arrows.add_layout(Arrow(end=OpenHead(
                     line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
@@ -479,27 +484,65 @@ class visualiser:
                         reaction_effect, reaction_effect_time)
 
                     if reaction_effect_pos is not None:
-                        
-                        # draw arrows if enabled
-                        if draw_arrows:
-                            self.draw_dependency(reaction_pos, reaction_effect_pos, reaction_dictionary)
-                        
                         self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary, draw_arrows)
               
               
-    def draw_dependency(self, reaction_pos, reaction_effect_pos, reaction_dictionary):
+    def draw_dependencies(self):
         
-        # If the reactions occur at the same logical time and have a dependency -> draw an arrow
-        if reaction_dictionary["logical_time"][reaction_pos] == reaction_dictionary["logical_time"][reaction_effect_pos]:
+        event_dict = self.ordered_exe_events
+        
+        for pos in range(len(event_dict["logical_time"])):
             
-            reaction_name = reaction_dictionary["name"][reaction_pos]
-            reaction_effect_name = reaction_dictionary["name"][reaction_effect_pos]
+            event_logical_time = event_dict["logical_time"][pos]
+            event_logical_microstep = event_dict["microstep"][pos]
             
-            if self.dependency_dict[reaction_name] == reaction_effect_name:
+            inc_index = pos + 1
+            dec_index = pos - 1
+            
+            # iterate, incrementing pos
+            for time in event_dict["logical_time"][inc_index:]:
                 
-                # Add the beginning (x,y) and ending (x,y) as 4-tuple to arrow dict
-                self.arrow_pos.append((reaction_dictionary["time_end"][reaction_pos], reaction_dictionary["y_axis"][reaction_pos],
-                                   reaction_dictionary["time_start"][reaction_effect_pos], reaction_dictionary["y_axis"][reaction_effect_pos]))
+                # logical time greater, so no dependency
+                if time > event_logical_time:
+                    break
+                
+                # if the logical time is the same, check if there is a dependency
+                if time == event_logical_time and event_logical_microstep == event_dict["microstep"][inc_index]:
+                    
+                    event_name = event_dict["name"][pos]
+                    dependent_event_name = event_dict["name"][inc_index]
+                    
+                    # print("event_name: " + event_name)
+                    # print("dependencies: " + str(self.dependency_dict[event_name]))
+                    
+                    # if there is a dependency, draw an arrow
+                    if dependent_event_name in self.dependency_dict[event_name]:
+                        self.arrow_pos.append((event_dict["time_end"][pos], event_dict["y_axis"][pos],
+                                               event_dict["time_start"][inc_index], event_dict["y_axis"][inc_index]))
+                        
+                        
+                
+                inc_index += 1
+                
+                
+            # # iterate, decrementing pos
+            # for time in reversed(event_dict["logical_time"][:dec_index]):
+                
+            #     # logical time smaller, so no dependency
+            #     if time < event_logical_time:
+            #         break
+                
+            #     # if the logical time is the same, check if there is a dependency
+            #     event_name = event_dict["name"][dec_index]
+            #     dependent_event_name = event_dict["name"][pos]
+
+            #     # if there is a dependency, draw an arrow
+            #     if dependent_event_name in self.dependency_dict[event_name]:
+            #         self.arrow_pos.append((event_dict["time_end"][dec_index], event_dict["y_axis"][dec_index],
+            #                                event_dict["time_start"][pos], event_dict["y_axis"][pos]))
+                
+            #     dec_index -= 1
+        
         
            
 

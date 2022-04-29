@@ -198,6 +198,8 @@ class parser:
 
         # Open yaml file and parse with pyyaml
         yaml_data = yaml.load(open(filepath), Loader=yaml.FullLoader)
+        
+        self.reactor_name = yaml_data["top_level_instances"][0]
 
         # Iterate through reactors and get reactions
         for reactor, items in yaml_data['all_reactor_instances'].items():
@@ -245,11 +247,12 @@ class parser:
                     
                     
         # Add all reaction dependencies to data structure
-        self.dependency_dict = {}
+        self.dependency_dict = defaultdict(list)
         dependencies_iter = iter(yaml_data['reaction_dependencies'])
         for item in dependencies_iter:
             from_item = item["from"]
-            self.dependency_dict[next(dependencies_iter)["to"]] = from_item
+            to_item = next(dependencies_iter)["to"]
+            self.dependency_dict[to_item].append(from_item)
 
         
         # Iterate through inputs_outputs_dict, discover chain such that:
@@ -331,3 +334,6 @@ class parser:
     
     def get_dependency_dict(self):
         return self.dependency_dict
+    
+    def get_main_reactor_name(self):
+        return self.reactor_name
