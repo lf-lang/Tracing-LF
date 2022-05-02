@@ -14,11 +14,11 @@ import regex
 
 class visualiser:
     
-    def __init__(self, json_filepath, yaml_filepath):
+    def __init__(self, ctf_filepath, yaml_filepath):
         
         
         self.data_parser = parser()
-        self.data_parser.parse(yaml_filepath, json_filepath)
+        self.data_parser.parse(yaml_filepath, ctf_filepath)
         
         # All execution events
         self.ordered_exe_events = self.data_parser.get_ordered_exe_events()
@@ -47,7 +47,7 @@ class visualiser:
         # Stores whether to show coloured graph
         self.diable_arrows = False
         
-        # Graph name
+        # Graph name is the name of the main reactor
         self.graph_name = self.data_parser.get_main_reactor_name()
         
         
@@ -55,20 +55,6 @@ class visualiser:
     def build_graph(self, args):
         """Builds the bokeh graph"""
         
-        # Include/Exclude Reactions
-        parser = argparse.ArgumentParser()
-        parser.add_argument("tracefile", type=str,
-                            help="Path to the .json trace file")
-        parser.add_argument("yamlfile", type=str,
-                            help="Path to the .yaml file")
-        parser.add_argument("-i", "--include", type=str,
-                            help="Regex to INCLUDE only certain reactors or reactions")
-        parser.add_argument("-x", "--exclude", type=str,
-                            help="Regex to EXCLUDE certain reactors or reactions")
-        args = parser.parse_args()
-        
-        
-
         # Output to 
         output_file(self.graph_name + ".html")
 
@@ -550,8 +536,8 @@ class visualiser:
 if(__name__ == "__main__"):
     # Include/Exclude Reactions
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("tracefile", type=str,
-                        help="Path to the .json trace file")
+    parser.add_argument("ctf", metavar="CTF", type=str,
+                        help="Path to the CTF trace directory")
     argparser.add_argument("yamlfile", type=str,
                         help="Path to the .yaml file")
     argparser.add_argument("-i", "--include", type=str,
@@ -560,6 +546,6 @@ if(__name__ == "__main__"):
                         help="Regex to EXCLUDE certain reactors or reactions")
     args = argparser.parse_args()
     
-    vis = visualiser(args.tracefile, args.yamlfile)
+    vis = visualiser(args.ctf, args.yamlfile)
 
     vis.build_graph(args)
