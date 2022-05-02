@@ -64,11 +64,11 @@ class parser:
         # Dictionary containing all compiled data for each instantaneous event execution (reactions)
         # Note: time_start is used for the x-axis, y-axis is the y value which is later substituted for a reaction name
         self.ordered_inst_events_reactions = {"name": [], "reactor": [], "reaction": [], "time_start": [], "time_end": [], "trace_event_type": [], "y_axis": [], 
-                                              "priority": [], "level": [], "triggers": [], "effects": []}
+                                              "priority": [], "level": [], "triggers": [], "effects": [], "logical_time": [], "microstep": []}
         
         # Dictionary containing all compiled data for each instantaneous event execution
         self.ordered_inst_events_actions = {"name": [], "reactor": [], "reaction": [], "time_start": [], "time_end": [],
-                                            "trace_event_type": [], "y_axis": [], "effects": [], "triggers": []}
+                                            "trace_event_type": [], "y_axis": [], "effects": [], "triggers": [], "logical_time": [], "microstep": []}
 
         # Dictionary containing all compiled data for each execution event execution
         # x_multi_line and y_multi_line contain nested lists with start and end x and y values respectively. These are used to draw the multilines
@@ -150,8 +150,9 @@ class parser:
                     self.ordered_inst_events_actions["trace_event_type"].append(reaction_yaml_data["type"])
                     self.ordered_inst_events_actions["y_axis"].append(self.reactor_number[reactor_reaction_name] + self.x_offset)  # Add some to display 0.25 above and make room
                     self.ordered_inst_events_actions["effects"].append(reaction_yaml_data["effects"])
-                    self.ordered_inst_events_actions["triggers"].append(
-                        reaction_yaml_data["triggers"])
+                    self.ordered_inst_events_actions["triggers"].append(reaction_yaml_data["triggers"])
+                    self.ordered_inst_events_actions["logical_time"].append(item["args"]["timestamp_ns"])
+                    self.ordered_inst_events_actions["microstep"].append(item["args"]["microstep"])
 
                 
                 # If the the event is a reaction, add to self.ordered_inst_events_reactions
@@ -164,6 +165,9 @@ class parser:
                     self.ordered_inst_events_reactions["time_end"].append(time_start)  # start and end is the same for instant events
                     self.ordered_inst_events_reactions["trace_event_type"].append("reaction")
                     self.ordered_inst_events_reactions["y_axis"].append(self.reactor_number[reactor_reaction_name] + self.x_offset)  # Add some to display 0.25 above and make room
+                    self.ordered_inst_events_reactions["logical_time"].append(item["args"]["timestamp_ns"])
+                    self.ordered_inst_events_reactions["microstep"].append(item["args"]["microstep"])
+
 
                     # YAML Data
                     for attribute in attribute_list:
