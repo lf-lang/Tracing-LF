@@ -18,7 +18,7 @@ class visualiser:
         
         
         self.data_parser = parser()
-        self.data_parser.parse(yaml_filepath, ctf_filepath)
+        self.data_parser.parse(ctf_filepath, yaml_filepath)
         
         # All execution events
         self.ordered_exe_events = self.data_parser.get_ordered_exe_events()
