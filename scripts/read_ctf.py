@@ -7,13 +7,9 @@
 #   Christian Menard
 
 
-import argparse
+
 import bt2
-import json
-import os
-import sys
 from collections import defaultdict
-import json
 import yaml
 
 

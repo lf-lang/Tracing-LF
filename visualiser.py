@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 import os
-from Parser.parse_files import parser
+from scripts.read_ctf import parser
 
 from bokeh.io import output_file, show
 from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead, PrintfTickFormatter
@@ -10,6 +10,8 @@ from bokeh.models import Title
 from bokeh.models import CustomJS, MultiChoice, Panel, Tabs
 import argparse
 import regex
+import os
+import sys
 
 
 
@@ -537,7 +539,7 @@ class visualiser:
 if(__name__ == "__main__"):
     # Include/Exclude Reactions
     argparser = argparse.ArgumentParser()
-    parser.add_argument("ctf", metavar="CTF", type=str,
+    argparser.add_argument("ctf", metavar="CTF", type=str,
                         help="Path to the CTF trace directory")
     argparser.add_argument("yamlfile", type=str,
                         help="Path to the .yaml file")
