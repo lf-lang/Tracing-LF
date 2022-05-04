@@ -104,12 +104,13 @@ class parser:
             # `bt2._EventMessageConst` is the Python type of an event message.
             if type(msg) is bt2._EventMessageConst:
                 
+                event = msg.event
+                
                 # name and timestart of reaction
                 reactor_name = str(event["reactor_name"])
                 reaction_name = str(event["reaction_name"])
                 time_start = (float(event["timestamp_ns"]) / 1000.0) - self.start_time
-                
-                event = msg.event
+    
                 
                 if (event.name == "reactor_cpp:reaction_execution_starts"):
                     
@@ -118,9 +119,9 @@ class parser:
                     
                 elif (event.name == "reactor_cpp:reaction_execution_finishes"):
                     
-                    value = execution_messages_dict[str(event["reaction_name"])]
+                    msg_e = execution_messages_dict[str(event["reaction_name"])]
                     
-                    self.write_execution_to_dict()
+                    self.write_execution_to_dict(msg, msg_e)
                 
                 elif (event.name == "reactor_cpp:schedule_action"):
                     
