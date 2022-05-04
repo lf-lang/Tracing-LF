@@ -11,6 +11,7 @@
 import bt2
 from collections import defaultdict
 import yaml
+import itertools
 
 
 pid_registry = {}
@@ -69,8 +70,7 @@ class parser:
             'inputs': [ctf_path],
         }))
 
-        # keep a list of events to dump later to JSON
-        trace_events = []
+        msg_it1, msg_it2, msg_it3 = itertools.tee(msg_it, 3)
         
         # Dictonary to match pairs of execution messages
         execution_messages_dict = {}
@@ -91,7 +91,7 @@ class parser:
 
         
         # Get the start times
-        for msg in msg_it:
+        for msg in msg_it1:
             # `bt2._EventMessageConst` is the Python type of an event message.
             if type(msg) is bt2._EventMessageConst:
                 self.start_time = self.get_timestamp_us(msg)
@@ -100,7 +100,7 @@ class parser:
         
         
         # Get the labels of all reactions
-        for msg in msg_it:
+        for msg in msg_it2:
             # `bt2._EventMessageConst` is the Python type of an event message.
             if type(msg) is bt2._EventMessageConst:
                 event = msg.event
@@ -120,7 +120,7 @@ class parser:
 
 
         # Iterate the trace messages
-        for msg in msg_it:
+        for msg in msg_it3:
             # `bt2._EventMessageConst` is the Python type of an event message.
             if type(msg) is bt2._EventMessageConst:
                 
