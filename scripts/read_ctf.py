@@ -97,6 +97,21 @@ class parser:
                 self.start_time = self.get_timestamp_us(msg)
                 self.start_time_logical = int(msg.event["timestamp_ns"])
                 break
+        
+        
+        # Get the labels of all reactions
+        for msg in msg_it:
+            # `bt2._EventMessageConst` is the Python type of an event message.
+            if type(msg) is bt2._EventMessageConst:
+                event = msg.event
+                if (event.name == "reactor_cpp:schedule_action") or (event.name == "reactor_cpp:trigger_reaction"):
+                    
+                    # Add the reaction label to the list of reaction labels
+                    self.add_to_reaction_labels(event)
+                
+        
+        # inverse of number_label dictionary. Gives the y-value (height) of the given reaction
+        self.reactor_number = {v: k for k, v in self.number_label.items()}
 
 
         # Iterate the trace messages
@@ -126,7 +141,7 @@ class parser:
                     self.write_to_dict(msg, True)
 
                     
-         # inverse of number_label dictionary
+        # inverse of number_label dictionary
         self.reactor_number = {v: k for k, v in self.number_label.items()}
 
         # order data for multiline graph
@@ -193,9 +208,6 @@ class parser:
             reaction_name = str(event["action_name"])
         
         time_start = (float(event["timestamp_ns"]) / 1000.0) - self.start_time
-        
-        # Add the reaction label to the list of reaction labels
-        self.add_to_reaction_labels(event)
         
         reactor_reaction_name = reactor_name + "." + reaction_name
 
