@@ -207,11 +207,14 @@ class parser:
         # name and timestart of reaction
         reactor_name = str(event["reactor_name"])
         reaction_name = ""
+        ordered_inst_events_dict = {}
         
         if is_reaction:
             reaction_name = str(event["reaction_name"])
+            ordered_inst_events_dict = self.ordered_inst_events_reactions
         else:
             reaction_name = str(event["action_name"])
+            ordered_inst_events_dict = self.ordered_inst_events_actions
         
         time_start = (float(event["timestamp_ns"]) / 1000.0) - self.start_time
         
@@ -219,31 +222,31 @@ class parser:
 
         reaction_yaml_data = self.yaml_data[reactor_name][reaction_name]
 
-        self.ordered_inst_events_actions["name"].append(reactor_reaction_name)
-        self.ordered_inst_events_actions["reactor"].append(reactor_name)
-        self.ordered_inst_events_actions["reaction"].append(reaction_name)
-        self.ordered_inst_events_actions["time_start"].append(time_start)
-        self.ordered_inst_events_actions["time_end"].append(time_start)  # same for instant events
-        self.ordered_inst_events_actions["y_axis"].append(self.reactor_number[reactor_reaction_name] + self.x_offset)
-        self.ordered_inst_events_actions["effects"].append(reaction_yaml_data["effects"])
-        self.ordered_inst_events_actions["triggers"].append(reaction_yaml_data["triggers"])
-        self.ordered_inst_events_actions["logical_time"].append(int(event["timestamp_ns"]))
-        self.ordered_inst_events_actions["microstep"].append(int(event["timestamp_microstep"]))
+        ordered_inst_events_dict["name"].append(reactor_reaction_name)
+        ordered_inst_events_dict["reactor"].append(reactor_name)
+        ordered_inst_events_dict["reaction"].append(reaction_name)
+        ordered_inst_events_dict["time_start"].append(time_start)
+        ordered_inst_events_dict["time_end"].append(time_start)  # same for instant events
+        ordered_inst_events_dict["y_axis"].append(self.reactor_number[reactor_reaction_name] + self.x_offset)
+        ordered_inst_events_dict["effects"].append(reaction_yaml_data["effects"])
+        ordered_inst_events_dict["triggers"].append(reaction_yaml_data["triggers"])
+        ordered_inst_events_dict["logical_time"].append(int(event["timestamp_ns"]))
+        ordered_inst_events_dict["microstep"].append(int(event["timestamp_microstep"]))
         
         if is_reaction:
-            self.ordered_inst_events_actions["trace_event_type"].append("reaction")
+            ordered_inst_events_dict["trace_event_type"].append("reaction")
             
             # YAML Data
-            attribute_list = ["priority", "level", "triggers", "effects"]
+            attribute_list = ["priority", "level"]
             
             for attribute in attribute_list:
                 if attribute in reaction_yaml_data:
-                    self.ordered_inst_events_reactions[attribute].append(reaction_yaml_data[attribute])
+                    ordered_inst_events_dict[attribute].append(reaction_yaml_data[attribute])
                 else:
-                    self.ordered_inst_events_reactions[attribute].append("n.a.")
+                    ordered_inst_events_dict[attribute].append("n.a.")
             
         else:
-            self.ordered_inst_events_actions["trace_event_type"].append(
+            ordered_inst_events_dict["trace_event_type"].append(
                 reaction_yaml_data["type"])
         
     

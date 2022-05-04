@@ -404,8 +404,6 @@ class visualiser:
         for i in range(len(self.ordered_inst_events_actions["name"])):
             effects = self.ordered_inst_events_actions["effects"][i]
 
-            print(effects)
-
             action_time_start = self.ordered_inst_events_actions["time_start"][i]
             
             self.ordered_inst_events_actions["colours"][i] = palette[9][palette_pos % 9]
