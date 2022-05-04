@@ -104,10 +104,15 @@ class parser:
             # `bt2._EventMessageConst` is the Python type of an event message.
             if type(msg) is bt2._EventMessageConst:
                 event = msg.event
-                if (event.name == "reactor_cpp:schedule_action") or (event.name == "reactor_cpp:trigger_reaction"):
+                if (event.name == "reactor_cpp:schedule_action"):
                     
-                    # Add the reaction label to the list of reaction labels
-                    self.add_to_reaction_labels(event)
+                    event_name = str(event["reactor_name"]) + "." + str(event["action_name"])
+                    self.add_to_reaction_labels(event_name)
+                
+                if (event.name == "reactor_cpp:trigger_reaction"):
+                    
+                    event_name = str(event["reactor_name"]) + "." + str(event["reaction_name"])
+                    self.add_to_reaction_labels(event_name)
                 
         
         # inverse of number_label dictionary. Gives the y-value (height) of the given reaction
@@ -241,16 +246,13 @@ class parser:
                 reaction_yaml_data["type"])
         
     
-    def add_to_reaction_labels(self, event):
-        reaction_name = str(event["reactor_name"]) + \
-            "." + str(event["action_name"])
-
-        if reaction_name not in self.y_axis_labels:
+    def add_to_reaction_labels(self, event_name):
+        if event_name not in self.y_axis_labels:
             self.number_label[len(
-                self.y_axis_labels)] = reaction_name
+                self.y_axis_labels)] = event_name
 
             # Add reactor name to list
-            self.y_axis_labels.append(reaction_name)
+            self.y_axis_labels.append(event_name)
     
     
     def parse_yaml(self, filepath):
