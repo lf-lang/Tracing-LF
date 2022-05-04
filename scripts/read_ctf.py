@@ -218,6 +218,8 @@ class parser:
         reactor_reaction_name = reactor_name + "." + reaction_name
 
         reaction_yaml_data = self.yaml_data[reactor_name][reaction_name]
+        
+        print(reaction_yaml_data)
 
         self.ordered_inst_events_actions["name"].append(reactor_reaction_name)
         self.ordered_inst_events_actions["reactor"].append(reactor_name)
