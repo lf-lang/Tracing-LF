@@ -5,14 +5,14 @@ import yaml
 
 class parser:
     
-    def parse(self, yaml_filepath, json_filepath):
+    def parse(self, yaml_filepath, ctf_filepath):
 
         # Variables
         self.x_offset = 0
         
         self.parse_yaml(yaml_filepath)
         yaml_data = self.reaction_dict
-        json_data = self.parse_json(json_filepath)
+        json_data = self.parse_json(ctf_filepath)
         
         # list of reactor names - [reactor.name0, reactor.name1, ...]
         self.y_axis_labels = []
@@ -175,8 +175,7 @@ class parser:
             
         # order data for multiline graph
         for start_time, end_time in zip(self.ordered_exe_events["time_start"], self.ordered_exe_events["time_end"]):
-            self.ordered_exe_events["x_multi_line"].append(
-                [start_time, end_time])
+            self.ordered_exe_events["x_multi_line"].append([start_time, end_time])
 
         for y_value in self.ordered_exe_events["y_axis"]:
             self.ordered_exe_events["y_multi_line"].append(

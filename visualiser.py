@@ -1,4 +1,5 @@
 #!/usr/bin/env python3
+import os
 from Parser.parse_files import parser
 
 from bokeh.io import output_file, show
@@ -546,6 +547,23 @@ if(__name__ == "__main__"):
                         help="Regex to EXCLUDE certain reactors or reactions")
     args = argparser.parse_args()
     
-    vis = visualiser(args.ctf, args.yamlfile)
+    if not os.path.isdir(args.ctf):
+        raise NotADirectoryError(args.ctf)
+
+    ctf_path = None
+    for root, dirs, files in os.walk(args.ctf):
+        for f in files:
+            if f == "metadata":
+                if ctf_path is None:
+                    ctf_path = str(root)
+                else:
+                    raise RuntimeError("%s is not a single trace (contains "
+                                       "more than one metadata file!" %
+                                       args.ctf)
+    if ctf_path is None:
+        raise RuntimeError("%s is not a CTF trace (does not contain a metadata"
+                           " file)" % args.ctf)
+    
+    vis = visualiser(ctf_path, args.yamlfile)
 
     vis.build_graph(args)
