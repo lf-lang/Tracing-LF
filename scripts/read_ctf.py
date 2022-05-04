@@ -206,6 +206,7 @@ class parser:
         
         # name and timestart of reaction
         reactor_name = str(event["reactor_name"])
+        reaction_name = ""
         
         if is_reaction:
             reaction_name = str(event["reaction_name"])
@@ -231,6 +232,7 @@ class parser:
         
         if is_reaction:
             self.ordered_inst_events_actions["trace_event_type"].append("reaction")
+            
             if "level" in reaction_yaml_data:
                 self.ordered_inst_events_actions["level"].append(reaction_yaml_data["level"])
             else:
