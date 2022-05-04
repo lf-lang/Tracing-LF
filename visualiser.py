@@ -32,8 +32,6 @@ class visualiser:
         # All instantaneous actions
         self.ordered_inst_events_actions = self.data_parser.get_ordered_inst_events_actions()
         
-        print(self.ordered_exe_events)
-        
         # Dictionaries which contain pairs for the numbers assigned to a reactor
         self.labels = self.data_parser.get_y_axis_labels()
         
@@ -405,6 +403,9 @@ class visualiser:
         # Iterate through all actions
         for i in range(len(self.ordered_inst_events_actions["name"])):
             effects = self.ordered_inst_events_actions["effects"][i]
+
+            print(effects)
+
             action_time_start = self.ordered_inst_events_actions["time_start"][i]
             
             self.ordered_inst_events_actions["colours"][i] = palette[9][palette_pos % 9]

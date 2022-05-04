@@ -218,8 +218,6 @@ class parser:
         reactor_reaction_name = reactor_name + "." + reaction_name
 
         reaction_yaml_data = self.yaml_data[reactor_name][reaction_name]
-        
-        print(reaction_yaml_data)
 
         self.ordered_inst_events_actions["name"].append(reactor_reaction_name)
         self.ordered_inst_events_actions["reactor"].append(reactor_name)
@@ -235,15 +233,14 @@ class parser:
         if is_reaction:
             self.ordered_inst_events_actions["trace_event_type"].append("reaction")
             
-            if "level" in reaction_yaml_data:
-                self.ordered_inst_events_actions["level"].append(reaction_yaml_data["level"])
-            else:
-                self.ordered_inst_events_actions["level"].append("n.a.")
+            # YAML Data
+            attribute_list = ["priority", "level", "triggers", "effects"]
             
-            if "priority" in reaction_yaml_data:
-                self.ordered_inst_events_actions["priority"].append(reaction_yaml_data["priority"])
-            else:
-                self.ordered_inst_events_actions["priority"].append("n.a.")
+            for attribute in attribute_list:
+                if attribute in reaction_yaml_data:
+                    self.ordered_inst_events_reactions[attribute].append(reaction_yaml_data[attribute])
+                else:
+                    self.ordered_inst_events_reactions[attribute].append("n.a.")
             
         else:
             self.ordered_inst_events_actions["trace_event_type"].append(
