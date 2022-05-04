@@ -32,6 +32,8 @@ class visualiser:
         # All instantaneous actions
         self.ordered_inst_events_actions = self.data_parser.get_ordered_inst_events_actions()
         
+        print(self.ordered_exe_events)
+        
         # Dictionaries which contain pairs for the numbers assigned to a reactor
         self.labels = self.data_parser.get_y_axis_labels()
         
