@@ -124,8 +124,7 @@ class parser:
                     
                     value = execution_messages_dict[str(event["reaction_name"])]
                     
-                    trace_events.append(self.reaction_execution_starts_to_dict(value))
-                    trace_events.append(self.reaction_execution_finishes_to_dict(msg))
+                    self.write_execution_to_dict()
                 
                 elif (event.name == "reactor_cpp:schedule_action"):
                     
@@ -140,6 +139,14 @@ class parser:
          # inverse of number_label dictionary
         self.reactor_number = {v: k for k, v in self.number_label.items()}
 
+        # order data for multiline graph
+        for start_time, end_time in zip(self.ordered_exe_events["time_start"], self.ordered_exe_events["time_end"]):
+            self.ordered_exe_events["x_multi_line"].append(
+                [start_time, end_time])
+
+        for y_value in self.ordered_exe_events["y_axis"]:
+            self.ordered_exe_events["y_multi_line"].append(
+                [y_value, y_value])
 
 
 
@@ -147,63 +154,41 @@ class parser:
         timestamp_ns = msg.default_clock_snapshot.ns_from_origin
         return timestamp_ns / 1000.0
 
-
-    def reaction_execution_starts_to_dict(self, msg):
-        event = msg.event
-        return {
-            "name": str(event["reaction_name"]),
-            "cat": "Execution",
-            "ph": "B",
-            "ts": self.get_timestamp_us(msg),
-            "reactor": "Execution",
-            "reaction": "worker " + str(event["worker_id"]),
-            "args": {
-                "microstep": int(event["timestamp_microstep"]),
-                "timestamp_ns": int(event["timestamp_ns"])
-            }
-        }
-
-
-    def reaction_execution_finishes_to_dict(self, msg):
-        event = msg.event
-        return {
-            "name": str(event["reaction_name"]),
-            "cat": "Execution",
-            "ph": "E",
-            "ts": self.get_timestamp_us(msg),
-            "reactor": "Execution",
-            "reaction": "worker " + str(event["worker_id"]),
-            "args": {
-                "microstep": int(event["timestamp_microstep"]),
-                "timestamp_ns": int(event["timestamp_ns"])
-            }
-        }
-
-
-
-    def trigger_reaction_to_dict(self, msg):
-        event = msg.event
-        # name and timestart of reaction
-        reactor_name = str(event["reactor_name"])
-        reaction_name = str(event["reaction_name"])
-        reactor_reaction_name = reactor_name + "." + reaction_name
-        time_start = (float(event["timestamp_ns"]) / 1000.0) - self.start_time
-
+    def write_execution_to_dict(self, msg_b, msg_e):
+        # msg_b - beginning message 
+        # msg_e - end message
+        
+        event_b = msg_b.event
+        
+        rec_name = str(event_b["reaction_name"])
+        
+        rev_name = rec_name[::-1]
+        a, b = rev_name.split(".", 1)
+        reactor_name = b[::-1]
+        reaction_name = a[::-1]
+        
         reaction_yaml_data = self.yaml_data[reactor_name][reaction_name]
+        
+        self.ordered_exe_events["name"].append(rec_name)
+        self.ordered_exe_events["time_start"].append(self.get_timestamp_us(msg_b))
+        self.ordered_exe_events["time_end"].append(self.get_timestamp_us(msg_e))
+        self.ordered_exe_events["y_axis"].append(self.reactor_number[rec_name])
+        self.ordered_exe_events["trace_event_type"].append("execution")
+        self.ordered_exe_events["logical_time"].append(int(event_b["timestamp_ns"]))
+        self.ordered_exe_events["microstep"].append(
+            int(event_b["timestamp_microstep"]))
 
-        self.ordered_inst_events_actions["name"].append(reactor_reaction_name)
-        self.ordered_inst_events_actions["reactor"].append(reactor_name)
-        self.ordered_inst_events_actions["reaction"].append(reaction_name)
-        self.ordered_inst_events_actions["time_start"].append(time_start)
-        self.ordered_inst_events_actions["time_end"].append(time_start)  # same for instant events
-        self.ordered_inst_events_actions["trace_event_type"].append(reaction_yaml_data["type"])
-        self.ordered_inst_events_actions["y_axis"].append(self.reactor_number[reactor_reaction_name] + self.x_offset)
-        self.ordered_inst_events_actions["effects"].append(reaction_yaml_data["effects"])
-        self.ordered_inst_events_actions["triggers"].append(reaction_yaml_data["triggers"])
-        self.ordered_inst_events_actions["level"].append(reaction_yaml_data["level"])
-        self.ordered_inst_events_actions["priority"].append(reaction_yaml_data["priority"])
-        self.ordered_inst_events_actions["logical_time"].append(int(event["timestamp_ns"]))
-        self.ordered_inst_events_actions["microstep"].append(int(event["timestamp_microstep"]))
+        # YAML Data
+        attribute_list = ["priority",
+                        "level", "triggers", "effects"]
+        # YAML Data
+        for attribute in attribute_list:
+            if attribute in reaction_yaml_data:
+                self.ordered_exe_events[attribute].append(
+                    reaction_yaml_data[attribute])
+            else:
+                self.ordered_exe_events[attribute].append("n.a.")
+        
         
     def write_to_dict(self, msg, reactor_name, reaction_name, time_start, is_reaction):
         
@@ -229,8 +214,16 @@ class parser:
         
         if is_reaction:
             self.ordered_inst_events_actions["trace_event_type"].append("reaction")
-            self.ordered_inst_events_actions["level"].append(reaction_yaml_data["level"])
-            self.ordered_inst_events_actions["priority"].append(reaction_yaml_data["priority"])
+            if "level" in reaction_yaml_data:
+                self.ordered_inst_events_actions["level"].append(reaction_yaml_data["level"])
+            else:
+                self.ordered_inst_events_actions["level"].append("n.a.")
+            
+            if "priority" in reaction_yaml_data:
+                self.ordered_inst_events_actions["priority"].append(reaction_yaml_data["priority"])
+            else:
+                self.ordered_inst_events_actions["priority"].append("n.a.")
+            
         else:
             self.ordered_inst_events_actions["trace_event_type"].append(
                 reaction_yaml_data["type"])
@@ -365,6 +358,25 @@ class parser:
 
     def get_main_reactor_name(self):
         return self.reactor_name
+    
+    def get_reaction_pos(self, reaction_name, prev_reaction_time, react_dict):
+        '''Given some reaction and its start time, find its position in the dictionary of reactions'''
+
+        reaction_pos = None
+
+        for i in range(len(react_dict["name"])):
+
+            # Time of the current reaction
+            i_time = react_dict["time_start"][i]
+
+            # Find the first reaction which matches the given name and has a start time greater than the given time
+            if i_time >= prev_reaction_time:
+                i_name = react_dict["name"][i]
+                if reaction_name == i_name:
+                    reaction_pos = i
+                    break
+
+        return reaction_pos
 
 if(__name__ == "__main__"):
     data_parser = parser()
