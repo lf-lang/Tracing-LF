@@ -106,12 +106,6 @@ class parser:
                 
                 event = msg.event
                 
-                # name and timestart of reaction
-                reactor_name = str(event["reactor_name"])
-                reaction_name = str(event["reaction_name"])
-                time_start = (float(event["timestamp_ns"]) / 1000.0) - self.start_time
-    
-                
                 if (event.name == "reactor_cpp:reaction_execution_starts"):
                     
                     # Add the starting information to the dictionary
@@ -125,12 +119,11 @@ class parser:
                 
                 elif (event.name == "reactor_cpp:schedule_action"):
                     
-                    self.write_to_dict(msg, reactor_name, reaction_name, time_start, False)
+                    self.write_to_dict(msg, False)
                 
                 elif (event.name == "reactor_cpp:trigger_reaction"):
                     
-                    self.write_to_dict(msg, reactor_name,
-                                       reaction_name, time_start, True)
+                    self.write_to_dict(msg, True)
 
                     
          # inverse of number_label dictionary
@@ -187,9 +180,19 @@ class parser:
                 self.ordered_exe_events[attribute].append("n.a.")
         
         
-    def write_to_dict(self, msg, reactor_name, reaction_name, time_start, is_reaction):
+    def write_to_dict(self, msg, is_reaction):
         
         event = msg.event
+        
+        # name and timestart of reaction
+        reactor_name = str(event["reactor_name"])
+        
+        if is_reaction:
+            reaction_name = str(event["reaction_name"])
+        else:
+            reaction_name = str(event["action_name"])
+        
+        time_start = (float(event["timestamp_ns"]) / 1000.0) - self.start_time
         
         # Add the reaction label to the list of reaction labels
         self.add_to_reaction_labels(event)
