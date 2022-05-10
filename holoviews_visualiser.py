@@ -1,6 +1,11 @@
 #!/usr/bin/env python3
 from Parser.parse_files import parser
 
+from bokeh.palettes import Set1 as palette
+import argparse
+import regex
+import pandas as pd
+import holoviews as hv
 
 class holoviews_visualiser:
     
@@ -53,23 +58,6 @@ class holoviews_visualiser:
         parser.add_argument("-x", "--exclude", type=str,
                             help="Regex to EXCLUDE certain reactors or reactions")
         args = parser.parse_args()
-
-        # Output to
-        output_file(self.graph_name + ".html")
-
-        # Define figure
-        p = figure(sizing_mode="stretch_both",
-                   title=self.graph_name)
-        # second plot which displays colours
-        p_colours = figure(sizing_mode="stretch_both",
-                           title=self.graph_name)
-        # third plot for arrows
-        p_arrows = figure(sizing_mode="stretch_both",
-                          title=self.graph_name)
-
-        # fourth plot for physical time only events
-        p_physical_time = figure(sizing_mode="stretch_both",
-                                 title=self.graph_name)
 
         # -------------------------------------------------------------------
         # Draw colours (if enabled)
@@ -130,3 +118,118 @@ class holoviews_visualiser:
                 dictonary["colours"][pos] = logical_colours_dict[logic_time_tuple]
 
         # -------------------------------------------------------------------
+
+        # Include/Exclude Reactions
+
+        # Too many args
+        if args.include and args.exclude:
+            raise TypeError("Too many arguments")
+
+        # Include reactions
+        filtered_labels = []
+        if args.include:
+            for label in self.labels:
+                if regex.search(args.include, label):
+                    filtered_labels.append(label)
+            self.labels = filtered_labels
+            self.diable_arrows = True
+
+        # Exclude reactions
+        if args.exclude:
+            for label in self.labels:
+                if not regex.search(args.exclude, label):
+                    filtered_labels.append(label)
+            self.labels = filtered_labels
+            self.diable_arrows = True
+
+        self.remove_reactions()
+
+        # -------------------------------------------------------------------
+        # Execution event markers
+        exe_x_marker = [((x1 + x2)/2)
+                        for x1, x2 in self.ordered_exe_events["x_multi_line"]]
+        exe_y_marker = self.ordered_exe_events["y_axis"]
+
+        dict_exec_markers = {"x_values": exe_x_marker,
+                             "y_values": exe_y_marker,
+                             "name": self.ordered_exe_events["name"],
+                             "default_colours": self.ordered_exe_events["default_colours"],
+                             "colours": self.ordered_exe_events["colours"]}
+        
+        df_execution_events = pd.DataFrame(self.ordered_exe_events)
+        df_execution_markers = pd.DataFrame(dict_exec_markers)
+        df_reactions = pd.DataFrame(self.ordered_inst_events_reactions)
+        df_actions = pd.DataFrame(self.ordered_inst_events_actions)
+        
+        scatter = hv.Scatter(df_reactions, 'time_start', 'name')
+        hv.save(scatter, 'curve.html', backend='bokeh')
+        
+
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    def remove_reactions(self):
+        # Set the active labels (important for the js widget)
+        self.number_labels = {}
+        for i in range(len(self.labels)):
+                self.number_labels[i] = self.labels[i]
+
+        label_y_pos = {v: k for k, v in self.number_labels.items()}
+
+        # remove excluded data
+        for data_source in [self.ordered_inst_events_reactions, self.ordered_inst_events_actions, self.ordered_exe_events]:
+            # find all datapoints with exluded names and add their index to a list
+            active_values = self.labels
+            indices_to_remove = []
+            for i in range(len(data_source["name"])):
+                current_label = data_source["name"][i]
+                if current_label not in active_values:
+                    indices_to_remove.append(i)
+                else:
+                    data_source["y_axis"][i] = label_y_pos[current_label]
+                    if data_source is self.ordered_exe_events:
+                        data_source["y_multi_line"][i] = [
+                            label_y_pos[current_label], label_y_pos[current_label]]
+
+            # Going from bottom to top, remove all datapoints with exluded names (using their index in the respective data source table)
+            indices_to_remove.reverse()
+            for index in indices_to_remove:
+                for key in data_source.keys():
+                    data_source[key].pop(index)
+
+
+
+
+
+
+
+
+
+
+
+
+if(__name__ == "__main__"):
+    # Include/Exclude Reactions
+    argparser = argparse.ArgumentParser()
+    argparser.add_argument("tracefile", type=str,
+                           help="Path to the .json trace file")
+    argparser.add_argument("yamlfile", type=str,
+                           help="Path to the .yaml file")
+    argparser.add_argument("-i", "--include", type=str,
+                           help="Regex to INCLUDE only certain reactors or reactions")
+    argparser.add_argument("-x", "--exclude", type=str,
+                           help="Regex to EXCLUDE certain reactors or reactions")
+    args = argparser.parse_args()
+
+    vis = holoviews_visualiser(args.tracefile, args.yamlfile)
+
+    vis.build_graph(args)
