@@ -284,7 +284,7 @@ class visualiser:
         formatter = PrintfTickFormatter(format="%f")
 
         # Add axis labels
-        xaxis_label = "Time (ns)"
+        xaxis_label = "Time (ms)"
         xaxis_label_text_font_size = "24px"
         xaxis_label_text_color = "cadetblue"
         yaxis_label = "Reaction Name"
