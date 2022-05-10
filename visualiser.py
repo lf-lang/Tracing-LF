@@ -55,20 +55,6 @@ class visualiser:
     def build_graph(self, args):
         """Builds the bokeh graph"""
         
-        # Include/Exclude Reactions
-        parser = argparse.ArgumentParser()
-        parser.add_argument("tracefile", type=str,
-                            help="Path to the .json trace file")
-        parser.add_argument("yamlfile", type=str,
-                            help="Path to the .yaml file")
-        parser.add_argument("-i", "--include", type=str,
-                            help="Regex to INCLUDE only certain reactors or reactions")
-        parser.add_argument("-x", "--exclude", type=str,
-                            help="Regex to EXCLUDE certain reactors or reactions")
-        args = parser.parse_args()
-        
-        
-
         # Output to 
         output_file(self.graph_name + ".html")
 
