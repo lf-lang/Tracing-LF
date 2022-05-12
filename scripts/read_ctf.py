@@ -135,7 +135,7 @@ class parser:
                     
                     msg_e = execution_messages_dict[str(event["reaction_name"])]
                     
-                    self.write_execution_to_dict(msg, msg_e)
+                    self.write_execution_to_dict(msg_e, msg)
                 
                 elif (event.name == "reactor_cpp:schedule_action"):
                     
