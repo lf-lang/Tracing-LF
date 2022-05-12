@@ -304,8 +304,6 @@ class visualiser:
             ("time_start", "@time_start"),
             ("priority", "@priority"),
             ("level", "@level"),
-            ("triggers", "@triggers"),
-            ("effects", "@effects"),
             ("logical_time", "@logical_time"),
             ("microstep", "@microstep")
         ]
@@ -315,8 +313,6 @@ class visualiser:
             ("name", "@name"),
             ("time_start", "@time_start"),
             ("trace_event_type", "@trace_event_type"),
-            ("triggers", "@triggers"),
-            ("effects", "@effects"),
             ("logical_time", "@logical_time"),
             ("microstep", "@microstep")
         ]
@@ -328,8 +324,6 @@ class visualiser:
             ("trace_event_type", "@trace_event_type"),
             ("priority", "@priority"),
             ("level", "@level"),
-            ("triggers", "@triggers"),
-            ("effects", "@effects"),
             ("logical_time", "@logical_time"),
             ("microstep", "@microstep")
         ]
@@ -363,7 +357,7 @@ class visualiser:
         multi_choice = MultiChoice(
             value=self.labels, options=self.labels, sizing_mode="stretch_both")
         
-        # Tim hier!!! 
+        # script for data removal 
         multi_choice.js_on_change("value", CustomJS(args=dict(sources=[source_inst_events_reactions, source_inst_events_actions, source_exec_events, source_exec_markers]), code="""
             sources.forEach(source => {
                 console.log(source.data)
