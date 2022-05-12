@@ -306,6 +306,8 @@ class visualiser:
             ("level", "@level"),
             ("triggers", "@triggers"),
             ("effects", "@effects"),
+            ("logical_time", "@logical_time"),
+            ("microstep", "@microstep")
         ]
 
         # Define tooltips for Reactions and Execution Events
@@ -315,6 +317,8 @@ class visualiser:
             ("trace_event_type", "@trace_event_type"),
             ("triggers", "@triggers"),
             ("effects", "@effects"),
+            ("logical_time", "@logical_time"),
+            ("microstep", "@microstep")
         ]
         
         tooltips_executions = [
