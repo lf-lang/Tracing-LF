@@ -27,11 +27,8 @@ $bnry_path
 /bin/bash stop_tracing.sh
 
 echo "trace dir: "
-echo $trace_dir
-python ctf_to_json.py $trace_dir
+echo $trace_dir 
 
-mv trace.json $bnry_name.json
+python ../visualiser.py $trace_dir $bnry_name.yaml
 
-python ../visualiser.py $bnry_name.json $bnry_name.yaml
-
-rm $bnry_name.json $bnry_name.yaml
+rm $bnry_name.yaml
