@@ -180,8 +180,8 @@ class parser:
         reaction_yaml_data = self.yaml_data[reactor_name][reaction_name]
         
         self.ordered_exe_events["name"].append(rec_name)
-        self.ordered_exe_events["time_start"].append(self.get_timestamp_us(msg_b))
-        self.ordered_exe_events["time_end"].append(self.get_timestamp_us(msg_e))
+        self.ordered_exe_events["time_start"].append(self.get_timestamp_us(msg_b) - self.start_time)
+        self.ordered_exe_events["time_end"].append(self.get_timestamp_us(msg_e) - self.start_time)
         self.ordered_exe_events["y_axis"].append(self.reactor_number[rec_name])
         self.ordered_exe_events["trace_event_type"].append("execution")
         self.ordered_exe_events["logical_time"].append(int(event_b["timestamp_ns"]))
@@ -201,7 +201,6 @@ class parser:
         
         
     def write_to_dict(self, msg, is_reaction):
-        
         event = msg.event
         
         # name and timestart of reaction
@@ -221,6 +220,12 @@ class parser:
         reactor_reaction_name = reactor_name + "." + reaction_name
 
         reaction_yaml_data = self.yaml_data[reactor_name][reaction_name]
+
+        # special case for startup and shutdown
+        if not is_reaction:
+            if reaction_yaml_data["type"] == "startup" or reaction_yaml_data["type"] == "shutdown":
+                is_reaction = True
+                ordered_inst_events_dict = self.ordered_inst_events_reactions
 
         ordered_inst_events_dict["name"].append(reactor_reaction_name)
         ordered_inst_events_dict["reactor"].append(reactor_name)
