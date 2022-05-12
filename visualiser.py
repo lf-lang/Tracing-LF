@@ -96,8 +96,7 @@ class visualiser:
             default_action_colour for x in self.ordered_inst_events_actions["name"]]
         self.ordered_exe_events["default_colours"] = [
             default_exection_event_colour for x in self.ordered_exe_events["name"]]
-
-
+        
         # If colouring, set colour to grey
         self.ordered_inst_events_reactions["colours"] = [
             "lightgrey" for x in self.ordered_inst_events_reactions["name"]]
@@ -106,8 +105,37 @@ class visualiser:
         self.ordered_exe_events["colours"] = [
             "lightgrey" for x in self.ordered_exe_events["name"]]
         
-        # Colour and find arrow positions
-        self.colour()
+        
+        # Find all possible logical times and give these a colouring
+        action_logic_times = set(zip(
+            self.ordered_inst_events_actions["logical_time"], self.ordered_inst_events_actions["microstep"]))
+        
+        reaction_logic_times = set(zip(
+            self.ordered_inst_events_reactions["logical_time"], self.ordered_inst_events_reactions["microstep"]))
+
+        execution_logic_times = set(zip(
+            self.ordered_exe_events["logical_time"], self.ordered_exe_events["microstep"]))
+        
+        action_logic_times.update(reaction_logic_times, execution_logic_times)
+        
+        # Sorted set of all logical times (time, microstep)
+        all_logic_times = sorted(action_logic_times)
+        
+        # Dictionary containing tuple as key, colour as value
+        logical_colours_dict = {}
+        
+        # Assign colours to logical times
+        palette_pos = 0
+        for logical_time in all_logic_times:
+            logical_colours_dict[logical_time] = palette[9][palette_pos % 9]
+            palette_pos += 1
+            
+        # Assign colours to reactions
+        for dictonary in [self.ordered_exe_events, self.ordered_inst_events_actions, self.ordered_inst_events_reactions]:
+            for pos in range(len(dictonary["name"])):
+                logic_time_tuple = (dictonary["logical_time"][pos], dictonary["microstep"][pos])
+                dictonary["colours"][pos] = logical_colours_dict[logic_time_tuple]
+
         
         # -------------------------------------------------------------------
         # Include/Exclude Reactions
@@ -247,7 +275,7 @@ class visualiser:
         formatter = PrintfTickFormatter(format="%f")
 
         # Add axis labels
-        xaxis_label = "Time (ns)"
+        xaxis_label = "Time (ms)"
         xaxis_label_text_font_size = "24px"
         xaxis_label_text_color = "cadetblue"
         yaxis_label = "Reaction Name"
@@ -399,84 +427,7 @@ class visualiser:
 
 
 
-    def colour(self):
-        palette_pos = 0
-        
-        # Iterate through all actions
-        for i in range(len(self.ordered_inst_events_actions["name"])):
-            effects = self.ordered_inst_events_actions["effects"][i]
-            action_time_start = self.ordered_inst_events_actions["time_start"][i]
-            
-            self.ordered_inst_events_actions["colours"][i] = palette[9][palette_pos % 9]
-            
-            # Iterate through all effects of the action and colour accordingly
-            for effect in effects:
-                
-                # REACTIONS as effect of action
-                current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start, self.ordered_inst_events_reactions)
-                
-                if current_reaction_pos is not None:
-                    # Colour recursively
-                    self.colour_iteratively(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions, False)
-                
-                # EXECUTIONS as effect of action
-                current_exe_pos = self.data_parser.get_reaction_pos(
-                    effect, action_time_start, self.ordered_exe_events)
-                
-                if current_exe_pos is not None:
-                    # Add arrow if enabled
-                    self.arrow_pos.append(
-                        (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_exe_events["time_start"][current_exe_pos], self.ordered_exe_events["y_axis"][current_exe_pos]))
 
-                    # Colour recursively
-                    self.colour_iteratively(current_exe_pos, palette_pos, self.ordered_exe_events, True)
-
-                # Increment the palette colour
-                palette_pos += 1
-
-        
-        
-    def colour_iteratively(self, reaction_pos, palette_pos, reaction_dictionary, draw_arrows):
-        '''Function which recursively colours reaction chains (via triggers/effects) from a given origin reaction
-            First assigns the colour to a given reaction, then finds the reactions triggered and calls itself'''
-
-        # Assign the current colour to the reaction
-        reaction_dictionary["colours"][reaction_pos] = palette[9][palette_pos % 9]
-
-        # Check if the reaction has further effects
-        reaction_effects = reaction_dictionary[
-            "effects"][reaction_pos]
-
-        # For each reaction effect, colour iteratively
-        for reaction_effect in (reaction_effects or []):
-
-            # Check if the reaction effect is a reaction (If not, it's an action and causes cycles while colouring)
-            if reaction_effect not in self.action_names:
-
-                reaction_effect_time = reaction_dictionary["time_end"][reaction_pos]
-
-                # If the reaction effect is a write to a port, deduce the downstream port and its corresponding effect. This is the triggered reaction which is to be coloured
-                if reaction_effect not in self.labels:
-                        port_triggered_reactions = self.port_dict[reaction_effect]
-
-                        # Iterate through all reactions triggered by the port
-                        for reaction in port_triggered_reactions:
-                            reaction_effect_pos = self.data_parser.get_reaction_pos(
-                                reaction, reaction_effect_time, reaction_dictionary)
-
-                            # continue iteration if the triggered reaction exists
-                            if reaction_effect_pos is not None:
-                                self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary, draw_arrows)
-
-                else:
-                    # Find the position of the reaction effect in the dict, using its name and the position of the reaction it was triggered by
-                    # The reactions in the dictionary are ordered chronologically
-                    reaction_effect_pos = self.data_parser.get_reaction_pos(
-                        reaction_effect, reaction_effect_time)
-
-                    if reaction_effect_pos is not None:
-                        self.colour_iteratively(reaction_effect_pos, palette_pos, reaction_dictionary, draw_arrows)
-              
               
     def draw_dependencies(self):
         
@@ -488,7 +439,6 @@ class visualiser:
             event_logical_microstep = event_dict["microstep"][pos]
             
             inc_index = pos + 1
-            dec_index = pos - 1
             
             # iterate, incrementing pos
             for time in event_dict["logical_time"][inc_index:]:
@@ -512,27 +462,9 @@ class visualiser:
                                                event_dict["time_start"][inc_index], event_dict["y_axis"][inc_index]))
                         
                         
-                
+                # increment index
                 inc_index += 1
                 
-                
-            # # iterate, decrementing pos
-            # for time in reversed(event_dict["logical_time"][:dec_index]):
-                
-            #     # logical time smaller, so no dependency
-            #     if time < event_logical_time:
-            #         break
-                
-            #     # if the logical time is the same, check if there is a dependency
-            #     event_name = event_dict["name"][dec_index]
-            #     dependent_event_name = event_dict["name"][pos]
-
-            #     # if there is a dependency, draw an arrow
-            #     if dependent_event_name in self.dependency_dict[event_name]:
-            #         self.arrow_pos.append((event_dict["time_end"][dec_index], event_dict["y_axis"][dec_index],
-            #                                event_dict["time_start"][pos], event_dict["y_axis"][pos]))
-                
-            #     dec_index -= 1
         
         
            
