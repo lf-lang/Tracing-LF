@@ -32,8 +32,6 @@ class visualiser:
         # All instantaneous actions
         self.ordered_inst_events_actions = self.data_parser.get_ordered_inst_events_actions()
         
-        print(self.ordered_exe_events)
-        
         # Dictionaries which contain pairs for the numbers assigned to a reactor
         self.labels = self.data_parser.get_y_axis_labels()
         
@@ -427,6 +425,66 @@ class visualiser:
 
 
 
+    def colour(self):
+        palette_pos = 0
+        
+        # Iterate through all actions
+        for i in range(len(self.ordered_inst_events_actions["name"])):
+            effects = self.ordered_inst_events_actions["effects"][i]
+
+            action_time_start = self.ordered_inst_events_actions["time_start"][i]
+            
+            self.ordered_inst_events_actions["colours"][i] = palette[9][palette_pos % 9]
+            
+            # Iterate through all effects of the action and colour accordingly
+            for effect in effects:
+                
+                # REACTIONS as effect of action
+                current_reaction_pos = self.data_parser.get_reaction_pos(effect, action_time_start, self.ordered_inst_events_reactions)
+                
+                if current_reaction_pos is not None:
+                    # Colour recursively
+                    self.colour_iteratively(current_reaction_pos, palette_pos, self.ordered_inst_events_reactions, False)
+                
+                # EXECUTIONS as effect of action
+                current_exe_pos = self.data_parser.get_reaction_pos(
+                    effect, action_time_start, self.ordered_exe_events)
+                
+                if current_exe_pos is not None:
+                    # Add arrow if enabled
+                    self.arrow_pos.append(
+                        (action_time_start, self.ordered_inst_events_actions["y_axis"][i], self.ordered_exe_events["time_start"][current_exe_pos], self.ordered_exe_events["y_axis"][current_exe_pos]))
+
+                    # Colour recursively
+                    self.colour_iteratively(current_exe_pos, palette_pos, self.ordered_exe_events, True)
+
+                # Increment the palette colour
+                palette_pos += 1
+
+        
+        
+    def colour_iteratively(self, reaction_pos, palette_pos, reaction_dictionary, draw_arrows):
+        '''Function which recursively colours reaction chains (via triggers/effects) from a given origin reaction
+            First assigns the colour to a given reaction, then finds the reactions triggered and calls itself'''
+
+        # Assign the current colour to the reaction
+        reaction_dictionary["colours"][reaction_pos] = palette[9][palette_pos % 9]
+
+        # Check if the reaction has further effects
+        reaction_effects = reaction_dictionary[
+            "effects"][reaction_pos]
+
+        # For each reaction effect, colour iteratively
+        for reaction_effect in (reaction_effects or []):
+
+            # Check if the reaction effect is a reaction (If not, it's an action and causes cycles while colouring)
+            if reaction_effect not in self.action_names:
+
+                reaction_effect_time = reaction_dictionary["time_end"][reaction_pos]
+
+                # If the reaction effect is a write to a port, deduce the downstream port and its corresponding effect. This is the triggered reaction which is to be coloured
+                if reaction_effect not in self.labels:
+                        port_triggered_reactions = self.port_dict[reaction_effect]
 
               
     def draw_dependencies(self):
