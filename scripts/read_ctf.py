@@ -184,7 +184,7 @@ class parser:
         self.ordered_exe_events["time_end"].append(self.get_timestamp_us(msg_e) - self.start_time)
         self.ordered_exe_events["y_axis"].append(self.reactor_number[rec_name])
         self.ordered_exe_events["trace_event_type"].append("execution")
-        self.ordered_exe_events["logical_time"].append(int(event_b["timestamp_ns"]))
+        self.ordered_exe_events["logical_time"].append(int(event_b["timestamp_ns"]) - self.start_time_logical)
         self.ordered_exe_events["microstep"].append(
             int(event_b["timestamp_microstep"]))
 
@@ -235,7 +235,7 @@ class parser:
         ordered_inst_events_dict["y_axis"].append(self.reactor_number[reactor_reaction_name] + self.x_offset)
         ordered_inst_events_dict["effects"].append(reaction_yaml_data["effects"])
         ordered_inst_events_dict["triggers"].append(reaction_yaml_data["triggers"])
-        ordered_inst_events_dict["logical_time"].append(int(event["timestamp_ns"]))
+        ordered_inst_events_dict["logical_time"].append(int(event["timestamp_ns"])- self.start_time_logical)
         ordered_inst_events_dict["microstep"].append(int(event["timestamp_microstep"]))
         
         if is_reaction:
