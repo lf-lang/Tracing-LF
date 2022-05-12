@@ -1,5 +1,6 @@
 # Other
 *.html
+*.yaml
 .vscode
 traces/
 yaml_files/

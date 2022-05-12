@@ -3,7 +3,7 @@ import os
 from scripts.read_ctf import parser
 
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead, PrintfTickFormatter
+from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead, PrintfTickFormatter, Segment
 from bokeh.plotting import figure, show
 from bokeh.palettes import Set1 as palette
 from bokeh.models import Title
@@ -34,6 +34,9 @@ class visualiser:
         
         # Dictionaries which contain pairs for the numbers assigned to a reactor
         self.labels = self.data_parser.get_y_axis_labels()
+
+        # Dictionary that is the inverse of self.labels
+        self.number_labels = self.data_parser.get_number_label()
         
         # Dictionary containing a port as a key, with the value containing the reactions triggered by the downstream port (of the current port)
         self.port_dict = self.data_parser.get_port_dict()
@@ -168,14 +171,45 @@ class visualiser:
             
             # Discover all dependencie
             self.draw_dependencies()
+        
+        # Draw
+        for x_start, y_start, x_end, y_end in self.arrow_pos:
+            p_arrows.add_layout(Arrow(end=OpenHead(
+                line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
+                x_end=x_end, y_end=y_end))
 
         # -------------------------------------------------------------------
-        # Draw arrows (if enabled) 
+        # Draw vertical lines for physical times
+
+        # Get the min and max y values, to accurately draw the line
+        min_y = list(self.number_labels.keys())[0]
+        max_y = list(self.number_labels.keys())[-1]
+
+        # list to track x values of lines
+        line_x_coords = []
         
+        # Each new logical time (logical_time, microstep) is encoded with a new colour. 
+        if len(self.ordered_exe_events["name"]) > 0:
+            old_colour = self.ordered_exe_events["colours"][0]
+            for i in range(len(self.ordered_exe_events["name"])):
+                new_colour = self.ordered_exe_events["colours"][i]
+
+                # New logical time reached
+                if old_colour != new_colour:
+                    
+                    # Get the x value between the end of old logical time and the start of the new one
+                    x_value = (self.ordered_exe_events["time_start"][i] + self.ordered_exe_events["time_end"][i-1]) / 2
+                    print(x_value)
+                    line_x_coords.append(x_value)
+
+                    old_colour = new_colour
 
 
+        line_y0_coords = [min_y for y in line_x_coords]
+        line_y1_coords = [max_y for y in line_x_coords]
 
-
+        p_physical_time.segment(x0=line_x_coords, y0=line_y0_coords, x1=line_x_coords,
+          y1=line_y1_coords, color="lightgrey", line_width=1)        
 
         # -------------------------------------------------------------------
         # All execution events
@@ -461,12 +495,6 @@ class visualiser:
                         
                 # increment index
                 inc_index += 1
-        
-        # Draw
-        for x_start, y_start, x_end, y_end in self.arrow_pos:
-            p_arrows.add_layout(Arrow(end=OpenHead(
-                line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
-                x_end=x_end, y_end=y_end))
                 
         
         
