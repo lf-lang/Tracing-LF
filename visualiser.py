@@ -199,7 +199,6 @@ class visualiser:
                     
                     # Get the x value between the end of old logical time and the start of the new one
                     x_value = (self.ordered_exe_events["time_start"][i] + self.ordered_exe_events["time_end"][i-1]) / 2
-                    print(x_value)
                     line_x_coords.append(x_value)
 
                     old_colour = new_colour
@@ -301,10 +300,12 @@ class visualiser:
 
         # Toggle to hide/show events
         click_policy = "mute"
+
+        short_y_labels = {k: v.split(".", 1)[1] for k, v in self.number_labels.items()}
         
         # Rename Axes and format ticks
         ticker = [y for y in range(len(self.labels))]
-        major_label_overrides = self.number_labels
+        major_label_overrides = short_y_labels
         formatter = PrintfTickFormatter(format="%f")
 
         # Add axis labels
