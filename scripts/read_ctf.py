@@ -36,6 +36,10 @@ class parser:
         # Variables
         self.x_offset = 0
 
+        # List of reactions which have no triggers or effects, which are removed from the visualisation
+        self.redundant_reactions = []
+
+        # Parse the YAML data from the file
         self.parse_yaml(yaml_filepath)
         self.yaml_data = self.reaction_dict
 
@@ -49,12 +53,9 @@ class parser:
         # reversal of reactor_number
         self.number_label = {}
 
-        # Get reactor number and label, as well as setting timestamps to begin at 0
-
         # Get first reaction
         self.start_time = 0
         self.start_time_logical = 0
-        
 
         # Find the `ctf` plugin (shipped with Babeltrace 2).
         ctf_plugin = bt2.find_plugin('ctf')
@@ -105,14 +106,14 @@ class parser:
             if type(msg) is bt2._EventMessageConst:
                 event = msg.event
                 if (event.name == "reactor_cpp:schedule_action"):
-                    
                     event_name = str(event["reactor_name"]) + "." + str(event["action_name"])
-                    self.add_to_reaction_labels(event_name)
+                    if not event_name in self.redundant_reactions:
+                        self.add_to_reaction_labels(event_name)
                 
                 if (event.name == "reactor_cpp:trigger_reaction"):
-                    
                     event_name = str(event["reactor_name"]) + "." + str(event["reaction_name"])
-                    self.add_to_reaction_labels(event_name)
+                    if not event_name in self.redundant_reactions:
+                        self.add_to_reaction_labels(event_name)
                 
         
         # inverse of number_label dictionary. Gives the y-value (height) of the given reaction
@@ -172,6 +173,10 @@ class parser:
         a, b = rev_name.split(".", 1)
         reactor_name = b[::-1]
         reaction_name = a[::-1]
+
+        # leave function if reaction is redundant
+        if rec_name in self.redundant_reactions:
+            return
         
         reaction_yaml_data = self.yaml_data[reactor_name][reaction_name]
         
@@ -210,10 +215,14 @@ class parser:
         else:
             reaction_name = str(event["action_name"])
             ordered_inst_events_dict = self.ordered_inst_events_actions
-        
-        time_start = (float(event["timestamp_ns"]) / 1000.0) - self.start_time
-        
+
         reactor_reaction_name = reactor_name + "." + reaction_name
+        
+        # leave function if reaction is redundant
+        if reactor_reaction_name in self.redundant_reactions:
+            return
+        
+        time_start = float(event["timestamp_ns"]) - self.start_time_logical
 
         reaction_yaml_data = self.yaml_data[reactor_name][reaction_name]
 
@@ -286,7 +295,11 @@ class parser:
             if items["reactions"] is not None:
                 for reaction in items["reactions"]:
 
-                    self.reaction_dict[reactor][reaction["name"]] = reaction
+                    self.reaction_dict[reactor][reaction["name"]] = reaction   
+
+                    if reaction["triggers"] is None:
+                        if reaction["effects"] is None:
+                            self.redundant_reactions.append(reactor + "." + reaction["name"])
 
             if items["triggers"] is not None:
                 for trigger in items["triggers"]:
@@ -301,6 +314,10 @@ class parser:
                     action_name = reactor + "." + trigger["name"]
                     if action_name not in self.action_names and "action" in trigger["type"]:
                         self.action_names.append(action_name)
+                    
+                    if trigger["triggers"] is None:
+                        if trigger["effects"] is None:
+                            self.redundant_reactions.append(action_name)
 
             # For each input, add it to the input & output dictionary
             if items["inputs"] is not None:
