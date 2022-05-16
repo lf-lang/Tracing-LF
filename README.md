@@ -17,5 +17,5 @@ target Cpp {
 };
 ```
 5. Change your current working directory to ```SchedulingLF/scripts/``` 
-6. Run the ```record_trace.sh``` script
+6. Run ```record_trace.sh /path/to/lingua-franca/program/``` 
 7. Open the produced .html file
