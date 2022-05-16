@@ -145,10 +145,6 @@ class parser:
                     
                     self.write_to_dict(msg, True)
 
-                    
-        # inverse of number_label dictionary
-        self.reactor_number = {v: k for k, v in self.number_label.items()}
-
         # order data for multiline graph
         for start_time, end_time in zip(self.ordered_exe_events["time_start"], self.ordered_exe_events["time_end"]):
             self.ordered_exe_events["x_multi_line"].append(
