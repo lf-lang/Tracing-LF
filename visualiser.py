@@ -23,7 +23,7 @@ class visualiser:
         start_time = time.time()
         self.data_parser = parser()
         self.data_parser.parse(ctf_filepath, yaml_filepath)
-        print("\n\n\n\nCTF READ TOTAL TIME: " + str(time.time() - start_time)+ "\n\n\n\n")
+        print("\nCTF READ TOTAL TIME: " + str(time.time() - start_time)+ "\n")
         
         # All execution events
         self.ordered_exe_events = self.data_parser.get_ordered_exe_events()
@@ -86,7 +86,7 @@ class visualiser:
         # Colours chains of reactions originating from an action. (Assumes all chains begin with an action)
         # Uses the colour_nodes function to recursively assign a colour to nodes which are triggered by an action
         
-        print("\n\n\n\n VISUALISER \n\n\n\n")
+        print("\n VISUALISER \n")
         start = time.time()
 
     
@@ -143,7 +143,7 @@ class visualiser:
                 dictonary["colours"][pos] = logical_colours_dict[logic_time_tuple]
 
         colour_assignment_time = time.time()
-        print("\n\n\n\n Colours time: " + str(colour_assignment_time - start)+ "\n\n\n\n")
+        print("\n Colours time: " + str(colour_assignment_time - start)+ "\n")
         # -------------------------------------------------------------------
         # Include/Exclude Reactions
         
@@ -170,8 +170,8 @@ class visualiser:
 
         self.remove_reactions()
         regex_time = time.time()
-        print("\n\n\n\n Regex time: " + str(regex_time - colour_assignment_time)+ "\n\n\n\n")
-        print("\n\n\n\n Regex time total: " + str(regex_time - start)+ "\n\n\n\n")
+        print("\n Regex time: " + str(regex_time - colour_assignment_time)+ "\n")
+        print("\n Regex time total: " + str(regex_time - start)+ "\n")
 
         # -------------------------------------------------------------------
         # Draw arrows (if enabled) 
@@ -187,9 +187,9 @@ class visualiser:
         #         line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
         #         x_end=x_end, y_end=y_end))
 
-        # dependencies_time = time.time()
-        # print("\n\n\n\n Dependencies time: " + str(dependencies_time - regex_time)+ "\n\n\n\n")
-        # print("\n\n\n\n Dependencies time total: " + str(dependencies_time - start)+ "\n\n\n\n")
+        dependencies_time = time.time()
+        print("\n Dependencies time: " + str(dependencies_time - regex_time)+ "\n")
+        print("\n Dependencies time total: " + str(dependencies_time - start)+ "\n")
 
         # -------------------------------------------------------------------
         # Draw vertical lines for physical times
@@ -224,8 +224,8 @@ class visualiser:
           y1=line_y1_coords, color="lightgrey", line_width=1)     
 
         logic_lines_time = time.time()
-        print("\n\n\n\n Logic lines time: " + str(logic_lines_time - dependencies_time)+ "\n\n\n\n")
-        print("\n\n\n\n Logic lines time total: " + str(logic_lines_time - start)+ "\n\n\n\n")   
+        print("\n Logic lines time: " + str(logic_lines_time - dependencies_time)+ "\n")
+        print("\n Logic lines time total: " + str(logic_lines_time - start)+ "\n")   
 
         # -------------------------------------------------------------------
         # All execution events
@@ -257,7 +257,7 @@ class visualiser:
         
         dict_exec_markers = {"x_values" : exe_x_marker,
                             "y_values" : exe_y_marker,
-                             "name": self.ordered_exe_events["name"],
+                            "name": self.ordered_exe_events["name"],
                             "default_colours" : self.ordered_exe_events["default_colours"],
                             "colours" : self.ordered_exe_events["colours"]}
         
@@ -443,8 +443,12 @@ class visualiser:
 
         
         end_of_file_time = time.time()
-        print("\n\n\n\n End of file time: " + str(end_of_file_time - logic_lines_time)+ "\n\n\n\n")
-        print("\n\n\n\n End of file time total: " + str(end_of_file_time - start)+ "\n\n\n\n")   
+        print("\n End of file time: " + str(end_of_file_time - logic_lines_time)+ "\n")
+        print("\n End of file time total: " + str(end_of_file_time - start)+ "\n")   
+
+        # 2x exec events because of exec markers 
+        total_data_points = len(self.ordered_inst_events_reactions["name"]) + len(self.ordered_inst_events_actions["name"]) + (2 * len(self.ordered_exe_events["name"]))
+        print("Number of points: " + str(total_data_points))
 
 
 
@@ -491,7 +495,7 @@ class visualiser:
         current_dependency = 1
         for pos in range(len(event_dict["logical_time"])):
             
-            print("%% dependencies done: " + str((current_dependency/total_dependencies)*100)
+            print("dependencies done: " + str((current_dependency/total_dependencies)*100))
 
             event_logical_time = event_dict["logical_time"][pos]
             event_logical_microstep = event_dict["microstep"][pos]
@@ -563,4 +567,4 @@ if(__name__ == "__main__"):
 
     vis.build_graph(args)
 
-    print("\n\n\n\n VISUALISER TOTAL TIME: " + str(time.time() - start_time)+ "\n\n\n\n")
+    print("\n VISUALISER TOTAL TIME: " + str(time.time() - start_time) + "\n")

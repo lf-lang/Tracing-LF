@@ -100,10 +100,8 @@ class parser:
                 self.start_time_logical = int(msg.event["timestamp_ns"])
                 break
         
-        msg_total = 0
         # Get the labels of all reactions
         for msg in msg_it2:
-            msg_total += 1
             # `bt2._EventMessageConst` is the Python type of an event message.
             if type(msg) is bt2._EventMessageConst:
                 event = msg.event
@@ -121,12 +119,9 @@ class parser:
         # inverse of number_label dictionary. Gives the y-value (height) of the given reaction
         self.reactor_number = {v: k for k, v in self.number_label.items()}
 
-        msg_number = 1
         # Iterate the trace messages
         for msg in msg_it3:
 
-            print("MSG " + str(msg_number) + " : " + str(msg_total))
-            msg_number += 1
             # `bt2._EventMessageConst` is the Python type of an event message.
             if type(msg) is bt2._EventMessageConst:
                 
