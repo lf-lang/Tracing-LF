@@ -89,7 +89,7 @@ class parser:
         # Dictionary containing all compiled data for each execution event execution
         # x_multi_line and y_multi_line contain nested lists with start and end x and y values respectively. These are used to draw the multilines
         self.ordered_exe_events = {"name": [], "time_start": [], "time_end": [], "trace_event_type": [], "priority": [], "level": [], "triggers": [],
-                                "effects": [], "x_multi_line": [], "y_multi_line": [], "y_axis": [], "logical_time": [], "microstep": []}
+                                "effects": [], "x_multi_line": [], "y_multi_line": [], "y_axis": [], "logical_time": [], "microstep": [], "worker": []}
 
         
         # Get the start times
@@ -140,11 +140,11 @@ class parser:
                 
                 elif (event.name == "reactor_cpp:schedule_action"):
                     
-                    self.write_to_dict(msg, False)
+                    self.write_event_to_dict(msg, False)
                 
                 elif (event.name == "reactor_cpp:trigger_reaction"):
                     
-                    self.write_to_dict(msg, True)
+                    self.write_event_to_dict(msg, True)
 
         # order data for multiline graph
         for start_time, end_time in zip(self.ordered_exe_events["time_start"], self.ordered_exe_events["time_end"]):
@@ -186,8 +186,8 @@ class parser:
         self.ordered_exe_events["y_axis"].append(self.reactor_number[rec_name])
         self.ordered_exe_events["trace_event_type"].append("execution")
         self.ordered_exe_events["logical_time"].append(int(event_b["timestamp_ns"]) - self.start_time_logical)
-        self.ordered_exe_events["microstep"].append(
-            int(event_b["timestamp_microstep"]))
+        self.ordered_exe_events["microstep"].append(int(event_b["timestamp_microstep"]))
+        self.ordered_exe_events["worker"].append(int(event_b["worker_id"]))
 
         # YAML Data
         attribute_list = ["priority",
@@ -201,7 +201,7 @@ class parser:
                 self.ordered_exe_events[attribute].append("n.a.")
         
         
-    def write_to_dict(self, msg, is_reaction):
+    def write_event_to_dict(self, msg, is_reaction):
         event = msg.event
         
         # name and timestart of reaction

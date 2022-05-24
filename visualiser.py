@@ -66,18 +66,19 @@ class visualiser:
         # Output to 
         output_file(self.graph_name + ".html")
 
-        # Define figure
-        p = figure(sizing_mode="stretch_both",
-                   title=self.graph_name)
-        # second plot which displays colours
+        # plot which displays colours
         p_colours = figure(sizing_mode="stretch_both",
                            title=self.graph_name)
-        # third plot for arrows
+        # plot for arrows
         p_arrows = figure(sizing_mode="stretch_both",
                            title=self.graph_name)
         
-        # fourth plot for physical time only events
+        # plot for physical time only events
         p_physical_time = figure(sizing_mode="stretch_both",
+                          title=self.graph_name)
+
+        # plot for worker view
+        p_workers = figure(sizing_mode="stretch_both",
                           title=self.graph_name)
         
         # -------------------------------------------------------------------
@@ -237,9 +238,6 @@ class visualiser:
             
         # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
 
-        exe_line = p.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="default_colours", hover_alpha=0.5,
-                    source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
-        
         exe_line_colours = p_colours.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="colours", hover_alpha=0.5,
                                                source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
         
@@ -263,9 +261,6 @@ class visualiser:
         
         source_exec_markers = ColumnDataSource(data=dict_exec_markers)
 
-        p.diamond(x='x_values', y='y_values', color="default_colours",
-                  size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
-        
         p_colours.diamond(x='x_values', y='y_values', color="colours",
                           size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
         
@@ -280,9 +275,6 @@ class visualiser:
         
         # All instantaneous events that are reactions
         source_inst_events_reactions = ColumnDataSource(self.ordered_inst_events_reactions)
-
-        inst_reaction_hex = p.hex(x='time_start', y='y_axis', fill_color='default_colours', line_color="lightgrey",
-                                  size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
         
         inst_reaction_hex_colours = p_colours.hex(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                   size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
@@ -296,9 +288,6 @@ class visualiser:
         # All instantaneous events that are actions
         source_inst_events_actions = ColumnDataSource(self.ordered_inst_events_actions)
 
-        inst_action_hex = p.inverted_triangle(x='time_start', y='y_axis', fill_color='default_colours', line_color="lightgrey",
-                                size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
-        
         inst_action_hex_colours = p_colours.inverted_triangle(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                               size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
         
@@ -312,18 +301,49 @@ class visualiser:
         
         # -------------------------------------------------------------------
 
+        # Worker view - Includes only exection events as these are the physical executions done by the workers
+        worker_y_marker = list()
+        
+        for y_value in self.ordered_exe_events["worker"]:
+            worker_y_marker.append([y_value, y_value])
+
+        dict_exec_markers = {"x_values" : self.ordered_exe_events["x_multi_line"],
+                            "y_values" : worker_y_marker,
+                            "name": self.ordered_exe_events["name"],
+                            "default_colours" : self.ordered_exe_events["default_colours"],
+                            "colours" : self.ordered_exe_events["colours"],
+                            "time_start" : self.ordered_exe_events["time_start"],
+                            "time_end" : self.ordered_exe_events["time_end"],
+                            "trace_event_type" : self.ordered_exe_events["trace_event_type"],
+                            "level" : self.ordered_exe_events["level"],
+                            "logical_time" : self.ordered_exe_events["logical_time"],
+                            "microstep" : self.ordered_exe_events["microstep"]}
+
+        source_workers = ColumnDataSource(data=dict_exec_markers)
+
+        workers = p_workers.multi_line(xs='x_values', ys='y_values', width=8, color="colours", hover_alpha=0.5,
+                                               source=source_workers, legend_label="Execution Events", muted_alpha=0.2)
+
+
+        # -------------------------------------------------------------------
+
         # PLOT OPTIONS
         location = "top_left"
 
         # Toggle to hide/show events
         click_policy = "mute"
 
+        # Remove the main reactor name from all strings
         short_y_labels = {k: v.split(".", 1)[1] for k, v in self.number_labels.items()}
         
         # Rename Axes and format ticks
         ticker = [y for y in range(len(self.labels))]
         major_label_overrides = short_y_labels
         formatter = PrintfTickFormatter(format="%f")
+
+        # Worker axis rename and ticker formating
+        worker_ticker = [y for y in range(max(self.ordered_exe_events["worker"]) + 1)]
+        worker_major_label_overrides = {i : ("Worker " + str(i)) for i in range(max(self.ordered_exe_events["worker"]) + 1)}
 
         # Add axis labels
         xaxis_label = "Time (ms)"
@@ -337,7 +357,7 @@ class visualiser:
         title_text = "Graph visualisation of a recorded LF trace. Use options (-a and -c) to show arrows and colours respectively. \n The tools on the right can be used to navigate the graph. Legend items can be clicked to mute series"
        
         # Add all properties to plots    
-        for plot in [p, p_colours, p_arrows, p_physical_time]:
+        for plot in [p_colours, p_arrows, p_physical_time, p_workers]:
             plot.legend.location = location
             plot.legend.click_policy = click_policy
             plot.yaxis.ticker = ticker
@@ -350,6 +370,10 @@ class visualiser:
             plot.yaxis.axis_label_text_font_size = yaxis_label_text_font_size
             plot.yaxis.axis_label_text_color = yaxis_label_text_color
             plot.add_layout(Title(text=title_text, align="center"), "below")
+
+        # overwrite for p_workers
+        plot.yaxis.ticker = worker_ticker
+        plot.yaxis.major_label_overrides = worker_major_label_overrides
 
         # Define tooltips for Reactions and Execution Events
         tooltips_reactions = [
@@ -382,64 +406,41 @@ class visualiser:
         ]
         
         # Hover tool only for instantaneous events 
-        hover_tool = HoverTool(tooltips=tooltips_reactions, renderers=[inst_reaction_hex])
         hover_tool_colours = HoverTool(tooltips=tooltips_reactions, renderers=[inst_reaction_hex_colours])
         hover_tool_arrows = HoverTool(tooltips=tooltips_reactions, renderers=[inst_reaction_hex_arrows])
         
         # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
-        hover_tool_actions = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex])
         hover_tool_actions_colours = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_colours])
         hover_tool_actions_arrows = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_arrows])
         hover_tool_actions_physical_time = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_physical_time])
         
         # Hover tool only for execution events (so that markers for exe events dont also have a tooltip)
-        hover_tool_executions = HoverTool(tooltips=tooltips_executions, renderers=[exe_line])
         hover_tool_executions_colours = HoverTool(tooltips=tooltips_executions, renderers=[exe_line_colours])
         hover_tool_executions_arrows = HoverTool(tooltips=tooltips_executions, renderers=[exe_line_arrows])
         hover_tool_executions_physical_time = HoverTool(tooltips=tooltips_executions, renderers=[exe_line_physical_time])
 
+        # Hover tool for wokers
+        hover_tool_workers = HoverTool(tooltips=tooltips_executions, renderers=[workers])
+
         
         # Add the tools to the plot
-        p.add_tools(hover_tool, hover_tool_actions, hover_tool_executions)
         p_colours.add_tools(hover_tool_colours, hover_tool_actions_colours, hover_tool_executions_colours)
         p_arrows.add_tools(hover_tool_arrows, hover_tool_actions_arrows, hover_tool_executions_arrows)
         p_physical_time.add_tools(hover_tool_actions_physical_time, hover_tool_executions_physical_time)
+        p_workers.add_tools(hover_tool_workers)
         
         
-        # js radio buttons
-        multi_choice = MultiChoice(
-            value=self.labels, options=self.labels, sizing_mode="stretch_both")
         
-        # script for data removal 
-        multi_choice.js_on_change("value", CustomJS(args=dict(sources=[source_inst_events_reactions, source_inst_events_actions, source_exec_events, source_exec_markers]), code="""
-            sources.forEach(source => {
-                console.log(source.data)
-            let active_values = this.value
-            let delete_us = []
-            source.data.name.forEach(function(name, i) {
-                if (!active_values.includes(name)) delete_us.push(i)
-            })
-            delete_us = delete_us.reverse()
-            delete_us.forEach(i => {
-                for (const [key, value] of Object.entries(source.data)) {
-                    source.data[key].splice(i, 1)
-                }
-            })
-            source.change.emit()
-            })
-        """))
-        
-        trace = Panel(child=p, title="trace") 
         coloured_trace = Panel(child=p_colours, title="coloured trace")
         dependencies = Panel(child=p_arrows, title="dependencies")
         physical_time = Panel(child=p_physical_time, title="physical time")
-        data_picker = Panel(child=multi_choice, title="data picker")
+        workers = Panel(child=p_workers, title="workers")
         
         if not self.diable_arrows:
-            show(Tabs(tabs=[trace, coloured_trace,
-                 dependencies, physical_time, data_picker]))
+            show(Tabs(tabs=[coloured_trace,
+                 dependencies, physical_time, workers]))
         else:
-            show(Tabs(tabs=[trace, coloured_trace, physical_time, data_picker]))
+            show(Tabs(tabs=[coloured_trace, physical_time, workers]))
 
         
         end_of_file_time = time.time()
