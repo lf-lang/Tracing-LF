@@ -140,11 +140,11 @@ class parser:
                 
                 elif (event.name == "reactor_cpp:schedule_action"):
                     
-                    self.write_to_dict(msg, False)
+                    self.write_event_to_dict(msg, False)
                 
                 elif (event.name == "reactor_cpp:trigger_reaction"):
                     
-                    self.write_to_dict(msg, True)
+                    self.write_event_to_dict(msg, True)
 
         # order data for multiline graph
         for start_time, end_time in zip(self.ordered_exe_events["time_start"], self.ordered_exe_events["time_end"]):
@@ -201,7 +201,7 @@ class parser:
                 self.ordered_exe_events[attribute].append("n.a.")
         
         
-    def write_to_dict(self, msg, is_reaction):
+    def write_event_to_dict(self, msg, is_reaction):
         event = msg.event
         
         # name and timestart of reaction
