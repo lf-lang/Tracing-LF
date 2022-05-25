@@ -472,7 +472,7 @@ class visualiser:
             event_logical_microstep = event_dict["microstep"][pos]
             
             inc_index = pos + 1
-            
+
             # iterate, incrementing pos
             for time in event_dict["logical_time"][inc_index:]:
                 
@@ -485,9 +485,6 @@ class visualiser:
                     
                     event_name = event_dict["name"][pos]
                     dependent_event_name = event_dict["name"][inc_index]
-                    
-                    # print("event_name: " + event_name)
-                    # print("dependencies: " + str(self.dependency_dict[event_name]))
                     
                     # if there is a dependency, draw an arrow
                     if dependent_event_name in self.dependency_dict[event_name]:
