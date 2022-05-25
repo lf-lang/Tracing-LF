@@ -297,7 +297,7 @@ class visualiser:
                             "colours" : self.ordered_exe_events["colours"],
                             "time_start" : self.ordered_exe_events["time_start"],
                             "time_end" : self.ordered_exe_events["time_end"],
-                            "trace_event_type" : self.ordered_exe_events["trace_event_type"],
+                            "priority" : self.ordered_exe_events["priority"],
                             "level" : self.ordered_exe_events["level"],
                             "logical_time" : self.ordered_exe_events["logical_time"],
                             "microstep" : self.ordered_exe_events["microstep"]}
@@ -355,13 +355,16 @@ class visualiser:
             plot.add_layout(Title(text=title_text, align="center"), "below")
 
         # overwrite for p_workers
-        plot.yaxis.ticker = worker_ticker
-        plot.yaxis.major_label_overrides = worker_major_label_overrides
+        p_workers.yaxis.ticker = worker_ticker
+        p_workers.yaxis.major_label_overrides = worker_major_label_overrides
+
+        p_physical_time.xgrid.visible = False
+
 
         # Define tooltips for Reactions and Execution Events
         tooltips_reactions = [
             ("name", "@name"),
-            ("time_start", "@time_start"),
+            ("time_start", "@time_start{0,0.00}"),
             ("priority", "@priority"),
             ("level", "@level"),
             ("logical_time", "@logical_time"),
@@ -371,7 +374,7 @@ class visualiser:
         # Define tooltips for Reactions and Execution Events
         tooltips_actions = [
             ("name", "@name"),
-            ("time_start", "@time_start"),
+            ("time_start", "@time_start{0,0.00}"),
             ("trace_event_type", "@trace_event_type"),
             ("logical_time", "@logical_time"),
             ("microstep", "@microstep")
@@ -379,9 +382,8 @@ class visualiser:
         
         tooltips_executions = [
             ("name", "@name"),
-            ("time_start", "@time_start"),
-            ("time_end", "@time_end"),
-            ("trace_event_type", "@trace_event_type"),
+            ("time_start", "@time_start{0,0.00}"),
+            ("time_end", "@time_end{0,0.00}"),
             ("priority", "@priority"),
             ("level", "@level"),
             ("logical_time", "@logical_time"),
@@ -404,7 +406,6 @@ class visualiser:
 
         # Hover tool for wokers
         hover_tool_workers = HoverTool(tooltips=tooltips_executions, renderers=[workers])
-
         
         # Add the tools to the plot
         p_colours.add_tools(hover_tool_colours, hover_tool_actions_colours, hover_tool_executions_colours)
