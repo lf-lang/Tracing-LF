@@ -1,9 +1,11 @@
 # Other
 *.html
+*.yaml
 .vscode
 traces/
 yaml_files/
 dot_files/
+lttng_traces/
 .DS_Store
 
 # Byte-compiled / optimized / DLL files

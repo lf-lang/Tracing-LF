@@ -1,24 +1,29 @@
 #!/usr/bin/env python3
-from Parser.parse_files import parser
+import os
+from scripts.read_ctf import parser
 
 from bokeh.io import output_file, show
-from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead, PrintfTickFormatter
+from bokeh.models import ColumnDataSource, HoverTool, Arrow, OpenHead, PrintfTickFormatter, Segment
 from bokeh.plotting import figure, show
 from bokeh.palettes import Set1 as palette
 from bokeh.models import Title
 from bokeh.models import CustomJS, MultiChoice, Panel, Tabs
 import argparse
 import regex
+import os
+import sys
+import time
 
 
 
 class visualiser:
     
-    def __init__(self, json_filepath, yaml_filepath):
+    def __init__(self, ctf_filepath, yaml_filepath):
         
-        
+        start_time = time.time()
         self.data_parser = parser()
-        self.data_parser.parse(yaml_filepath, json_filepath)
+        self.data_parser.parse(ctf_filepath, yaml_filepath)
+        print("\nCTF READ TOTAL TIME: " + str(time.time() - start_time)+ "\n")
         
         # All execution events
         self.ordered_exe_events = self.data_parser.get_ordered_exe_events()
@@ -31,6 +36,9 @@ class visualiser:
         
         # Dictionaries which contain pairs for the numbers assigned to a reactor
         self.labels = self.data_parser.get_y_axis_labels()
+
+        # Dictionary that is the inverse of self.labels
+        self.number_labels = self.data_parser.get_number_label()
         
         # Dictionary containing a port as a key, with the value containing the reactions triggered by the downstream port (of the current port)
         self.port_dict = self.data_parser.get_port_dict()
@@ -47,7 +55,7 @@ class visualiser:
         # Stores whether to show coloured graph
         self.diable_arrows = False
         
-        # Graph name
+        # Graph name is the name of the main reactor
         self.graph_name = self.data_parser.get_main_reactor_name()
         
         
@@ -55,35 +63,22 @@ class visualiser:
     def build_graph(self, args):
         """Builds the bokeh graph"""
         
-        # Include/Exclude Reactions
-        parser = argparse.ArgumentParser()
-        parser.add_argument("tracefile", type=str,
-                            help="Path to the .json trace file")
-        parser.add_argument("yamlfile", type=str,
-                            help="Path to the .yaml file")
-        parser.add_argument("-i", "--include", type=str,
-                            help="Regex to INCLUDE only certain reactors or reactions")
-        parser.add_argument("-x", "--exclude", type=str,
-                            help="Regex to EXCLUDE certain reactors or reactions")
-        args = parser.parse_args()
-        
-        
-
         # Output to 
         output_file(self.graph_name + ".html")
 
-        # Define figure
-        p = figure(sizing_mode="stretch_both",
-                   title=self.graph_name)
-        # second plot which displays colours
+        # plot which displays colours
         p_colours = figure(sizing_mode="stretch_both",
                            title=self.graph_name)
-        # third plot for arrows
+        # plot for arrows
         p_arrows = figure(sizing_mode="stretch_both",
                            title=self.graph_name)
         
-        # fourth plot for physical time only events
+        # plot for physical time only events
         p_physical_time = figure(sizing_mode="stretch_both",
+                          title=self.graph_name)
+
+        # plot for worker view
+        p_workers = figure(sizing_mode="stretch_both",
                           title=self.graph_name)
         
         # -------------------------------------------------------------------
@@ -92,6 +87,9 @@ class visualiser:
         # Colours chains of reactions originating from an action. (Assumes all chains begin with an action)
         # Uses the colour_nodes function to recursively assign a colour to nodes which are triggered by an action
         
+        print("\n VISUALISER \n")
+        start = time.time()
+
     
         # default colours
         default_reaction_colour = "gold"
@@ -145,7 +143,8 @@ class visualiser:
                 logic_time_tuple = (dictonary["logical_time"][pos], dictonary["microstep"][pos])
                 dictonary["colours"][pos] = logical_colours_dict[logic_time_tuple]
 
-        
+        colour_assignment_time = time.time()
+        print("\n Colours time: " + str(colour_assignment_time - start)+ "\n")
         # -------------------------------------------------------------------
         # Include/Exclude Reactions
         
@@ -171,21 +170,63 @@ class visualiser:
             self.diable_arrows = True
 
         self.remove_reactions()
+        regex_time = time.time()
+        print("\n Regex time: " + str(regex_time - colour_assignment_time)+ "\n")
+        print("\n Regex time total: " + str(regex_time - start)+ "\n")
 
         # -------------------------------------------------------------------
         # Draw arrows (if enabled) 
         
-        if not self.diable_arrows:
+        # if not self.diable_arrows:
             
-            # Discover all dependencie
-            self.draw_dependencies()
-            
-            # Draw
-            for x_start, y_start, x_end, y_end in self.arrow_pos:
-                p_arrows.add_layout(Arrow(end=OpenHead(
-                    line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
-                    x_end=x_end, y_end=y_end))
+        #     # Discover all dependencie
+        #     self.draw_dependencies()
         
+        # # Draw
+        # for x_start, y_start, x_end, y_end in self.arrow_pos:
+        #     p_arrows.add_layout(Arrow(end=OpenHead(
+        #         line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
+        #         x_end=x_end, y_end=y_end))
+
+        dependencies_time = time.time()
+        print("\n Dependencies time: " + str(dependencies_time - regex_time)+ "\n")
+        print("\n Dependencies time total: " + str(dependencies_time - start)+ "\n")
+
+        # -------------------------------------------------------------------
+        # Draw vertical lines for physical times
+
+        # Get the min and max y values, to accurately draw the line
+        min_y = list(self.number_labels.keys())[0]
+        max_y = list(self.number_labels.keys())[-1]
+
+        # list to track x values of lines
+        line_x_coords = []
+        
+        # Each new logical time (logical_time, microstep) is encoded with a new colour. 
+        if len(self.ordered_exe_events["name"]) > 0:
+            old_colour = self.ordered_exe_events["colours"][0]
+            for i in range(len(self.ordered_exe_events["name"])):
+                new_colour = self.ordered_exe_events["colours"][i]
+
+                # New logical time reached
+                if old_colour != new_colour:
+                    
+                    # Get the x value between the end of old logical time and the start of the new one
+                    x_value = (self.ordered_exe_events["time_start"][i] + self.ordered_exe_events["time_end"][i-1]) / 2
+                    line_x_coords.append(x_value)
+
+                    old_colour = new_colour
+
+
+        line_y0_coords = [min_y for y in line_x_coords]
+        line_y1_coords = [max_y for y in line_x_coords]
+
+        p_physical_time.segment(x0=line_x_coords, y0=line_y0_coords, x1=line_x_coords,
+          y1=line_y1_coords, color="lightgrey", line_width=1)     
+
+        logic_lines_time = time.time()
+        print("\n Logic lines time: " + str(logic_lines_time - dependencies_time)+ "\n")
+        print("\n Logic lines time total: " + str(logic_lines_time - start)+ "\n")   
 
         # -------------------------------------------------------------------
         # All execution events
@@ -197,9 +238,6 @@ class visualiser:
             
         # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
 
-        exe_line = p.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="default_colours", hover_alpha=0.5,
-                    source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
-        
         exe_line_colours = p_colours.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="colours", hover_alpha=0.5,
                                                source=source_exec_events, legend_label="Execution Events", muted_alpha=0.2)
         
@@ -217,15 +255,12 @@ class visualiser:
         
         dict_exec_markers = {"x_values" : exe_x_marker,
                             "y_values" : exe_y_marker,
-                             "name": self.ordered_exe_events["name"],
+                            "name": self.ordered_exe_events["name"],
                             "default_colours" : self.ordered_exe_events["default_colours"],
                             "colours" : self.ordered_exe_events["colours"]}
         
         source_exec_markers = ColumnDataSource(data=dict_exec_markers)
 
-        p.diamond(x='x_values', y='y_values', color="default_colours",
-                  size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
-        
         p_colours.diamond(x='x_values', y='y_values', color="colours",
                           size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
         
@@ -240,9 +275,6 @@ class visualiser:
         
         # All instantaneous events that are reactions
         source_inst_events_reactions = ColumnDataSource(self.ordered_inst_events_reactions)
-
-        inst_reaction_hex = p.hex(x='time_start', y='y_axis', fill_color='default_colours', line_color="lightgrey",
-                                  size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
         
         inst_reaction_hex_colours = p_colours.hex(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                   size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
@@ -256,9 +288,6 @@ class visualiser:
         # All instantaneous events that are actions
         source_inst_events_actions = ColumnDataSource(self.ordered_inst_events_actions)
 
-        inst_action_hex = p.inverted_triangle(x='time_start', y='y_axis', fill_color='default_colours', line_color="lightgrey",
-                                size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
-        
         inst_action_hex_colours = p_colours.inverted_triangle(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                               size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
         
@@ -272,19 +301,52 @@ class visualiser:
         
         # -------------------------------------------------------------------
 
+        # Worker view - Includes only exection events as these are the physical executions done by the workers
+        worker_y_marker = list()
+        
+        for y_value in self.ordered_exe_events["worker"]:
+            worker_y_marker.append([y_value, y_value])
+
+        dict_exec_markers = {"x_values" : self.ordered_exe_events["x_multi_line"],
+                            "y_values" : worker_y_marker,
+                            "name": self.ordered_exe_events["name"],
+                            "default_colours" : self.ordered_exe_events["default_colours"],
+                            "colours" : self.ordered_exe_events["colours"],
+                            "time_start" : self.ordered_exe_events["time_start"],
+                            "time_end" : self.ordered_exe_events["time_end"],
+                            "trace_event_type" : self.ordered_exe_events["trace_event_type"],
+                            "level" : self.ordered_exe_events["level"],
+                            "logical_time" : self.ordered_exe_events["logical_time"],
+                            "microstep" : self.ordered_exe_events["microstep"]}
+
+        source_workers = ColumnDataSource(data=dict_exec_markers)
+
+        workers = p_workers.multi_line(xs='x_values', ys='y_values', width=8, color="colours", hover_alpha=0.5,
+                                               source=source_workers, legend_label="Execution Events", muted_alpha=0.2)
+
+
+        # -------------------------------------------------------------------
+
         # PLOT OPTIONS
         location = "top_left"
 
         # Toggle to hide/show events
         click_policy = "mute"
+
+        # Remove the main reactor name from all strings
+        short_y_labels = {k: v.split(".", 1)[1] for k, v in self.number_labels.items()}
         
         # Rename Axes and format ticks
         ticker = [y for y in range(len(self.labels))]
-        major_label_overrides = self.number_labels
+        major_label_overrides = short_y_labels
         formatter = PrintfTickFormatter(format="%f")
 
+        # Worker axis rename and ticker formating
+        worker_ticker = [y for y in range(max(self.ordered_exe_events["worker"]) + 1)]
+        worker_major_label_overrides = {i : ("Worker " + str(i)) for i in range(max(self.ordered_exe_events["worker"]) + 1)}
+
         # Add axis labels
-        xaxis_label = "Time (ns)"
+        xaxis_label = "Time (ms)"
         xaxis_label_text_font_size = "24px"
         xaxis_label_text_color = "cadetblue"
         yaxis_label = "Reaction Name"
@@ -295,7 +357,7 @@ class visualiser:
         title_text = "Graph visualisation of a recorded LF trace. Use options (-a and -c) to show arrows and colours respectively. \n The tools on the right can be used to navigate the graph. Legend items can be clicked to mute series"
        
         # Add all properties to plots    
-        for plot in [p, p_colours, p_arrows, p_physical_time]:
+        for plot in [p_colours, p_arrows, p_physical_time, p_workers]:
             plot.legend.location = location
             plot.legend.click_policy = click_policy
             plot.yaxis.ticker = ticker
@@ -309,14 +371,18 @@ class visualiser:
             plot.yaxis.axis_label_text_color = yaxis_label_text_color
             plot.add_layout(Title(text=title_text, align="center"), "below")
 
+        # overwrite for p_workers
+        plot.yaxis.ticker = worker_ticker
+        plot.yaxis.major_label_overrides = worker_major_label_overrides
+
         # Define tooltips for Reactions and Execution Events
         tooltips_reactions = [
             ("name", "@name"),
             ("time_start", "@time_start"),
             ("priority", "@priority"),
             ("level", "@level"),
-            ("triggers", "@triggers"),
-            ("effects", "@effects"),
+            ("logical_time", "@logical_time"),
+            ("microstep", "@microstep")
         ]
 
         # Define tooltips for Reactions and Execution Events
@@ -324,8 +390,8 @@ class visualiser:
             ("name", "@name"),
             ("time_start", "@time_start"),
             ("trace_event_type", "@trace_event_type"),
-            ("triggers", "@triggers"),
-            ("effects", "@effects"),
+            ("logical_time", "@logical_time"),
+            ("microstep", "@microstep")
         ]
         
         tooltips_executions = [
@@ -335,71 +401,55 @@ class visualiser:
             ("trace_event_type", "@trace_event_type"),
             ("priority", "@priority"),
             ("level", "@level"),
-            ("triggers", "@triggers"),
-            ("effects", "@effects"),
             ("logical_time", "@logical_time"),
             ("microstep", "@microstep")
         ]
         
         # Hover tool only for instantaneous events 
-        hover_tool = HoverTool(tooltips=tooltips_reactions, renderers=[inst_reaction_hex])
         hover_tool_colours = HoverTool(tooltips=tooltips_reactions, renderers=[inst_reaction_hex_colours])
         hover_tool_arrows = HoverTool(tooltips=tooltips_reactions, renderers=[inst_reaction_hex_arrows])
         
         # Hover tool only for instantaneous events and execution event lines (so that markers for exe events dont also have a tooltip)
-        hover_tool_actions = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex])
         hover_tool_actions_colours = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_colours])
         hover_tool_actions_arrows = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_arrows])
         hover_tool_actions_physical_time = HoverTool(tooltips=tooltips_actions, renderers=[inst_action_hex_physical_time])
         
         # Hover tool only for execution events (so that markers for exe events dont also have a tooltip)
-        hover_tool_executions = HoverTool(tooltips=tooltips_executions, renderers=[exe_line])
         hover_tool_executions_colours = HoverTool(tooltips=tooltips_executions, renderers=[exe_line_colours])
         hover_tool_executions_arrows = HoverTool(tooltips=tooltips_executions, renderers=[exe_line_arrows])
         hover_tool_executions_physical_time = HoverTool(tooltips=tooltips_executions, renderers=[exe_line_physical_time])
 
+        # Hover tool for wokers
+        hover_tool_workers = HoverTool(tooltips=tooltips_executions, renderers=[workers])
+
         
         # Add the tools to the plot
-        p.add_tools(hover_tool, hover_tool_actions, hover_tool_executions)
         p_colours.add_tools(hover_tool_colours, hover_tool_actions_colours, hover_tool_executions_colours)
         p_arrows.add_tools(hover_tool_arrows, hover_tool_actions_arrows, hover_tool_executions_arrows)
         p_physical_time.add_tools(hover_tool_actions_physical_time, hover_tool_executions_physical_time)
+        p_workers.add_tools(hover_tool_workers)
         
         
-        # js radio buttons
-        multi_choice = MultiChoice(
-            value=self.labels, options=self.labels, sizing_mode="stretch_both")
         
-        # Tim hier!!! 
-        multi_choice.js_on_change("value", CustomJS(args=dict(sources=[source_inst_events_reactions, source_inst_events_actions, source_exec_events, source_exec_markers]), code="""
-            sources.forEach(source => {
-                console.log(source.data)
-            let active_values = this.value
-            let delete_us = []
-            source.data.name.forEach(function(name, i) {
-                if (!active_values.includes(name)) delete_us.push(i)
-            })
-            delete_us = delete_us.reverse()
-            delete_us.forEach(i => {
-                for (const [key, value] of Object.entries(source.data)) {
-                    source.data[key].splice(i, 1)
-                }
-            })
-            source.change.emit()
-            })
-        """))
-        
-        trace = Panel(child=p, title="trace") 
         coloured_trace = Panel(child=p_colours, title="coloured trace")
         dependencies = Panel(child=p_arrows, title="dependencies")
         physical_time = Panel(child=p_physical_time, title="physical time")
-        data_picker = Panel(child=multi_choice, title="data picker")
+        workers = Panel(child=p_workers, title="workers")
         
         if not self.diable_arrows:
-            show(Tabs(tabs=[trace, coloured_trace,
-                 dependencies, physical_time, data_picker]))
+            show(Tabs(tabs=[coloured_trace,
+                 dependencies, physical_time, workers]))
         else:
-            show(Tabs(tabs=[trace, coloured_trace, physical_time, data_picker]))
+            show(Tabs(tabs=[coloured_trace, physical_time, workers]))
+
+        
+        end_of_file_time = time.time()
+        print("\n End of file time: " + str(end_of_file_time - logic_lines_time)+ "\n")
+        print("\n End of file time total: " + str(end_of_file_time - start)+ "\n")   
+
+        # 2x exec events because of exec markers 
+        total_data_points = len(self.ordered_inst_events_reactions["name"]) + len(self.ordered_inst_events_actions["name"]) + (2 * len(self.ordered_exe_events["name"]))
+        print("Number of points: " + str(total_data_points))
 
 
 
@@ -436,14 +486,18 @@ class visualiser:
 
 
 
-
+    
               
     def draw_dependencies(self):
         
         event_dict = self.ordered_exe_events
         
+        total_dependencies = len(event_dict["logical_time"])
+        current_dependency = 1
         for pos in range(len(event_dict["logical_time"])):
             
+            print("dependencies done: " + str((current_dependency/total_dependencies)*100))
+
             event_logical_time = event_dict["logical_time"][pos]
             event_logical_microstep = event_dict["microstep"][pos]
             
@@ -480,10 +534,11 @@ class visualiser:
 
 
 if(__name__ == "__main__"):
+    start_time = time.time()
     # Include/Exclude Reactions
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("tracefile", type=str,
-                        help="Path to the .json trace file")
+    argparser.add_argument("ctf", metavar="CTF", type=str,
+                        help="Path to the CTF trace directory")
     argparser.add_argument("yamlfile", type=str,
                         help="Path to the .yaml file")
     argparser.add_argument("-i", "--include", type=str,
@@ -492,6 +547,25 @@ if(__name__ == "__main__"):
                         help="Regex to EXCLUDE certain reactors or reactions")
     args = argparser.parse_args()
     
-    vis = visualiser(args.tracefile, args.yamlfile)
+    if not os.path.isdir(args.ctf):
+        raise NotADirectoryError(args.ctf)
+
+    ctf_path = None
+    for root, dirs, files in os.walk(args.ctf):
+        for f in files:
+            if f == "metadata":
+                if ctf_path is None:
+                    ctf_path = str(root)
+                else:
+                    raise RuntimeError("%s is not a single trace (contains "
+                                       "more than one metadata file!" %
+                                       args.ctf)
+    if ctf_path is None:
+        raise RuntimeError("%s is not a CTF trace (does not contain a metadata"
+                           " file)" % args.ctf)
+    
+    vis = visualiser(ctf_path, args.yamlfile)
 
     vis.build_graph(args)
+
+    print("\n VISUALISER TOTAL TIME: " + str(time.time() - start_time) + "\n")
