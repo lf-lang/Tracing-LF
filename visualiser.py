@@ -322,7 +322,7 @@ class visualiser:
         source_workers_markers = ColumnDataSource(data=dict_workers_markers)
 
         workers_markers = p_workers.diamond(x='x_values', y='y_values', color="colours",
-                          size=7, source=source_workers_markers, legend_label="Execution Event Markers", muted_alpha=0)
+                          size=7, source=source_workers_markers, legend_label="Execution Event Markers", alpha=0, muted_alpha=0.5)
 
 
         # -------------------------------------------------------------------
