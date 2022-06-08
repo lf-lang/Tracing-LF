@@ -1,63 +1,61 @@
 #!/usr/bin/env python3
-from Parser.parse_files import parser
-
-from bokeh.palettes import Set1 as palette
+import os
+from scripts.read_ctf import parser
 import argparse
 import regex
+import os
+import sys
+import time
 import pandas as pd
 import holoviews as hv
+from holoviews import opts
 
 class holoviews_visualiser:
     
-    def __init__(self, json_filepath, yaml_filepath):
-
+    def __init__(self, ctf_filepath, yaml_filepath):
+        
+        start_time = time.time()
         self.data_parser = parser()
-        self.data_parser.parse(yaml_filepath, json_filepath)
-
+        self.data_parser.parse(ctf_filepath, yaml_filepath)
+        print("\nCTF READ TOTAL TIME: " + str(time.time() - start_time)+ "\n")
+        
         # All execution events
         self.ordered_exe_events = self.data_parser.get_ordered_exe_events()
-
+        
         # All instantaneous reactions
         self.ordered_inst_events_reactions = self.data_parser.get_ordered_inst_events_reactions()
-
+        
         # All instantaneous actions
         self.ordered_inst_events_actions = self.data_parser.get_ordered_inst_events_actions()
-
+        
         # Dictionaries which contain pairs for the numbers assigned to a reactor
         self.labels = self.data_parser.get_y_axis_labels()
 
+        # Dictionary that is the inverse of self.labels
+        self.number_labels = self.data_parser.get_number_label()
+        
         # Dictionary containing a port as a key, with the value containing the reactions triggered by the downstream port (of the current port)
         self.port_dict = self.data_parser.get_port_dict()
-
+        
         # Dictionary containing all dependencies between reactions
         self.dependency_dict = self.data_parser.get_dependency_dict()
-
+        
         # List containing all reaction names
         self.action_names = self.data_parser.get_action_names()
-
+        
         # List containing 4-tuples for arrow drawing
         self.arrow_pos = []
-
+        
         # Stores whether to show coloured graph
         self.diable_arrows = False
-
-        # Graph name
+        
+        # Graph name is the name of the main reactor
         self.graph_name = self.data_parser.get_main_reactor_name()
 
+    
+    
     def build_graph(self, args):
         """Builds the bokeh graph"""
-
-        # Include/Exclude Reactions
-        parser = argparse.ArgumentParser()
-        parser.add_argument("tracefile", type=str,
-                            help="Path to the .json trace file")
-        parser.add_argument("yamlfile", type=str,
-                            help="Path to the .yaml file")
-        parser.add_argument("-i", "--include", type=str,
-                            help="Regex to INCLUDE only certain reactors or reactions")
-        parser.add_argument("-x", "--exclude", type=str,
-                            help="Regex to EXCLUDE certain reactors or reactions")
-        args = parser.parse_args()
 
         # -------------------------------------------------------------------
         # Draw colours (if enabled)
@@ -160,10 +158,13 @@ class holoviews_visualiser:
         df_execution_markers = pd.DataFrame(dict_exec_markers)
         df_reactions = pd.DataFrame(self.ordered_inst_events_reactions)
         df_actions = pd.DataFrame(self.ordered_inst_events_actions)
-        
-        scatter = hv.Scatter(df_reactions, 'time_start', 'name')
-        hv.save(scatter, 'curve.html', backend='bokeh')
-        
+
+        options = [opts.Scatter( height=200, width=900, xaxis=None, line_width=1.50, color='grey', tools=['hover'])]
+
+
+        exe_markers = hv.Scatter(df_execution_markers, 'x_values', 'y_values')
+        hv.save(exe_markers, self.graph_name + "_holoviews.html", backend='bokeh')
+
 
         
         
@@ -218,18 +219,38 @@ class holoviews_visualiser:
 
 
 if(__name__ == "__main__"):
+    start_time = time.time()
     # Include/Exclude Reactions
     argparser = argparse.ArgumentParser()
-    argparser.add_argument("tracefile", type=str,
-                           help="Path to the .json trace file")
+    argparser.add_argument("ctf", metavar="CTF", type=str,
+                        help="Path to the CTF trace directory")
     argparser.add_argument("yamlfile", type=str,
-                           help="Path to the .yaml file")
+                        help="Path to the .yaml file")
     argparser.add_argument("-i", "--include", type=str,
-                           help="Regex to INCLUDE only certain reactors or reactions")
+                        help="Regex to INCLUDE only certain reactors or reactions")
     argparser.add_argument("-x", "--exclude", type=str,
-                           help="Regex to EXCLUDE certain reactors or reactions")
+                        help="Regex to EXCLUDE certain reactors or reactions")
     args = argparser.parse_args()
+    
+    if not os.path.isdir(args.ctf):
+        raise NotADirectoryError(args.ctf)
 
-    vis = holoviews_visualiser(args.tracefile, args.yamlfile)
+    ctf_path = None
+    for root, dirs, files in os.walk(args.ctf):
+        for f in files:
+            if f == "metadata":
+                if ctf_path is None:
+                    ctf_path = str(root)
+                else:
+                    raise RuntimeError("%s is not a single trace (contains "
+                                       "more than one metadata file!" %
+                                       args.ctf)
+    if ctf_path is None:
+        raise RuntimeError("%s is not a CTF trace (does not contain a metadata"
+                           " file)" % args.ctf)
+    
+    vis = holoviews_visualiser(ctf_path, args.yamlfile)
 
     vis.build_graph(args)
+
+    print("\n VISUALISER TOTAL TIME: " + str(time.time() - start_time) + "\n")
