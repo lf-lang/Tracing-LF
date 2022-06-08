@@ -1,6 +1,8 @@
 #!/usr/bin/env python3
 import os
 from scripts.read_ctf import parser
+
+from bokeh.palettes import Set1 as palette
 import argparse
 import regex
 import os
@@ -146,7 +148,12 @@ class holoviews_visualiser:
         # Execution event markers
         exe_x_marker = [((x1 + x2)/2)
                         for x1, x2 in self.ordered_exe_events["x_multi_line"]]
-        exe_y_marker = self.ordered_exe_events["y_axis"]
+
+        exe_y_marker = []
+        for x in self.ordered_exe_events["y_axis"]:
+            exe_y_marker.append(self.number_labels[x].split(".", 1)[1])
+    
+        
 
         dict_exec_markers = {"x_values": exe_x_marker,
                              "y_values": exe_y_marker,
@@ -159,10 +166,29 @@ class holoviews_visualiser:
         df_reactions = pd.DataFrame(self.ordered_inst_events_reactions)
         df_actions = pd.DataFrame(self.ordered_inst_events_actions)
 
-        options = [opts.Scatter( height=200, width=900, xaxis=None, line_width=1.50, color='grey', tools=['hover'])]
+        # -------------------------------------------------------------------
+        
+        # Remove the main reactor name from all strings
+        short_y_labels = {k: v.split(".", 1)[1] for k, v in self.number_labels.items()}
+        
+        # Rename Axes and format ticks
+        ticker = [y for y in range(len(self.labels))]
+        major_label_overrides = short_y_labels
+        # formatter = PrintfTickFormatter(format="%f")
 
 
-        exe_markers = hv.Scatter(df_execution_markers, 'x_values', 'y_values')
+        # plot.yaxis.ticker = ticker
+        # plot.yaxis.major_label_overrides = major_label_overrides
+        # plot.xaxis[0].formatter = formatter
+
+        # -------------------------------------------------------------------
+        # Holoviews stuff
+
+        hv.extension('bokeh')
+
+        exe_markers = hv.Scatter(df_execution_markers, kdims=['x_values', 'y_values'], vdims=["name", "colours", "default_colours"]).opts(
+            height=700, width=1300, color='colours', marker="diamond", tools=['hover'], size=7, xformatter="%f")
+        
         hv.save(exe_markers, self.graph_name + "_holoviews.html", backend='bokeh')
 
 
