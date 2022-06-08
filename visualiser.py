@@ -374,6 +374,7 @@ class visualiser:
         # overwrite for p_workers
         p_workers.yaxis.ticker = worker_ticker
         p_workers.yaxis.major_label_overrides = worker_major_label_overrides
+        p_workers.add_layout(Title(text="Visualisation from the worker view. Click the on 'Execution Event Markers' in the legend to show any small data points", align="center"), "below")
 
         p_physical_time.xgrid.visible = False
 
