@@ -290,7 +290,7 @@ class visualiser:
         for y_value in self.ordered_exe_events["worker"]:
             worker_y_marker.append([y_value, y_value])
 
-        dict_exec_markers = {"x_values" : self.ordered_exe_events["x_multi_line"],
+        dict_workers = {"x_values" : self.ordered_exe_events["x_multi_line"],
                             "y_values" : worker_y_marker,
                             "name": self.ordered_exe_events["name"],
                             "default_colours" : self.ordered_exe_events["default_colours"],
@@ -302,10 +302,27 @@ class visualiser:
                             "logical_time" : self.ordered_exe_events["logical_time"],
                             "microstep" : self.ordered_exe_events["microstep"]}
 
-        source_workers = ColumnDataSource(data=dict_exec_markers)
+        source_workers = ColumnDataSource(data=dict_workers)
 
         workers = p_workers.multi_line(xs='x_values', ys='y_values', width=8, color="colours", hover_alpha=0.5,
                                                source=source_workers, legend_label="Execution Events", muted_alpha=0.2)
+
+        
+
+        exe_x_marker = [((x1 + x2)/2)
+                        for x1, x2 in self.ordered_exe_events["x_multi_line"]]
+        exe_y_marker = self.ordered_exe_events["worker"]
+        
+        dict_workers_markers = {"x_values" : exe_x_marker,
+                            "y_values" : exe_y_marker,
+                             "name": self.ordered_exe_events["name"],
+                            "default_colours" : self.ordered_exe_events["default_colours"],
+                            "colours" : self.ordered_exe_events["colours"]}
+        
+        source_workers_markers = ColumnDataSource(data=dict_workers_markers)
+
+        workers_markers = p_workers.diamond(x='x_values', y='y_values', color="colours",
+                          size=7, source=source_workers_markers, legend_label="Execution Event Markers", muted_alpha=0)
 
 
         # -------------------------------------------------------------------
