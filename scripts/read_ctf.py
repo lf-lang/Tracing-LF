@@ -12,6 +12,7 @@ import bt2
 from collections import defaultdict
 import yaml
 import itertools
+import time
 
 
 pid_registry = {}
@@ -99,7 +100,6 @@ class parser:
                 self.start_time_logical = int(msg.event["timestamp_ns"])
                 break
         
-        
         # Get the labels of all reactions
         for msg in msg_it2:
             # `bt2._EventMessageConst` is the Python type of an event message.
@@ -119,9 +119,9 @@ class parser:
         # inverse of number_label dictionary. Gives the y-value (height) of the given reaction
         self.reactor_number = {v: k for k, v in self.number_label.items()}
 
-
         # Iterate the trace messages
         for msg in msg_it3:
+
             # `bt2._EventMessageConst` is the Python type of an event message.
             if type(msg) is bt2._EventMessageConst:
                 
