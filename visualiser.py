@@ -177,16 +177,16 @@ class visualiser:
         # -------------------------------------------------------------------
         # Draw arrows (if enabled) 
         
-        # if not self.diable_arrows:
+        if not self.diable_arrows:
             
-        #     # Discover all dependencie
-        #     self.draw_dependencies()
+            # Discover all dependencies
+            self.find_dependencies()
         
-        # # Draw
-        # for x_start, y_start, x_end, y_end in self.arrow_pos:
-        #     p_arrows.add_layout(Arrow(end=OpenHead(
-        #         line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
-        #         x_end=x_end, y_end=y_end))
+        # Draw
+        for x_start, y_start, x_end, y_end in self.arrow_pos:
+            p_arrows.add_layout(Arrow(end=OpenHead(
+                line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
+                x_end=x_end, y_end=y_end))
 
         dependencies_time = time.time()
         print("\n Dependencies time: " + str(dependencies_time - regex_time)+ "\n")
@@ -507,7 +507,7 @@ class visualiser:
 
     
               
-    def draw_dependencies(self):
+    def find_dependencies(self):
         
         event_dict = self.ordered_exe_events
         
