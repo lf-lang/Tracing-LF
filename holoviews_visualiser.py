@@ -11,6 +11,7 @@ import time
 import pandas as pd
 import holoviews as hv
 from holoviews import opts
+from bokeh.models import HoverTool
 
 class holoviews_visualiser:
     
@@ -156,10 +157,17 @@ class holoviews_visualiser:
         
 
         dict_exec_markers = {"x_values": exe_x_marker,
-                             "y_values": exe_y_marker,
-                             "name": self.ordered_exe_events["name"],
-                             "default_colours": self.ordered_exe_events["default_colours"],
-                             "colours": self.ordered_exe_events["colours"]}
+                            "y_values": exe_y_marker,
+                            "name": self.ordered_exe_events["name"],
+                            "default_colours": self.ordered_exe_events["default_colours"],
+                            "colours": self.ordered_exe_events["colours"],
+                            "time_start" : self.ordered_exe_events["time_start"],
+                            "time_end" : self.ordered_exe_events["time_end"],
+                            "priority" : self.ordered_exe_events["priority"],
+                            "level" : self.ordered_exe_events["level"],
+                            "logical_time" : self.ordered_exe_events["logical_time"],
+                            "microstep" : self.ordered_exe_events["microstep"]}
+                             
         
         df_execution_events = pd.DataFrame(self.ordered_exe_events)
         df_execution_markers = pd.DataFrame(dict_exec_markers)
@@ -167,27 +175,27 @@ class holoviews_visualiser:
         df_actions = pd.DataFrame(self.ordered_inst_events_actions)
 
         # -------------------------------------------------------------------
-        
-        # Remove the main reactor name from all strings
-        short_y_labels = {k: v.split(".", 1)[1] for k, v in self.number_labels.items()}
-        
-        # Rename Axes and format ticks
-        ticker = [y for y in range(len(self.labels))]
-        major_label_overrides = short_y_labels
-        # formatter = PrintfTickFormatter(format="%f")
+         # Hover tool configuration 
+        tooltips_executions = [
+            ("name", "@name"),
+            ("time_start", "@time_start{0,0.00}"),
+            ("time_end", "@time_end{0,0.00}"),
+            ("priority", "@priority"),
+            ("level", "@level"),
+            ("logical_time", "@logical_time"),
+            ("microstep", "@microstep")
+        ]
 
-
-        # plot.yaxis.ticker = ticker
-        # plot.yaxis.major_label_overrides = major_label_overrides
-        # plot.xaxis[0].formatter = formatter
+        hover = HoverTool(tooltips=tooltips_executions)
+        
 
         # -------------------------------------------------------------------
         # Holoviews stuff
 
         hv.extension('bokeh')
 
-        exe_markers = hv.Scatter(df_execution_markers, kdims=['x_values', 'y_values'], vdims=["name", "colours", "default_colours"]).opts(
-            height=700, width=1300, color='colours', marker="diamond", tools=['hover'], size=7, xformatter="%f")
+        exe_markers = hv.Scatter(df_execution_markers, kdims=['x_values', 'y_values'], vdims=["name", "colours", "time_start", "time_end", "priority", "level", "logical_time", "microstep"]).opts(
+            height=700, width=1300, color='colours', marker="diamond", tools=[hover], size=7, xformatter="%f")
         
         hv.save(exe_markers, self.graph_name + "_holoviews.html", backend='bokeh')
 
