@@ -332,7 +332,7 @@ class visualiser:
         
         dict_workers_markers = {"x_values" : exe_x_marker,
                             "y_values" : exe_y_marker,
-                             "name": self.ordered_exe_events["name"],
+                            "name": self.ordered_exe_events["name"],
                             "default_colours" : self.ordered_exe_events["default_colours"],
                             "colours" : self.ordered_exe_events["colours"]}
         
