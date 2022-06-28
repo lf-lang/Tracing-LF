@@ -29,6 +29,7 @@ $bnry_path
 echo "trace dir: "
 echo $trace_dir 
 
-python ../visualiser.py $trace_dir $bnry_name.yaml
+# pass all but the first argument to python
+python ../main.py $trace_dir $bnry_name.yaml "${@:2}"
 
 rm $bnry_name.yaml

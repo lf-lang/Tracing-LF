@@ -120,7 +120,7 @@ class holoviews_visualiser:
 
         # -------------------------------------------------------------------
 
-        # Include/Exclude Reactions from the plot, by removing reactions based on the users input regex. The data is removed from the dataset, then plotting occurs as normal.
+        # Include/Exclude Reactions
 
         # Too many args
         if args.include and args.exclude:
@@ -147,28 +147,35 @@ class holoviews_visualiser:
 
         # -------------------------------------------------------------------
         # Execution event markers
+        exe_x_marker = [((x1 + x2)/2)
+                        for x1, x2 in self.ordered_exe_events["x_multi_line"]]
 
-        # Assemble data 
-        dict_workers = {"x_start" : self.ordered_exe_events["time_start"],
-                        "y_start" : self.ordered_exe_events["worker"],
-                        "x_end" : self.ordered_exe_events["time_end"],
-                        "y_end" : self.ordered_exe_events["worker"],
-                        "name": self.ordered_exe_events["name"],
-                        "default_colours" : self.ordered_exe_events["default_colours"],
-                        "colours" : self.ordered_exe_events["colours"],
-                        "time_start" : self.ordered_exe_events["time_start"],
-                        "time_end" : self.ordered_exe_events["time_end"],
-                        "priority" : self.ordered_exe_events["priority"],
-                        "level" : self.ordered_exe_events["level"],
-                        "logical_time" : self.ordered_exe_events["logical_time"],
-                        "microstep" : self.ordered_exe_events["microstep"]}
+        exe_y_marker = []
+        for x in self.ordered_exe_events["y_axis"]:
+            exe_y_marker.append(self.number_labels[x].split(".", 1)[1])
+    
+        
 
-        # Convert to pandas dataframe
-        df_worker_markers = pd.DataFrame(dict_workers)
+        dict_exec_markers = {"x_values": exe_x_marker,
+                            "y_values": exe_y_marker,
+                            "name": self.ordered_exe_events["name"],
+                            "default_colours": self.ordered_exe_events["default_colours"],
+                            "colours": self.ordered_exe_events["colours"],
+                            "time_start" : self.ordered_exe_events["time_start"],
+                            "time_end" : self.ordered_exe_events["time_end"],
+                            "priority" : self.ordered_exe_events["priority"],
+                            "level" : self.ordered_exe_events["level"],
+                            "logical_time" : self.ordered_exe_events["logical_time"],
+                            "microstep" : self.ordered_exe_events["microstep"]}
+                             
         
-        
+        df_execution_events = pd.DataFrame(self.ordered_exe_events)
+        df_execution_markers = pd.DataFrame(dict_exec_markers)
+        df_reactions = pd.DataFrame(self.ordered_inst_events_reactions)
+        df_actions = pd.DataFrame(self.ordered_inst_events_actions)
+
         # -------------------------------------------------------------------
-        # Hover tool configuration 
+         # Hover tool configuration 
         tooltips_executions = [
             ("name", "@name"),
             ("time_start", "@time_start{0,0.00}"),
@@ -179,25 +186,18 @@ class holoviews_visualiser:
             ("microstep", "@microstep")
         ]
 
-        hover_tool_workers = HoverTool(tooltips=tooltips_executions)
-        # -------------------------------------------------------------------
+        hover = HoverTool(tooltips=tooltips_executions)
+        
 
+        # -------------------------------------------------------------------
         # Holoviews stuff
 
-        # load bokeh extension
         hv.extension('bokeh')
 
-        # Tick formatting 
-        worker_number_list = [y for y in range(max(self.ordered_exe_events["worker"]) + 1)]
-        yticks = [(x, "worker " + str(x)) for x in worker_number_list]  # of form: [(i, "worker i"), (i+1, "worker i+1"), ...] 
-
-
-        # Define the holoviews plot and options
-        seg = hv.Segments(df_worker_markers, [hv.Dimension('x_start', label='time (ms)'), hv.Dimension('y_start', label='Worker'), 'x_end', 'y_end'], vdims=["name", "colours", "time_start", "time_end", "priority", "level", "logical_time", "microstep"]).opts(
-                height=700, width=1300, color='colours', tools=[hover_tool_workers], line_width=8, xformatter="%f", yticks=yticks)
+        exe_markers = hv.Scatter(df_execution_markers, kdims=['x_values', 'y_values'], vdims=["name", "colours", "time_start", "time_end", "priority", "level", "logical_time", "microstep"]).opts(
+            height=700, width=1300, color='colours', marker="diamond", tools=[hover], size=7, xformatter="%f")
         
-        # save file 
-        hv.save(seg, self.graph_name + "_holoviews.html", backend='bokeh')
+        hv.save(exe_markers, self.graph_name + "_holoviews.html", backend='bokeh')
 
 
         
@@ -242,41 +242,3 @@ class holoviews_visualiser:
                     data_source[key].pop(index)
 
 
-
-
-if(__name__ == "__main__"):
-    start_time = time.time()
-    # Include/Exclude Reactions
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument("ctf", metavar="CTF", type=str,
-                        help="Path to the CTF trace directory")
-    argparser.add_argument("yamlfile", type=str,
-                        help="Path to the .yaml file")
-    argparser.add_argument("-i", "--include", type=str,
-                        help="Regex to INCLUDE only certain reactors or reactions")
-    argparser.add_argument("-x", "--exclude", type=str,
-                        help="Regex to EXCLUDE certain reactors or reactions")
-    args = argparser.parse_args()
-    
-    if not os.path.isdir(args.ctf):
-        raise NotADirectoryError(args.ctf)
-
-    ctf_path = None
-    for root, dirs, files in os.walk(args.ctf):
-        for f in files:
-            if f == "metadata":
-                if ctf_path is None:
-                    ctf_path = str(root)
-                else:
-                    raise RuntimeError("%s is not a single trace (contains "
-                                       "more than one metadata file!" %
-                                       args.ctf)
-    if ctf_path is None:
-        raise RuntimeError("%s is not a CTF trace (does not contain a metadata"
-                           " file)" % args.ctf)
-    
-    vis = holoviews_visualiser(ctf_path, args.yamlfile)
-
-    vis.build_graph(args)
-
-    print("\n VISUALISER TOTAL TIME: " + str(time.time() - start_time) + "\n")

@@ -18,12 +18,9 @@ import time
 
 class visualiser:
     
-    def __init__(self, ctf_filepath, yaml_filepath):
-        
-        start_time = time.time()
+    def __init__(self, ctf_filepath, yaml_filepath, plain_view, logic_lines_view):
         self.data_parser = parser()
         self.data_parser.parse(ctf_filepath, yaml_filepath)
-        print("\nCTF READ TOTAL TIME: " + str(time.time() - start_time)+ "\n")
         
         # All execution events
         self.ordered_exe_events = self.data_parser.get_ordered_exe_events()
@@ -57,11 +54,14 @@ class visualiser:
         
         # Graph name is the name of the main reactor
         self.graph_name = self.data_parser.get_main_reactor_name()
+
+        self.plain_view = plain_view 
+        self.logic_lines_view = logic_lines_view
         
         
     
     def build_graph(self, args):
-        """Builds the bokeh graph"""
+        """Builds the bokeh visualisation. First assembles the plots and all options,"""
         
         # Output to 
         output_file(self.graph_name + ".html")
@@ -82,38 +82,23 @@ class visualiser:
                           title=self.graph_name)
         
         # -------------------------------------------------------------------
-        # Draw colours (if enabled)
-        
-        # Colours chains of reactions originating from an action. (Assumes all chains begin with an action)
-        # Uses the colour_nodes function to recursively assign a colour to nodes which are triggered by an action
-        
-        print("\n VISUALISER \n")
-        start = time.time()
-
-    
+        # Set default colours
+            
         # default colours
-        default_reaction_colour = "gold"
-        default_action_colour = "cadetblue"
-        default_exection_event_colour = "burlywood"
+        default_colour = "lightgrey"
         
         # Set the default colours for all actions and reactions
-        self.ordered_inst_events_reactions["default_colours"] = [
-            default_reaction_colour for x in self.ordered_inst_events_reactions["name"]]
-        self.ordered_inst_events_actions["default_colours"] = [
-            default_action_colour for x in self.ordered_inst_events_actions["name"]]
-        self.ordered_exe_events["default_colours"] = [
-            default_exection_event_colour for x in self.ordered_exe_events["name"]]
+        for data_dict in [self.ordered_inst_events_reactions, self.ordered_inst_events_actions, self.ordered_exe_events]:
+            data_dict["default_colours"] = [default_colour for x in data_dict["name"]]
+            data_dict["colours"] = [default_colour for x in data_dict["name"]]
+
+        # -------------------------------------------------------------------
+        # Draw colours
         
-        # If colouring, set colour to grey
-        self.ordered_inst_events_reactions["colours"] = [
-            "lightgrey" for x in self.ordered_inst_events_reactions["name"]]
-        self.ordered_inst_events_actions["colours"] = [
-            "lightgrey" for x in self.ordered_inst_events_actions["name"]]
-        self.ordered_exe_events["colours"] = [
-            "lightgrey" for x in self.ordered_exe_events["name"]]
+        # Sets the colour of reactions based on their logical time. Each microstep is assigned a new colour from a palette of 9 colours. 
         
         
-        # Find all possible logical times and give these a colouring
+        # Find all possible logical times, by getting the logical time of all possible events (actions, reactions and physical executions).
         action_logic_times = set(zip(
             self.ordered_inst_events_actions["logical_time"], self.ordered_inst_events_actions["microstep"]))
         
@@ -123,6 +108,7 @@ class visualiser:
         execution_logic_times = set(zip(
             self.ordered_exe_events["logical_time"], self.ordered_exe_events["microstep"]))
         
+        # compile all tuples of logical times into one list
         action_logic_times.update(reaction_logic_times, execution_logic_times)
         
         # Sorted set of all logical times (time, microstep)
@@ -143,8 +129,8 @@ class visualiser:
                 logic_time_tuple = (dictonary["logical_time"][pos], dictonary["microstep"][pos])
                 dictonary["colours"][pos] = logical_colours_dict[logic_time_tuple]
 
-        colour_assignment_time = time.time()
-        print("\n Colours time: " + str(colour_assignment_time - start)+ "\n")
+
+
         # -------------------------------------------------------------------
         # Include/Exclude Reactions
         
@@ -170,15 +156,13 @@ class visualiser:
             self.diable_arrows = True
 
         self.remove_reactions()
-        regex_time = time.time()
-        print("\n Regex time: " + str(regex_time - colour_assignment_time)+ "\n")
-        print("\n Regex time total: " + str(regex_time - start)+ "\n")
+
 
         # -------------------------------------------------------------------
-        # Draw arrows (if enabled) 
+        # Draw dependency arrows 
         
+        # Disbale arrows if reactions are removed in above block.
         if not self.diable_arrows:
-            
             # Discover all dependencies
             self.find_dependencies()
         
@@ -188,45 +172,41 @@ class visualiser:
                 line_width=1, size=5), line_color="lightblue", x_start=x_start, y_start=y_start, line_width=0.7,
                 x_end=x_end, y_end=y_end))
 
-        dependencies_time = time.time()
-        print("\n Dependencies time: " + str(dependencies_time - regex_time)+ "\n")
-        print("\n Dependencies time total: " + str(dependencies_time - start)+ "\n")
 
         # -------------------------------------------------------------------
-        # Draw vertical lines for physical times
-
-        # Get the min and max y values, to accurately draw the line
-        min_y = list(self.number_labels.keys())[0]
-        max_y = list(self.number_labels.keys())[-1]
-
-        # list to track x values of lines
-        line_x_coords = []
-        
-        # Each new logical time (logical_time, microstep) is encoded with a new colour. 
-        if len(self.ordered_exe_events["name"]) > 0:
-            old_colour = self.ordered_exe_events["colours"][0]
-            for i in range(len(self.ordered_exe_events["name"])):
-                new_colour = self.ordered_exe_events["colours"][i]
-
-                # New logical time reached
-                if old_colour != new_colour:
-                    
-                    # Get the x value between the end of old logical time and the start of the new one
-                    x_value = (self.ordered_exe_events["time_start"][i] + self.ordered_exe_events["time_end"][i-1]) / 2
-                    line_x_coords.append(x_value)
-
-                    old_colour = new_colour
+        # Draw vertical lines for each logical time
 
 
-        line_y0_coords = [min_y for y in line_x_coords]
-        line_y1_coords = [max_y for y in line_x_coords]
 
-        p_physical_time.segment(x0=line_x_coords, y0=line_y0_coords, x1=line_x_coords,
-          y1=line_y1_coords, color="lightgrey", line_width=1)     
+        if self.logic_lines_view: 
+            # Get the min and max y values, to accurately draw the line
+            min_y = list(self.number_labels.keys())[0]
+            max_y = list(self.number_labels.keys())[-1]
 
-        logic_lines_time = time.time()
-        print("\n Logic lines time: " + str(logic_lines_time - dependencies_time)+ "\n")
-        print("\n Logic lines time total: " + str(logic_lines_time - start)+ "\n")   
+            # list to track x values of lines
+            line_x_coords = []
+            
+            # Each new logical time (logical_time, microstep) is encoded with a new colour. 
+            if len(self.ordered_exe_events["name"]) > 0:
+                old_colour = self.ordered_exe_events["colours"][0]
+                for i in range(len(self.ordered_exe_events["name"])):
+                    new_colour = self.ordered_exe_events["colours"][i]
+
+                    # New logical time reached
+                    if old_colour != new_colour:
+                        
+                        # Get the x value between the end of old logical time and the start of the new one
+                        x_value = (self.ordered_exe_events["time_start"][i] + self.ordered_exe_events["time_end"][i-1]) / 2
+                        line_x_coords.append(x_value)
+
+                        old_colour = new_colour
+
+
+            line_y0_coords = [min_y for y in line_x_coords]
+            line_y1_coords = [max_y for y in line_x_coords]
+
+            p_physical_time.segment(x0=line_x_coords, y0=line_y0_coords, x1=line_x_coords,
+                y1=line_y1_coords, color="lightgrey", line_width=1)     
 
         # -------------------------------------------------------------------
         # All execution events
@@ -456,19 +436,29 @@ class visualiser:
         workers = Panel(child=p_workers, title="workers")
         
         if not self.diable_arrows:
-            show(Tabs(tabs=[coloured_trace,
-                 dependencies, physical_time, workers]))
-        else:
-            show(Tabs(tabs=[coloured_trace, physical_time, workers]))
-
+            if self.plain_view and self.logic_lines_view:
+                show(Tabs(tabs=[coloured_trace, dependencies, physical_time, workers]))
+            elif self.logic_lines_view:
+                show(Tabs(tabs=[dependencies, physical_time, workers]))
+            elif self.plain_view:
+                show(Tabs(tabs=[coloured_trace, dependencies, workers]))
+            else:
+                show(Tabs(tabs=[dependencies, workers]))
         
-        end_of_file_time = time.time()
-        print("\n End of file time: " + str(end_of_file_time - logic_lines_time)+ "\n")
-        print("\n End of file time total: " + str(end_of_file_time - start)+ "\n")   
+        else:
+            if self.logic_lines_view:
+                show(Tabs(tabs=[coloured_trace, physical_time, workers]))
+            else:
+                show(Tabs(tabs=[coloured_trace, workers]))
 
         # 2x exec events because of exec markers 
         total_data_points = len(self.ordered_inst_events_reactions["name"]) + len(self.ordered_inst_events_actions["name"]) + (2 * len(self.ordered_exe_events["name"]))
         print("Number of points: " + str(total_data_points))
+
+
+
+
+
 
 
 
@@ -514,8 +504,6 @@ class visualiser:
         total_dependencies = len(event_dict["logical_time"])
         current_dependency = 1
         for pos in range(len(event_dict["logical_time"])):
-            
-            print("dependencies done: " + str((current_dependency/total_dependencies)*100))
 
             event_logical_time = event_dict["logical_time"][pos]
             event_logical_microstep = event_dict["microstep"][pos]
@@ -545,43 +533,4 @@ class visualiser:
                 inc_index += 1
                 
         
-        
-           
-
-
-if(__name__ == "__main__"):
-    start_time = time.time()
-    # Include/Exclude Reactions
-    argparser = argparse.ArgumentParser()
-    argparser.add_argument("ctf", metavar="CTF", type=str,
-                        help="Path to the CTF trace directory")
-    argparser.add_argument("yamlfile", type=str,
-                        help="Path to the .yaml file")
-    argparser.add_argument("-i", "--include", type=str,
-                        help="Regex to INCLUDE only certain reactors or reactions")
-    argparser.add_argument("-x", "--exclude", type=str,
-                        help="Regex to EXCLUDE certain reactors or reactions")
-    args = argparser.parse_args()
     
-    if not os.path.isdir(args.ctf):
-        raise NotADirectoryError(args.ctf)
-
-    ctf_path = None
-    for root, dirs, files in os.walk(args.ctf):
-        for f in files:
-            if f == "metadata":
-                if ctf_path is None:
-                    ctf_path = str(root)
-                else:
-                    raise RuntimeError("%s is not a single trace (contains "
-                                       "more than one metadata file!" %
-                                       args.ctf)
-    if ctf_path is None:
-        raise RuntimeError("%s is not a CTF trace (does not contain a metadata"
-                           " file)" % args.ctf)
-    
-    vis = visualiser(ctf_path, args.yamlfile)
-
-    vis.build_graph(args)
-
-    print("\n VISUALISER TOTAL TIME: " + str(time.time() - start_time) + "\n")
