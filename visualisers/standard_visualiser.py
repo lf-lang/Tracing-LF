@@ -130,7 +130,6 @@ class visualiser:
                 dictonary["colours"][pos] = logical_colours_dict[logic_time_tuple]
 
 
-
         # -------------------------------------------------------------------
         # Include/Exclude Reactions
         
@@ -174,34 +173,42 @@ class visualiser:
 
 
         # -------------------------------------------------------------------
-        # Draw vertical lines for each logical time
-
-
+        # Draw vertical lines for each logical time (if enabled)
 
         if self.logic_lines_view: 
-            # Get the min and max y values, to accurately draw the line
+            # Get the min and max y values of the plot
             min_y = list(self.number_labels.keys())[0]
             max_y = list(self.number_labels.keys())[-1]
 
             # list to track x values of lines
             line_x_coords = []
             
-            # Each new logical time (logical_time, microstep) is encoded with a new colour. 
-            if len(self.ordered_exe_events["name"]) > 0:
-                old_colour = self.ordered_exe_events["colours"][0]
-                for i in range(len(self.ordered_exe_events["name"])):
+        # Each new logical time (logical_time, microstep) is encoded with a new colour
+            if len(self.ordered_exe_events["colours"]) > 0: #If more than one event exists
+                
+                # Get the first colour
+                current_colour = self.ordered_exe_events["colours"][0]
+
+                # Iterate through all positions in the self.ordered_exe_events list
+                for i in range(len(self.ordered_exe_events["colours"])):
                     new_colour = self.ordered_exe_events["colours"][i]
 
-                    # New logical time reached
-                    if old_colour != new_colour:
+                    # New logical time reached when a colour change occurs (colours are computed earlier in the script)
+                    if current_colour != new_colour:
                         
-                        # Get the x value between the end of old logical time and the start of the new one
+                        # Get the x value between the end of old logical time and the start of the new one (so that the line falls in the middle, between
+                        # logical times)
                         x_value = (self.ordered_exe_events["time_start"][i] + self.ordered_exe_events["time_end"][i-1]) / 2
+
+                        # Append the x-value where the line is to be placed to the list
                         line_x_coords.append(x_value)
 
-                        old_colour = new_colour
+                        # Assign current_colour variable the newly reached colour
+                        current_colour = new_colour
 
 
+            # Segment plotting requires x0, y0, x1, y1 to plot a line. Below lists are as long as line_x_coords list, containing the same y value
+            # corresponding to the top and bottom of the plot
             line_y0_coords = [min_y for y in line_x_coords]
             line_y1_coords = [max_y for y in line_x_coords]
 
@@ -211,11 +218,13 @@ class visualiser:
         # -------------------------------------------------------------------
         # All execution events
 
+        # Plot the data with multiline, adding it to each available plot. 
+
         
         # data source
         source_exec_events = ColumnDataSource(self.ordered_exe_events)
         
-            
+        # Plotting with bokeh:
         # https://docs.bokeh.org/en/latest/docs/user_guide/plotting.html#line-glyphs
 
         exe_line_colours = p_colours.multi_line(xs='x_multi_line', ys='y_multi_line', width=8, color="colours", hover_alpha=0.5,
@@ -229,18 +238,27 @@ class visualiser:
         # -------------------------------------------------------------------      
         
         # Execution event markers 
+        # Markers denoting the middle of an execution event. The marker is small, such that it is invisible when the line is visible.
+        # Primary purpose is for showing the user where very short execution events are on the graph, which would not be 
+        # visible without large amounts of zoom
+
+        # Find the middle point of every execution. x_multi_line contains start and end time as tuple. Take the middle value of this
         exe_x_marker = [((x1 + x2)/2)
                         for x1, x2 in self.ordered_exe_events["x_multi_line"]]
+        
+        # Y-value of the marker
         exe_y_marker = self.ordered_exe_events["y_axis"]
         
+        # Assemble dict
         dict_exec_markers = {"x_values" : exe_x_marker,
                             "y_values" : exe_y_marker,
                             "name": self.ordered_exe_events["name"],
                             "default_colours" : self.ordered_exe_events["default_colours"],
                             "colours" : self.ordered_exe_events["colours"]}
-        
+        # Set datasource
         source_exec_markers = ColumnDataSource(data=dict_exec_markers)
 
+        # Add to plots
         p_colours.diamond(x='x_values', y='y_values', color="colours",
                           size=7, source=source_exec_markers, legend_label="Execution Event Markers", muted_alpha=0.2)
         
@@ -253,9 +271,13 @@ class visualiser:
 
         # -------------------------------------------------------------------
         
-        # All instantaneous events that are reactions
+        # All reactions
+        # The markers denoting the logical time execution of a reaction. 
+
+        # Add to data source
         source_inst_events_reactions = ColumnDataSource(self.ordered_inst_events_reactions)
         
+        # Add to plots
         inst_reaction_hex_colours = p_colours.hex(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                   size=10, source=source_inst_events_reactions, legend_label="Reactions", muted_alpha=0.2)
 
@@ -265,9 +287,13 @@ class visualiser:
 
         # -------------------------------------------------------------------
         
-        # All instantaneous events that are actions
+        # All actions
+        # The markers denoting the logical time execution of an action. 
+
+        # Add to data source
         source_inst_events_actions = ColumnDataSource(self.ordered_inst_events_actions)
 
+        # Add to plots
         inst_action_hex_colours = p_colours.inverted_triangle(x='time_start', y='y_axis', fill_color='colours', line_color="lightgrey",
                                               size=10, source=source_inst_events_actions, legend_label="Actions", muted_alpha=0.2)
         
@@ -281,12 +307,16 @@ class visualiser:
         
         # -------------------------------------------------------------------
 
-        # Worker view - Includes only exection events as these are the physical executions done by the workers
+        # Worker view 
+        # Includes only exection events as these are the physical executions done by the workers. Each y-axis value is a numbered worker. 
+        
         worker_y_marker = list()
         
+        # Build list of tuples of workers (y-axis integer), needed to plot multiline graph
         for y_value in self.ordered_exe_events["worker"]:
             worker_y_marker.append([y_value, y_value])
 
+        # Assemble dictionary
         dict_workers = {"x_values" : self.ordered_exe_events["x_multi_line"],
                             "y_values" : worker_y_marker,
                             "name": self.ordered_exe_events["name"],
@@ -301,11 +331,15 @@ class visualiser:
 
         source_workers = ColumnDataSource(data=dict_workers)
 
+        # Add to plot
         workers = p_workers.multi_line(xs='x_values', ys='y_values', width=8, color="colours", hover_alpha=0.5,
                                                source=source_workers, legend_label="Execution Events", muted_alpha=0.2)
 
-        
 
+        # -------------------------------------------------------------------
+        
+        # Identical to execution markers. Denote executions with a marker, to make small (short) executions visible on the graph
+        # Here markers are invisible until toggled in the legend. Abused by making the normal alpha = 0, muted alpha = 0.5
         exe_x_marker = [((x1 + x2)/2)
                         for x1, x2 in self.ordered_exe_events["x_multi_line"]]
         exe_y_marker = self.ordered_exe_events["worker"]
@@ -324,21 +358,28 @@ class visualiser:
 
         # -------------------------------------------------------------------
 
-        # PLOT OPTIONS
+        # ALL PLOT OPTIONS
+        # Here all plot options and customisations are done, such as changing axis titles, formatting tickers,
+        # configuring hover tools and setting which tabs to show
+
+
         location = "top_left"
 
         # Toggle to hide/show events
         click_policy = "mute"
 
-        # Remove the main reactor name from all strings
+        # Remove the main reactor name from all strings, to shorten them (Philosophers.Philosopher.Reaction_2 --> Philosopher.Reaction_2)
         short_y_labels = {k: v.split(".", 1)[1] for k, v in self.number_labels.items()}
-        
-        # Rename Axes and format ticks
-        ticker = [y for y in range(len(self.labels))]
-        major_label_overrides = short_y_labels
-        formatter = PrintfTickFormatter(format="%f")
 
-        # Worker axis rename and ticker formating
+        # Override y-axis labels to display the reaction name, not the y-value itself
+        major_label_overrides = short_y_labels
+        
+        # Format ticks and set positions of ticks on the y-axis, such that they correspond to each reaction
+        ticker = [y for y in range(len(self.labels))]
+        formatter = PrintfTickFormatter(format="%f")
+        
+
+        # Worker y-axis display labels and ticker formating
         worker_ticker = [y for y in range(max(self.ordered_exe_events["worker"]) + 1)]
         worker_major_label_overrides = {i : ("Worker " + str(i)) for i in range(max(self.ordered_exe_events["worker"]) + 1)}
 
@@ -368,11 +409,14 @@ class visualiser:
             plot.yaxis.axis_label_text_color = yaxis_label_text_color
             plot.add_layout(Title(text=title_text, align="center"), "below")
 
-        # overwrite for p_workers
+        # Override labels and ticker for p_workers
         p_workers.yaxis.ticker = worker_ticker
         p_workers.yaxis.major_label_overrides = worker_major_label_overrides
+        
+        # Override text
         p_workers.add_layout(Title(text="Visualisation from the worker view. Click the on 'Execution Event Markers' in the legend to show any small data points", align="center"), "below")
-
+        
+        # Deactivate x-grid lines for worker view
         p_physical_time.xgrid.visible = False
 
 
@@ -429,12 +473,13 @@ class visualiser:
         p_workers.add_tools(hover_tool_workers)
         
         
-        
+        # Define the tabs for each of the views
         coloured_trace = Panel(child=p_colours, title="coloured trace")
         dependencies = Panel(child=p_arrows, title="dependencies")
         physical_time = Panel(child=p_physical_time, title="physical time")
         workers = Panel(child=p_workers, title="workers")
         
+        # Logic for showing different views, based on flags set by users
         if not self.diable_arrows:
             if self.plain_view and self.logic_lines_view:
                 show(Tabs(tabs=[coloured_trace, dependencies, physical_time, workers]))
