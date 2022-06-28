@@ -42,4 +42,5 @@ Adds a view of only physical executions, with vertical lines denoting start and 
 ```-i``` / ```-e```
 
 (i - include, e - exclude)
+
 Used to filter reactions included in the visualisation. Pass some regex string as argument to filter
