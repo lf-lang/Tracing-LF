@@ -19,3 +19,28 @@ target Cpp {
 5. Change your current working directory to ```SchedulingLF/scripts/``` 
 6. Run ```record_trace.sh /path/to/lingua-franca/program/``` 
 7. Open the produced .html file
+
+
+
+## Options
+```-hv```
+
+Holoviews visualisation. Tailored to large programs, losing some features of regular visualisation
+
+```-hw```
+
+Holoviews visualisation from WORKER perspective
+
+```-p```
+
+Adds an additional plain view 
+
+```-l```
+
+Adds a view of only physical executions, with vertical lines denoting start and end of logical times
+
+```-i``` / ```-e```
+
+(i - include, e - exclude)
+
+Used to filter reactions included in the visualisation. Pass some regex string as argument to filter
