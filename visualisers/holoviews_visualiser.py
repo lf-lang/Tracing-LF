@@ -60,63 +60,55 @@ class holoviews_visualiser:
     def build_graph(self, args):
         """Builds the bokeh graph"""
 
-        # -------------------------------------------------------------------
-        # Draw colours (if enabled)
-
-        # Colours chains of reactions originating from an action. (Assumes all chains begin with an action)
-        # Uses the colour_nodes function to recursively assign a colour to nodes which are triggered by an action
-
+                # -------------------------------------------------------------------
+        # Set default colours
+            
         # default colours
-        default_reaction_colour = "gold"
-        default_action_colour = "cadetblue"
-        default_exection_event_colour = "burlywood"
-
+        default_colour = "lightgrey"
+        
         # Set the default colours for all actions and reactions
-        self.ordered_inst_events_reactions["default_colours"] = [
-            default_reaction_colour for x in self.ordered_inst_events_reactions["name"]]
-        self.ordered_inst_events_actions["default_colours"] = [
-            default_action_colour for x in self.ordered_inst_events_actions["name"]]
-        self.ordered_exe_events["default_colours"] = [
-            default_exection_event_colour for x in self.ordered_exe_events["name"]]
+        for data_dict in [self.ordered_inst_events_reactions, self.ordered_inst_events_actions, self.ordered_exe_events]:
+            data_dict["default_colours"] = [default_colour for x in data_dict["name"]]
+            data_dict["colours"] = [default_colour for x in data_dict["name"]]
 
-        # If colouring, set colour to grey
-        self.ordered_inst_events_reactions["colours"] = [
-            "lightgrey" for x in self.ordered_inst_events_reactions["name"]]
-        self.ordered_inst_events_actions["colours"] = [
-            "lightgrey" for x in self.ordered_inst_events_actions["name"]]
-        self.ordered_exe_events["colours"] = [
-            "lightgrey" for x in self.ordered_exe_events["name"]]
-
-        # Find all possible logical times and give these a colouring
+        # -------------------------------------------------------------------
+        # Draw colours
+        
+        # Sets the colour of reactions based on their logical time. Each microstep is assigned a new colour from a palette of 9 colours. 
+        
+        
+        # Find all possible logical times, by getting the logical time of all possible events (actions, reactions and physical executions).
         action_logic_times = set(zip(
             self.ordered_inst_events_actions["logical_time"], self.ordered_inst_events_actions["microstep"]))
-
+        
         reaction_logic_times = set(zip(
             self.ordered_inst_events_reactions["logical_time"], self.ordered_inst_events_reactions["microstep"]))
 
         execution_logic_times = set(zip(
             self.ordered_exe_events["logical_time"], self.ordered_exe_events["microstep"]))
-
+        
+        # compile all tuples of logical times into one list
         action_logic_times.update(reaction_logic_times, execution_logic_times)
-
+        
         # Sorted set of all logical times (time, microstep)
         all_logic_times = sorted(action_logic_times)
-
+        
         # Dictionary containing tuple as key, colour as value
         logical_colours_dict = {}
-
+        
         # Assign colours to logical times
         palette_pos = 0
         for logical_time in all_logic_times:
             logical_colours_dict[logical_time] = palette[9][palette_pos % 9]
             palette_pos += 1
-
+            
         # Assign colours to reactions
         for dictonary in [self.ordered_exe_events, self.ordered_inst_events_actions, self.ordered_inst_events_reactions]:
             for pos in range(len(dictonary["name"])):
-                logic_time_tuple = (
-                    dictonary["logical_time"][pos], dictonary["microstep"][pos])
+                logic_time_tuple = (dictonary["logical_time"][pos], dictonary["microstep"][pos])
                 dictonary["colours"][pos] = logical_colours_dict[logic_time_tuple]
+
+
 
         # -------------------------------------------------------------------
 
