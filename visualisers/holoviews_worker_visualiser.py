@@ -215,7 +215,7 @@ class holoviews_worker_visualiser:
 
         # Tick formatting 
         worker_number_list = [y for y in range(max(self.ordered_exe_events["worker"]) + 1)]
-        yticks = [(x, "worker " + str(x)) for x in worker_number_list]  # of form: [(i, "worker i"), (i+1, "worker i+1"), ...] 
+        yticks = [(y, "worker " + str(y)) for y in worker_number_list]  # of form: [(i, "worker i"), (i+1, "worker i+1"), ...] 
 
 
         # Define the holoviews plot and options

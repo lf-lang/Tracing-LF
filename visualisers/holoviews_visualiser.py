@@ -142,11 +142,8 @@ class holoviews_visualiser:
         exe_x_marker = [((x1 + x2)/2)
                         for x1, x2 in self.ordered_exe_events["x_multi_line"]]
 
-        exe_y_marker = []
-        for x in self.ordered_exe_events["y_axis"]:
-            exe_y_marker.append(self.number_labels[x].split(".", 1)[1])
+        exe_y_marker = self.ordered_exe_events["y_axis"]
     
-        
 
         dict_exec_markers = {"x_values": exe_x_marker,
                             "y_values": exe_y_marker,
@@ -161,10 +158,12 @@ class holoviews_visualiser:
                             "microstep" : self.ordered_exe_events["microstep"]}
                              
         
-        df_execution_events = pd.DataFrame(self.ordered_exe_events)
         df_execution_markers = pd.DataFrame(dict_exec_markers)
-        df_reactions = pd.DataFrame(self.ordered_inst_events_reactions)
-        df_actions = pd.DataFrame(self.ordered_inst_events_actions)
+        
+        
+        # df_execution_events = pd.DataFrame(self.ordered_exe_events)
+        # df_reactions = pd.DataFrame(self.ordered_inst_events_reactions)
+        # df_actions = pd.DataFrame(self.ordered_inst_events_actions)
 
         # -------------------------------------------------------------------
          # Hover tool configuration 
@@ -186,8 +185,14 @@ class holoviews_visualiser:
 
         hv.extension('bokeh')
 
-        exe_markers = hv.Scatter(df_execution_markers, kdims=['x_values', 'y_values'], vdims=["name", "colours", "time_start", "time_end", "priority", "level", "logical_time", "microstep"]).opts(
-            height=700, width=1300, color='colours', marker="diamond", tools=[hover], size=7, xformatter="%f")
+        # Tick formatting 
+        worker_number_list = [y for y in range(max(self.ordered_exe_events["worker"]) + 1)]
+        yticks = {k: v.split(".", 1)[1] for k, v in self.number_labels.items()}
+        
+
+        exe_markers = hv.Scatter(df_execution_markers, ['x_values', 'y_values'], ["name", "colours", "time_start", "time_end", "priority", "level", "logical_time", "microstep"]).opts(
+            height=700, width=1300, color='colours', marker="diamond", tools=[hover], size=7, xformatter="%f", yticks = yticks)
+
         
         hv.save(exe_markers, self.graph_name + "_holoviews.html", backend='bokeh')
 
