@@ -4,9 +4,8 @@ import argparse
 import os
 import sys
 import time
-from visualisers.standard_visualiser import visualiser as vis
-from visualisers.holoviews_visualiser import holoviews_visualiser as h_vis
-from visualisers.holoviews_worker_visualiser import holoviews_worker_visualiser as hw_vis
+import visualiser
+
 
 
 # Get the start time of the visualisation
@@ -33,6 +32,7 @@ argparser.add_argument("-hw", "--holoviews_worker", action='store_true',
                     help="Generates the WORKER TRACE view using Holoviews. Designed for large traces, losing some functionality of standard visualisation")
 args = argparser.parse_args()
 
+
 if not os.path.isdir(args.ctf):
     raise NotADirectoryError(args.ctf)
 
@@ -58,29 +58,35 @@ if ctf_path is None:
 
 # Include both logic lines and plain view
 if args.plain and args.logic:
-    visualiser = vis(ctf_path, args.yamlfile, True, True)
+    vis = visualiser.visualisers(ctf_path, args.yamlfile, args.include, args.exclude, True, True)
+    vis.bokeh_visualisation()
 
 # Include plain view
 elif args.plain:
-    visualiser = vis(ctf_path, args.yamlfile, True, False)
+    vis = visualiser.visualisers(ctf_path, args.yamlfile, args.include, args.exclude, True, False)
+    vis.bokeh_visualisation()
 
 # Include logic lines view 
 elif args.logic:
-    visualiser = vis(ctf_path, args.yamlfile, False, True)
+    vis = visualiser.visualisers(ctf_path, args.yamlfile, args.include, args.exclude, False, True)
+    vis.bokeh_visualisation()
 
 # Do visualisation with holoviews
 elif args.holoviews:
-    visualiser = h_vis(ctf_path, args.yamlfile)
+    vis = visualiser.visualisers(ctf_path, args.yamlfile, args.include, args.exclude, False, False)
+    vis.holoviews_visualisation()
 
 # Do visualisation with holoviews, showing the worker view
 elif args.holoviews_worker:
-    visualiser = hw_vis(ctf_path, args.yamlfile)
+    vis = visualiser.visualisers(ctf_path, args.yamlfile, args.include, args.exclude, False, False)
+    vis.holoviews_worker_visualisation()
 
 # Normal Visualisation
 else:
-    visualiser = vis(ctf_path, args.yamlfile, False, False)
+    vis = visualiser.visualisers(ctf_path, args.yamlfile, args.include, args.exclude, False, False)
+    vis.bokeh_visualisation()
 
 
-visualiser.build_graph(args)
+
 
 print("\n VISUALISER TOTAL TIME: " + str(time.time() - start_time) + "\n")
