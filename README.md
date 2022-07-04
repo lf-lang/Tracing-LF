@@ -8,7 +8,7 @@ Makes use of the Bokeh Library (https://docs.bokeh.org/en/latest/index.html) to 
 
 1. Steps 1-3 must be completed from the C++ tracing guide (https://github.com/lf-lang/lingua-franca/wiki/Tracing#TracingInCpp)
 2. ```lfc``` (lingua-franca compiler) must be on your PATH
-3. Make sure to install ```bokeh``` and ```regex``` for your python version 
+3. Make sure to install ```bokeh```, ```pandas```, ```holoviews``` and ```regex``` for your python version 
 4. Modify the target declaration of your Lingua Franca program to enable tracing and exporting of the yaml file:
 ```
 target Cpp {
