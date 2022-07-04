@@ -486,10 +486,8 @@ class visualisers:
         
         hv.extension('bokeh')
 
-        # Tick formatting 
-        yticks = {k: v.split(".", 1)[1] for k, v in self.number_labels.items()}
-
-        print(yticks)
+        # Tick formatting (remove main reactor name from all number labels)
+        yticks = [(k, v.split(".", 1)[1]) for k, v in self.number_labels.items()]
         
         exe_markers = hv.Scatter(df_execution_markers, ['x_values', 'y_values'], ["name", "colours", "time_start", "time_end", "priority", "level", "logical_time", "microstep"]).opts(
             height=700, width=1300, color='colours', marker="diamond", tools=[tooltips], size=7, xformatter="%f", yticks = yticks)
